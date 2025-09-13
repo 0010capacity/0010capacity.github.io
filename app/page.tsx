@@ -5,63 +5,74 @@ import GitHubCalendar from "react-github-calendar";
 
 export default function Home() {
   return (
-    <div className="font-sans min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-8 items-center">
-        <h1 className="text-4xl font-bold">내 개인 홈페이지에 오신 것을 환영합니다</h1>
-        <p className="text-lg text-center">
-          안녕하세요, 이정원입니다. 이곳은 제 개인 웹사이트로, 포트폴리오를 소개하고 앱들의 개인정보 처리방침을 제공합니다.
-        </p>
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <Link
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="/apps"
-          >
-            내 앱들 보기
-          </Link>
-          <Link
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="/privacy-policy"
-          >
-            개인정보 처리방침
-          </Link>
-        </div>
-        <section className="mt-12 w-full max-w-4xl">
-          <h2 className="text-3xl font-bold mb-6">프로필</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="text-xl font-semibold">이름</h3>
-              <p>이정원 (LEE JEONG WON)</p>
-            </div>
-            <div>
-              <h3 className="text-xl font-semibold">이메일</h3>
-              <p>0010capacity@gmail.com</p>
-            </div>
-            <div>
-              <h3 className="text-xl font-semibold">국가</h3>
-              <p>대한민국</p>
-            </div>
-            <div>
-              <h3 className="text-xl font-semibold">학력</h3>
-              <p>광운대학교 인공지능학부 졸업</p>
+    <div className="font-sans min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+      <main className="container mx-auto px-4 py-8 max-w-6xl">
+        {/* Header Section */}
+        <section className="text-center mb-12">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
+            <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-4">
+              이정원의 포트폴리오
+            </h1>
+            <p className="text-xl text-gray-600 dark:text-gray-300 mb-6">
+              안녕하세요! 저는 이정원입니다. 게임 개발과 AI를 좋아하는 개발자로, 여기서 제 작품과 프로젝트를 소개합니다.
+            </p>
+            <div className="flex gap-4 justify-center flex-col sm:flex-row">
+              <Link
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 shadow-md"
+                href="/apps"
+              >
+                제 앱들 보기
+              </Link>
+              <Link
+                className="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 shadow-md"
+                href="/privacy-policy"
+              >
+                개인정보 처리방침
+              </Link>
             </div>
           </div>
-          <div className="mt-6">
-            <h3 className="text-xl font-semibold">테크 스택</h3>
-            <ul className="list-disc list-inside">
-              <li>Unity2D</li>
-              <li>React</li>
-              <li>React Native</li>
-              <li>TypeScript</li>
-              <li>JavaScript</li>
-              <li>Python</li>
-              <li>PyTorch</li>
-              <li>Deep Learning (DL)</li>
-              <li>Reinforcement Learning (RL)</li>
-            </ul>
+        </section>
+
+        {/* Profile Section */}
+        <section className="mb-12">
+          <h2 className="text-4xl font-bold text-center text-gray-900 dark:text-white mb-8">프로필</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+              <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">이름</h3>
+              <p className="text-gray-600 dark:text-gray-300">이정원 (LEE JEONG WON)</p>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+              <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">이메일</h3>
+              <p className="text-gray-600 dark:text-gray-300">0010capacity@gmail.com</p>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+              <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">국가</h3>
+              <p className="text-gray-600 dark:text-gray-300">대한민국</p>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+              <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">학력</h3>
+              <p className="text-gray-600 dark:text-gray-300">광운대학교 인공지능학부 졸업</p>
+            </div>
           </div>
-          <div className="mt-6">
-            <h3 className="text-xl font-semibold">GitHub 잔디</h3>
-            <GitHubCalendar username="0010capacity" />
+
+          {/* Tech Stack */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8">
+            <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">테크 스택</h3>
+            <div className="flex flex-wrap gap-2">
+              {["Unity2D", "React", "React Native", "TypeScript", "JavaScript", "Python", "PyTorch", "Deep Learning (DL)", "Reinforcement Learning (RL)"].map((tech) => (
+                <span key={tech} className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-3 py-1 rounded-full text-sm font-medium">
+                  {tech}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* GitHub Calendar */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+            <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">GitHub 잔디</h3>
+            <div className="overflow-x-auto">
+              <GitHubCalendar username="0010capacity" />
+            </div>
           </div>
         </section>
       </main>
