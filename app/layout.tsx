@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "My Personal Homepage",
-  description: "Personal website showcasing portfolio and privacy policies for apps.",
+  title: "내 개인 홈페이지",
+  description: "포트폴리오 소개와 앱들의 개인정보 처리방침 제공.",
 };
 
 export default function RootLayout({
