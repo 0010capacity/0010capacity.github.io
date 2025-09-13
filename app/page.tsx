@@ -9,7 +9,7 @@ export default function Home() {
       <main className="flex flex-col gap-8 items-center">
         <h1 className="text-4xl font-bold">내 개인 홈페이지에 오신 것을 환영합니다</h1>
         <p className="text-lg text-center">
-          안녕하세요, [귀하의 이름]입니다. 이곳은 제 개인 웹사이트로, 포트폴리오를 소개하고 앱들의 개인정보 처리방침을 제공합니다.
+          안녕하세요, 이정원입니다. 이곳은 제 개인 웹사이트로, 포트폴리오를 소개하고 앱들의 개인정보 처리방침을 제공합니다.
         </p>
         <div className="flex gap-4 items-center flex-col sm:flex-row">
           <Link
