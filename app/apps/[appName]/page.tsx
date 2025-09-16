@@ -32,19 +32,48 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
   const { appName } = await params;
   const decodedAppName = decodeURIComponent(appName);
 
-  // Mock data - 실제로는 API나 파일 시스템에서 불러와야 함
-  const mockDeployments: Deployment[] = [
-    { type: 'website', url: 'https://example.com' },
-    { type: 'appstore', url: 'https://apps.apple.com/app/example' },
-    { type: 'googleplay', url: 'https://play.google.com/store/apps/details?id=com.example' }
-  ];
+  // 실제 앱 데이터 불러오기 시도
+  let appData = null;
+  let deployments: Deployment[] = [];
+  let githubRepo: string | null = null;
+
+  try {
+    // 정적 내보내기 모드에서는 fetch 대신 import를 사용할 수 없으므로
+    // 하드코딩된 데이터로 처리 (실제로는 빌드 시점에 데이터를 주입해야 함)
+    if (decodedAppName === 'Logit') {
+      appData = {
+        name: 'Logit',
+        description: '미니멀 하루 기록 앱',
+        deployments: [
+          {
+            type: 'website' as const,
+            url: 'http://localhost'
+          }
+        ],
+        githubRepo: null,
+        createdAt: '2025-09-16T14:48:02.375Z',
+        updatedAt: '2025-09-16T14:48:02.375Z'
+      };
+      deployments = appData.deployments;
+      githubRepo = appData.githubRepo;
+    }
+  } catch (error) {
+    console.error('Failed to load app data:', error);
+  }
+
+  // 실제 배포 정보가 없으면 기본 더미 데이터 사용
+  if (deployments.length === 0) {
+    deployments = [
+      { type: 'website', url: 'https://example.com' },
+      { type: 'appstore', url: 'https://apps.apple.com/app/example' },
+      { type: 'googleplay', url: 'https://play.google.com/store/apps/details?id=com.example' }
+    ];
+  }
 
   const privacyPolicies: PrivacyPolicy[] = [
     { language: 'ko', url: `/privacy-policies/${decodedAppName}/ko.md`, lastUpdated: '2024-01-15' },
     { language: 'en', url: `/privacy-policies/${decodedAppName}/en.md`, lastUpdated: '2024-01-10' },
   ];
-
-  const githubRepo = 'https://github.com/username/example-app'; // Mock GitHub repo
 
   const getDeploymentIcon = (type: string) => {
     switch (type) {
@@ -105,16 +134,23 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <h3 className="font-semibold text-gray-700 dark:text-gray-300">플랫폼</h3>
-              <p className="text-gray-600 dark:text-gray-400">웹</p>
+              <p className="text-gray-600 dark:text-gray-400">
+                {deployments.length > 0 ? 
+                  (deployments[0].type === 'website' ? '웹' : 
+                   deployments[0].type === 'appstore' ? 'iOS' :
+                   deployments[0].type === 'googleplay' ? 'Android' : '기타') : '알 수 없음'}
+              </p>
             </div>
             <div>
               <h3 className="font-semibold text-gray-700 dark:text-gray-300">마지막 업데이트</h3>
-              <p className="text-gray-600 dark:text-gray-400">2024-01-15</p>
+              <p className="text-gray-600 dark:text-gray-400">
+                {appData ? new Date(appData.updatedAt).toLocaleDateString('ko-KR') : '2024-01-15'}
+              </p>
             </div>
             <div className="md:col-span-2">
               <h3 className="font-semibold text-gray-700 dark:text-gray-300">설명</h3>
               <p className="text-gray-600 dark:text-gray-400">
-                이 앱은 사용자에게 훌륭한 경험을 제공합니다.
+                {appData ? appData.description : '이 앱은 사용자에게 훌륭한 경험을 제공합니다.'}
               </p>
             </div>
           </div>
@@ -123,9 +159,9 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
         {/* 배포 정보 섹션 */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8">
           <h2 className="text-2xl font-semibold mb-4">배포 정보</h2>
-          {mockDeployments.length > 0 ? (
+          {deployments.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {mockDeployments.map((deployment, index) => (
+              {deployments.map((deployment, index) => (
                 <a
                   key={index}
                   href={deployment.url}
