@@ -1,14 +1,60 @@
 "use client";
 
 import Link from "next/link";
+import { useState, useEffect } from "react";
 import GitHubCalendar from "react-github-calendar";
 import { Button, Card, Badge } from "../components";
-import profileData from "../data/profile.json";
+
+interface ProfileData {
+  name: string;
+  email: string;
+  country: string;
+  education: string;
+  bio: string;
+  techStack: string[];
+}
 
 export default function Home() {
-  // JSON 파일에서 직접 데이터 가져오기 (런타임 fetch 제거)
-  const profile = profileData;
-  
+  const [profile, setProfile] = useState<ProfileData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await fetch('/data/profile.json');
+        if (!response.ok) {
+          throw new Error('Failed to fetch profile data');
+        }
+        const data = await response.json();
+        setProfile(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+        console.error('Error fetching profile:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="font-sans min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="text-xl">Loading...</div>
+      </div>
+    );
+  }
+
+  if (error || !profile) {
+    return (
+      <div className="font-sans min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="text-xl text-red-400">Error loading profile: {error}</div>
+      </div>
+    );
+  }
+
   // 기술 스택 데이터 가져오기
   const techStack = profile.techStack;
   return (
