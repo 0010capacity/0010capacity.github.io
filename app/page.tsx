@@ -2,14 +2,85 @@
 
 import Link from "next/link";
 import GitHubCalendar from "react-github-calendar";
+import { useState, useEffect } from "react";
 import { Button, Card, Badge } from "../components";
 
+interface ProfileData {
+  name: string;
+  email: string;
+  country: string;
+  education: string;
+  bio: string;
+  techStack: string[];
+}
+
 export default function Home() {
-  // 하드코딩된 기술 스택 사용 (API 호출 제거)
-  const techStack = [
-    "TypeScript", "JavaScript", "Python", "React", "Next.js", 
-    "Unity", "PyTorch", "React Native", "Machine Learning", "Game Development"
-  ];
+  const [profile, setProfile] = useState<ProfileData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        // 실제 profile.json 데이터를 가져옴
+        const response = await fetch('/data/profile.json');
+        if (response.ok) {
+          const data = await response.json();
+          setProfile(data);
+        } else {
+          // fallback 데이터
+          setProfile({
+            name: "LEE JEONG WON",
+            email: "0010capacity@gmail.com",
+            country: "대한민국",
+            education: "광운대학교 인공지능학부 졸업",
+            bio: "게임 개발과 AI를 사랑하는 개발자입니다.",
+            techStack: ["TypeScript", "JavaScript", "Python", "React", "Next.js", "Unity", "PyTorch", "React Native", "Machine Learning", "Game Development"]
+          });
+        }
+      } catch (error) {
+        console.error('Failed to load profile:', error);
+        // fallback 데이터
+        setProfile({
+          name: "LEE JEONG WON",
+          email: "0010capacity@gmail.com",
+          country: "대한민국",
+          education: "광운대학교 인공지능학부 졸업",
+          bio: "게임 개발과 AI를 사랑하는 개발자입니다.",
+          techStack: ["TypeScript", "JavaScript", "Python", "React", "Next.js", "Unity", "PyTorch", "React Native", "Machine Learning", "Game Development"]
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProfile();
+  }, []);
+
+  // 로딩 중일 때
+  if (loading) {
+    return (
+      <div className="font-sans min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+          <p>프로필 정보를 불러오는 중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 프로필 데이터가 없을 때
+  if (!profile) {
+    return (
+      <div className="font-sans min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="text-center">
+          <p>프로필 정보를 불러올 수 없습니다.</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 하드코딩된 기술 스택 대신 실제 프로필 데이터 사용
+  const techStack = profile.techStack;
   return (
     <div className="font-sans min-h-screen bg-black text-white">
       <main className="container mx-auto px-4 py-8 max-w-6xl">
@@ -17,10 +88,10 @@ export default function Home() {
         <section className="text-center mb-12">
           <Card className="bg-gray-800 border-gray-700 shadow-2xl">
             <h1 className="text-6xl font-bold mb-4 text-white">
-              LEE JEONG WON
+              {profile.name}
             </h1>
             <p className="text-xl text-gray-300 mb-6 max-w-2xl mx-auto">
-              게임 개발과 AI를 사랑하는 개발자입니다.
+              {profile.bio}
             </p>
             
             {/* GitHub Link */}
@@ -66,19 +137,19 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <Card className="bg-gray-800 border-gray-700 hover:shadow-2xl transition-shadow duration-300">
               <h3 className="text-2xl font-semibold text-gray-400 mb-2">이름</h3>
-              <p className="text-gray-300">이정원 (LEE JEONG WON)</p>
+              <p className="text-gray-300">{profile.name}</p>
             </Card>
             <Card className="bg-gray-800 border-gray-700 hover:shadow-2xl transition-shadow duration-300">
               <h3 className="text-2xl font-semibold text-gray-400 mb-2">이메일</h3>
-              <p className="text-gray-300">0010capacity@gmail.com</p>
+              <p className="text-gray-300">{profile.email}</p>
             </Card>
             <Card className="bg-gray-800 border-gray-700 hover:shadow-2xl transition-shadow duration-300">
               <h3 className="text-2xl font-semibold text-gray-400 mb-2">국가</h3>
-              <p className="text-gray-300">대한민국</p>
+              <p className="text-gray-300">{profile.country}</p>
             </Card>
             <Card className="bg-gray-800 border-gray-700 hover:shadow-2xl transition-shadow duration-300">
               <h3 className="text-2xl font-semibold text-gray-400 mb-2">학력</h3>
-              <p className="text-gray-300">광운대학교 인공지능학부 졸업</p>
+              <p className="text-gray-300">{profile.education}</p>
             </Card>
             <Card className="bg-gray-800 border-gray-700 hover:shadow-2xl transition-shadow duration-300">
               <h3 className="text-2xl font-semibold text-gray-400 mb-2">GitHub</h3>
