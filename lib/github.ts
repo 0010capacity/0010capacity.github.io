@@ -1,3 +1,5 @@
+import { Octokit } from '@octokit/rest';
+
 interface GitHubRepo {
   name: string;
   language: string | null;
@@ -203,4 +205,64 @@ export const analyzeUserTechStack = async (username: string, token?: string): Pr
   const analyzer = new GitHubAnalyzer(username, token);
   const result = await analyzer.analyzeTechStack();
   return analyzer.getFormattedTechStack(result);
+};
+
+// PR 생성 함수 추가
+export const createPrivacyPolicyPR = async (
+  token: string,
+  appName: string,
+  language: string,
+  content: string
+): Promise<string> => {
+  const octokit = new Octokit({ auth: token });
+  const owner = '0010capacity'; // 레포지토리 소유자
+  const repo = '0010capacity.github.io'; // 레포지토리 이름
+  const branchName = `feature/privacy-policy-${appName}-${language}`;
+  const filePath = `privacy-policies/${appName}/${language}.md`;
+
+  try {
+    // 메인 브랜치의 최신 커밋 SHA 가져오기
+    const { data: refData } = await octokit.git.getRef({
+      owner,
+      repo,
+      ref: 'heads/main',
+    });
+    const sha = refData.object.sha;
+
+    // 새 브랜치 생성
+    await octokit.git.createRef({
+      owner,
+      repo,
+      ref: `refs/heads/${branchName}`,
+      sha,
+    });
+
+    // 파일 내용 base64 인코딩
+    const contentBase64 = btoa(unescape(encodeURIComponent(content)));
+
+    // 파일 생성 또는 업데이트
+    await octokit.repos.createOrUpdateFileContents({
+      owner,
+      repo,
+      path: filePath,
+      message: `Add privacy policy for ${appName} in ${language}`,
+      content: contentBase64,
+      branch: branchName,
+    });
+
+    // PR 생성
+    const { data: prData } = await octokit.pulls.create({
+      owner,
+      repo,
+      title: `Add privacy policy for ${appName} in ${language}`,
+      head: branchName,
+      base: 'main',
+      body: `This PR adds a privacy policy for the app "${appName}" in language "${language}".`,
+    });
+
+    return prData.html_url; // PR URL 반환
+  } catch (error) {
+    console.error('Error creating PR:', error);
+    throw new Error('Failed to create PR. Please check your token and try again.');
+  }
 };
