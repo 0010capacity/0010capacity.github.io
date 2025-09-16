@@ -64,8 +64,14 @@ export default function UploadAppPage() {
 
     // Validate deployments
     const validDeployments = deployments.filter(d => d.url.trim() !== '');
-    if (validDeployments.length === 0) {
-      setError('최소 하나의 배포 URL을 입력해주세요.');
+    // 배포 정보가 없어도 앱 등록 가능하도록 수정
+    if (appName.trim() === '') {
+      setError('앱 이름을 입력해주세요.');
+      setIsLoading(false);
+      return;
+    }
+    if (description.trim() === '') {
+      setError('앱 설명을 입력해주세요.');
       setIsLoading(false);
       return;
     }

@@ -236,7 +236,7 @@ export default function EditProfilePage() {
                 variant="success"
                 size="sm"
               >
-                {isDetecting ? '감지 중...' : '🔍 GitHub에서 자동 감지'}
+                {isDetecting ? '감지 중...' : 'GitHub에서 자동 감지'}
               </Button>
             }
           >
@@ -327,7 +327,7 @@ export default function EditProfilePage() {
 
             {!token && (
               <p className="text-sm text-orange-600 dark:text-orange-400 mt-2">
-                ⚠️ GitHub 토큰을 입력해야 자동 감지 기능을 사용할 수 있습니다.
+                GitHub 토큰을 입력해야 자동 감지 기능을 사용할 수 있습니다.
               </p>
             )}
           </Card>
