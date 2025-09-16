@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { createProfilePR } from '../../lib/github';
 import { GitHubAnalyzer } from '../../lib/github';
-import { Button, Card, Loading, ErrorMessage, Badge, Form, FormField, FormActions, Input, Textarea } from '../../components';
+import { Button, Card, ErrorMessage, Badge, Form, FormField, FormActions, Input, Textarea } from '../../components';
 
 export default function EditProfilePage() {
   const [token, setToken] = useState('');

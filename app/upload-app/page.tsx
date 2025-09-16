@@ -56,18 +56,6 @@ export default function UploadAppPage() {
     setDeployments(updated);
   };
 
-  const getDeploymentTypeLabel = (type: string) => {
-    switch (type) {
-      case 'website': return '웹사이트';
-      case 'appstore': return 'App Store';
-      case 'googleplay': return 'Google Play';
-      case 'steam': return 'Steam';
-      case 'download': return '다운로드';
-      case 'other': return '기타';
-      default: return type;
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
