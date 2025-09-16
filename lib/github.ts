@@ -29,7 +29,6 @@ interface Deployment {
 interface AppData {
   name: string;
   description: string;
-  platform: string;
   deployments: Deployment[];
   githubRepo?: string;
   createdAt: string;
@@ -311,7 +310,6 @@ export const createAppPR = async (
   token: string,
   appName: string,
   description: string,
-  platform: string,
   deployments: Deployment[],
   githubRepo?: string
 ): Promise<string> => {
@@ -319,7 +317,6 @@ export const createAppPR = async (
   const appData = JSON.stringify({
     name: appName,
     description,
-    platform,
     deployments,
     githubRepo,
     createdAt: new Date().toISOString(),
@@ -328,7 +325,7 @@ export const createAppPR = async (
   
   const commitMessage = `Add app: ${appName}`;
   const prTitle = `Add new app: ${appName}`;
-  const prBody = `This PR adds a new app "${appName}" for ${platform} platform.`;
+  const prBody = `This PR adds a new app "${appName}".`;
 
   return await createFilePR(token, filePath, appData, commitMessage, prTitle, prBody);
 };
@@ -337,7 +334,6 @@ export const updateAppPR = async (
   token: string,
   appName: string,
   description: string,
-  platform: string,
   deployments: Deployment[],
   githubRepo?: string
 ): Promise<string> => {
@@ -345,7 +341,6 @@ export const updateAppPR = async (
   const appData = JSON.stringify({
     name: appName,
     description,
-    platform,
     deployments,
     githubRepo,
     updatedAt: new Date().toISOString()

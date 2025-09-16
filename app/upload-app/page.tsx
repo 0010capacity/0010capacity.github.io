@@ -13,7 +13,6 @@ export default function UploadAppPage() {
   const [token, setToken] = useState('');
   const [appName, setAppName] = useState('');
   const [description, setDescription] = useState('');
-  const [platform, setPlatform] = useState('web');
   const [deployments, setDeployments] = useState<Deployment[]>([{ type: 'website', url: '' }]);
   const [githubRepo, setGithubRepo] = useState('');
   const [showGithubField, setShowGithubField] = useState(false);
@@ -88,7 +87,6 @@ export default function UploadAppPage() {
         token,
         appName,
         description,
-        platform,
         validDeployments,
         showGithubField ? githubRepo : undefined
       );
@@ -150,26 +148,6 @@ export default function UploadAppPage() {
             required
             placeholder="My Awesome App"
           />
-        </div>
-
-        {/* 플랫폼 */}
-        <div>
-          <label htmlFor="platform" className="block text-sm font-medium mb-1">
-            플랫폼
-          </label>
-          <select
-            id="platform"
-            value={platform}
-            onChange={(e) => setPlatform(e.target.value)}
-            className="w-full p-2 border rounded"
-          >
-            <option value="web">웹</option>
-            <option value="ios">iOS</option>
-            <option value="android">Android</option>
-            <option value="desktop">데스크톱</option>
-            <option value="mobile">모바일</option>
-            <option value="other">기타</option>
-          </select>
         </div>
 
         {/* 앱 설명 */}
