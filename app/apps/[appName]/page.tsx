@@ -23,13 +23,14 @@ export async function generateStaticParams() {
 }
 
 interface AppDetailPageProps {
-  params: {
+  params: Promise<{
     appName: string;
-  };
+  }>;
 }
 
-export default function AppDetailPage({ params }: AppDetailPageProps) {
-  const appName = decodeURIComponent(params.appName);
+export default async function AppDetailPage({ params }: AppDetailPageProps) {
+  const { appName } = await params;
+  const decodedAppName = decodeURIComponent(appName);
 
   // Mock data - 실제로는 API나 파일 시스템에서 불러와야 함
   const mockDeployments: Deployment[] = [
@@ -39,8 +40,8 @@ export default function AppDetailPage({ params }: AppDetailPageProps) {
   ];
 
   const privacyPolicies: PrivacyPolicy[] = [
-    { language: 'ko', url: `/privacy-policies/${appName}/ko.md`, lastUpdated: '2024-01-15' },
-    { language: 'en', url: `/privacy-policies/${appName}/en.md`, lastUpdated: '2024-01-10' },
+    { language: 'ko', url: `/privacy-policies/${decodedAppName}/ko.md`, lastUpdated: '2024-01-15' },
+    { language: 'en', url: `/privacy-policies/${decodedAppName}/en.md`, lastUpdated: '2024-01-10' },
   ];
 
   const githubRepo = 'https://github.com/username/example-app'; // Mock GitHub repo
@@ -84,13 +85,13 @@ export default function AppDetailPage({ params }: AppDetailPageProps) {
           </Link>
           <div className="flex justify-between items-start">
             <div>
-              <h1 className="text-4xl font-bold mb-4">{appName}</h1>
+              <h1 className="text-4xl font-bold mb-4">{decodedAppName}</h1>
               <p className="text-lg text-gray-600 mb-6">
                 앱에 대한 자세한 정보와 개인정보 처리방침을 확인하세요.
               </p>
             </div>
             <Link
-              href={`/edit-app?app=${encodeURIComponent(appName)}`}
+              href={`/edit-app?app=${encodeURIComponent(decodedAppName)}`}
               className="bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200"
             >
               ✏️ 앱 정보 수정
@@ -177,7 +178,7 @@ export default function AppDetailPage({ params }: AppDetailPageProps) {
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-semibold">개인정보 처리방침</h2>
             <Link
-              href={`/submit-pr?app=${encodeURIComponent(appName)}`}
+              href={`/submit-pr?app=${encodeURIComponent(decodedAppName)}`}
               className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200"
             >
               + 개인정보 처리방침 추가
@@ -209,7 +210,7 @@ export default function AppDetailPage({ params }: AppDetailPageProps) {
                         보기
                       </a>
                       <Link
-                        href={`/submit-pr?app=${encodeURIComponent(appName)}&lang=${policy.language}`}
+                        href={`/submit-pr?app=${encodeURIComponent(decodedAppName)}&lang=${policy.language}`}
                         className="bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200"
                       >
                         수정
@@ -225,7 +226,7 @@ export default function AppDetailPage({ params }: AppDetailPageProps) {
                 아직 등록된 개인정보 처리방침이 없습니다.
               </p>
               <Link
-                href={`/submit-pr?app=${encodeURIComponent(appName)}`}
+                href={`/submit-pr?app=${encodeURIComponent(decodedAppName)}`}
                 className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 inline-block"
               >
                 첫 번째 개인정보 처리방침 추가하기
