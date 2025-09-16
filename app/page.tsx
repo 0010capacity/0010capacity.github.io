@@ -2,84 +2,14 @@
 
 import Link from "next/link";
 import GitHubCalendar from "react-github-calendar";
-import { useState, useEffect } from "react";
 import { Button, Card, Badge } from "../components";
-
-interface ProfileData {
-  name: string;
-  email: string;
-  country: string;
-  education: string;
-  bio: string;
-  techStack: string[];
-}
+import profileData from "../data/profile.json";
 
 export default function Home() {
-  const [profile, setProfile] = useState<ProfileData | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const loadProfile = async () => {
-      try {
-        // 실제 profile.json 데이터를 가져옴
-        const response = await fetch('/data/profile.json');
-        if (response.ok) {
-          const data = await response.json();
-          setProfile(data);
-        } else {
-          // fallback 데이터
-          setProfile({
-            name: "LEE JEONG WON",
-            email: "0010capacity@gmail.com",
-            country: "대한민국",
-            education: "광운대학교 인공지능학부 졸업",
-            bio: "게임 개발과 AI를 사랑하는 개발자입니다.",
-            techStack: ["TypeScript", "JavaScript", "Python", "React", "Next.js", "Unity", "PyTorch", "React Native", "Machine Learning", "Game Development"]
-          });
-        }
-      } catch (error) {
-        console.error('Failed to load profile:', error);
-        // fallback 데이터
-        setProfile({
-          name: "LEE JEONG WON",
-          email: "0010capacity@gmail.com",
-          country: "대한민국",
-          education: "광운대학교 인공지능학부 졸업",
-          bio: "게임 개발과 AI를 사랑하는 개발자입니다.",
-          techStack: ["TypeScript", "JavaScript", "Python", "React", "Next.js", "Unity", "PyTorch", "React Native", "Machine Learning", "Game Development"]
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadProfile();
-  }, []);
-
-  // 로딩 중일 때
-  if (loading) {
-    return (
-      <div className="font-sans min-h-screen bg-black text-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-          <p>프로필 정보를 불러오는 중...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // 프로필 데이터가 없을 때
-  if (!profile) {
-    return (
-      <div className="font-sans min-h-screen bg-black text-white flex items-center justify-center">
-        <div className="text-center">
-          <p>프로필 정보를 불러올 수 없습니다.</p>
-        </div>
-      </div>
-    );
-  }
-
-  // 하드코딩된 기술 스택 대신 실제 프로필 데이터 사용
+  // JSON 파일에서 직접 데이터 가져오기 (런타임 fetch 제거)
+  const profile = profileData;
+  
+  // 기술 스택 데이터 가져오기
   const techStack = profile.techStack;
   return (
     <div className="font-sans min-h-screen bg-black text-white">
