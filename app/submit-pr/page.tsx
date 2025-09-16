@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { createPrivacyPolicyPR } from '../../lib/github';
 
 export default function SubmitPRPage() {
+  const searchParams = useSearchParams();
   const [token, setToken] = useState('');
   const [appName, setAppName] = useState('');
   const [language, setLanguage] = useState('ko');
@@ -21,6 +23,19 @@ export default function SubmitPRPage() {
       setRememberToken(true);
     }
   }, []);
+
+  // Load URL parameters
+  useEffect(() => {
+    const appParam = searchParams.get('app');
+    const langParam = searchParams.get('lang');
+
+    if (appParam) {
+      setAppName(decodeURIComponent(appParam));
+    }
+    if (langParam) {
+      setLanguage(langParam);
+    }
+  }, [searchParams]);
 
   // Save or remove token based on remember preference
   useEffect(() => {
