@@ -86,9 +86,6 @@ export default function Home() {
             </div>
             
             <div className="flex gap-4 justify-center flex-col sm:flex-row">
-              <Button as={Link} href="/edit-profile" variant="primary">
-                프로필 편집
-              </Button>
               <Button as={Link} href="/apps" variant="secondary">
                 앱 목록
               </Button>
@@ -132,11 +129,6 @@ export default function Home() {
           {/* Tech Stack */}
           <Card
             title="테크 스택"
-            actions={
-              <Button as={Link} href="/edit-profile" variant="primary" size="sm">
-                편집
-              </Button>
-            }
             className="mb-8"
           >
             <div className="flex flex-wrap gap-2">
