@@ -103,6 +103,10 @@ export default function Apps() {
     <div className="font-sans min-h-screen p-8 pb-20 gap-16 sm:p-20">
       <main className="flex flex-col gap-8 items-center">
         <Card className="text-center mb-8">
+          <div className="mb-4 flex justify-start">
+            <Button as={Link} href="/" variant="outline" icon={Home}>
+            </Button>
+          </div>
           <h1 className="text-4xl font-bold mb-4">내 앱들</h1>
           <p className="text-lg text-center mb-6">
             제가 개발한 iOS, Android, 웹 앱들을 소개합니다. 각 앱을 다운로드하거나 사용해 보세요.
@@ -146,10 +150,6 @@ export default function Apps() {
             </Button>
           </div>
         )}
-
-        <Button as={Link} href="/" variant="outline" icon={Home}>
-          홈으로 돌아가기
-        </Button>
       </main>
     </div>
   );

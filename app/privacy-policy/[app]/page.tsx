@@ -18,6 +18,10 @@ export default async function AppPrivacyPolicy({ params }: { params: Promise<{ a
   return (
     <div className="font-sans min-h-screen bg-black text-white">
       <main className="container mx-auto px-4 py-8 max-w-4xl">
+        <div className="mb-6">
+          <Button as={Link} href="/privacy-policy" variant="outline" className="mb-4" icon={ArrowLeft}>
+          </Button>
+        </div>
         <h1 className="text-4xl font-bold mb-8 text-center">{app} 개인정보 처리방침</h1>
 
         {policies.length > 0 ? (
@@ -64,12 +68,6 @@ export default async function AppPrivacyPolicy({ params }: { params: Promise<{ a
           </div>
         )}
 
-        <div className="mt-8 text-center">
-          <Button as={Link} href="/privacy-policy" variant="secondary" className="mr-4" icon={ArrowLeft}>
-          </Button>
-          <Button as={Link} href="/" variant="primary" icon={Home}>
-          </Button>
-        </div>
       </main>
     </div>
   );

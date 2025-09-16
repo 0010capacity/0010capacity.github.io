@@ -230,15 +230,6 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
             </div>
           )}
         </div>
-
-        <div className="text-center mt-8">
-          <Button
-            as={Link}
-            href="/apps"
-            variant="secondary"
-            icon={ArrowLeft}
-          ></Button>
-        </div>
       </main>
     </div>
   );

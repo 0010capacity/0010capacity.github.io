@@ -75,6 +75,10 @@ export default function TechStackAnalysis() {
       <main className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Header */}
         <Card className="mb-8">
+          <div className="mb-4">
+            <Button as={Link} href="/" variant="outline" icon={Home}>
+            </Button>
+          </div>
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
             GitHub 기술 스택 분석기
           </h1>
@@ -235,13 +239,6 @@ export default function TechStackAnalysis() {
             </Card>
           </div>
         )}
-
-        {/* Back Button */}
-        <div className="text-center mt-8">
-          <Button as={Link} href="/" variant="outline" className="flex items-center justify-center gap-2" icon={Home}>
-            홈으로 돌아가기
-          </Button>
-        </div>
       </main>
     </div>
   );

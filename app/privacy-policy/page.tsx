@@ -22,6 +22,10 @@ export default function PrivacyPolicy() {
   return (
     <div className="font-sans min-h-screen bg-black text-white">
       <main className="container mx-auto px-4 py-8 max-w-4xl">
+        <div className="mb-6">
+          <Button as={Link} href="/" variant="outline" className="mb-4" icon={Home}>
+          </Button>
+        </div>
         <h1 className="text-4xl font-bold mb-8 text-center">개인정보 처리방침</h1>
         <p className="text-lg text-gray-300 mb-8 text-center">
           아래에서 각 앱의 개인정보 처리방침을 확인하세요.
@@ -50,10 +54,6 @@ export default function PrivacyPolicy() {
               )}
             </Link>
           ))}
-        </div>
-        <div className="mt-8 text-center">
-          <Button as={Link} href="/" variant="secondary" icon={Home}>
-          </Button>
         </div>
       </main>
     </div>
