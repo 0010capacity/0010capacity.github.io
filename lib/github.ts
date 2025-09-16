@@ -339,7 +339,7 @@ export const createPrivacyPolicyPR = async (
   language: string,
   content: string
 ): Promise<string> => {
-  const filePath = `privacy-policies/${appName}/${language}.md`;
+  const filePath = `public/data/privacy-policies/${appName}/${language}.md`;
   const commitMessage = `Add privacy policy for ${appName} in ${language}`;
   const prTitle = `Add privacy policy for ${appName} in ${language}`;
   const prBody = `This PR adds a privacy policy for the app "${appName}" in language "${language}".`;
@@ -354,7 +354,7 @@ export const createAppPR = async (
   deployments: Deployment[],
   githubRepo?: string
 ): Promise<string> => {
-  const filePath = `apps/${appName}.json`;
+  const filePath = `public/data/apps/${appName}.json`;
   const appData = JSON.stringify({
     name: appName,
     description,
@@ -378,7 +378,7 @@ export const updateAppPR = async (
   deployments: Deployment[],
   githubRepo?: string
 ): Promise<string> => {
-  const filePath = `apps/${appName}.json`;
+  const filePath = `public/data/apps/${appName}.json`;
   const appData = JSON.stringify({
     name: appName,
     description,
@@ -405,7 +405,7 @@ export const createProfilePR = async (
     techStack?: string[];
   }
 ): Promise<string> => {
-  const filePath = `data/profile.json`;
+  const filePath = `public/data/profile.json`;
   const profileJson = JSON.stringify(profileData, null, 2);
   
   const commitMessage = `Update profile information`;
