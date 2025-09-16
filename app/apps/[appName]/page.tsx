@@ -1,11 +1,6 @@
 import Link from 'next/link';
 import { getAppNames, getAppData, type Deployment } from '../../data/apps';
-
-interface PrivacyPolicy {
-  language: string;
-  url: string;
-  lastUpdated: string;
-}
+import { getPrivacyPoliciesForApp } from '../../data/privacy-policies';
 
 export async function generateStaticParams() {
   // 실제 존재하는 앱들을 기반으로 정적 경로 생성
@@ -30,10 +25,8 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
   const deployments = appData?.deployments || [];
   const githubRepo = appData?.githubRepo || null;
 
-  const privacyPolicies: PrivacyPolicy[] = [
-    { language: 'ko', url: `/privacy-policies/${decodedAppName}/ko.md`, lastUpdated: '2024-01-15' },
-    { language: 'en', url: `/privacy-policies/${decodedAppName}/en.md`, lastUpdated: '2024-01-10' },
-  ];
+  // 실제 개인정보 처리방침 데이터 가져오기
+  const privacyPolicies = getPrivacyPoliciesForApp(decodedAppName);
 
   const getDeploymentLabel = (deployment: Deployment) => {
     if (deployment.type === 'other' && deployment.label) {
@@ -71,7 +64,7 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
               href={`/edit-app?app=${encodeURIComponent(decodedAppName)}`}
               className="bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200"
             >
-              ✏️ 앱 정보 수정
+              앱 정보 수정
             </Link>
           </div>
         </div>
@@ -171,7 +164,7 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
               href={`/submit-pr?app=${encodeURIComponent(decodedAppName)}`}
               className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200"
             >
-              + 개인정보 처리방침 추가
+              개인정보 처리방침 추가
             </Link>
           </div>
 
@@ -205,6 +198,17 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
                       >
                         수정
                       </Link>
+                      <button
+                        className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200"
+                        onClick={() => {
+                          if (confirm(`${policy.language === 'ko' ? '한국어' : 'English'} 개인정보 처리방침을 삭제하시겠습니까?`)) {
+                            // 실제로는 삭제 API 호출이나 상태 업데이트 로직이 들어가야 함
+                            alert('삭제 기능은 아직 구현되지 않았습니다.');
+                          }
+                        }}
+                      >
+                        삭제
+                      </button>
                     </div>
                   </div>
                 </div>
