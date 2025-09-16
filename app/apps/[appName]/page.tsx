@@ -198,17 +198,12 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
                       >
                         수정
                       </Link>
-                      <button
+                      <Link
+                        href={`/submit-pr?app=${encodeURIComponent(decodedAppName)}&lang=${policy.language}&action=delete`}
                         className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200"
-                        onClick={() => {
-                          if (confirm(`${policy.language === 'ko' ? '한국어' : 'English'} 개인정보 처리방침을 삭제하시겠습니까?`)) {
-                            // 실제로는 삭제 API 호출이나 상태 업데이트 로직이 들어가야 함
-                            alert('삭제 기능은 아직 구현되지 않았습니다.');
-                          }
-                        }}
                       >
                         삭제
-                      </button>
+                      </Link>
                     </div>
                   </div>
                 </div>
