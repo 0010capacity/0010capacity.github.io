@@ -60,6 +60,15 @@ export class GitHubAnalyzer {
       if (!response.ok) {
         const errorText = await response.text();
         console.error(`GitHub API error: ${response.status} ${response.statusText}`, errorText);
+        
+        if (response.status === 403) {
+          throw new Error(`GitHub API rate limit exceeded. Please provide a valid token or wait before retrying.`);
+        } else if (response.status === 401) {
+          throw new Error(`GitHub token is invalid or expired.`);
+        } else if (response.status === 404) {
+          throw new Error(`Repository or resource not found.`);
+        }
+        
         throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
       }
 
@@ -261,6 +270,23 @@ export const createFilePR = async (
       sha,
     });
 
+    // 파일이 존재하는지 확인하고 SHA 가져오기
+    let fileSha: string | undefined;
+    try {
+      const { data: fileData } = await octokit.repos.getContent({
+        owner,
+        repo,
+        path: filePath,
+        ref: 'main',
+      });
+      if (!Array.isArray(fileData) && 'sha' in fileData) {
+        fileSha = fileData.sha;
+      }
+    } catch (error) {
+      // 파일이 존재하지 않으면 fileSha는 undefined로 유지
+      console.log(`File ${filePath} does not exist, will create new file`);
+    }
+
     // 파일 내용 base64 인코딩
     const contentBase64 = btoa(unescape(encodeURIComponent(content)));
 
@@ -272,6 +298,7 @@ export const createFilePR = async (
       message: commitMessage,
       content: contentBase64,
       branch: branchName,
+      sha: fileSha, // 파일이 존재할 때만 SHA 제공
     });
 
     // PR 생성
@@ -287,6 +314,20 @@ export const createFilePR = async (
     return prData.html_url; // PR URL 반환
   } catch (error) {
     console.error('Error creating PR:', error);
+    
+    // 더 자세한 오류 메시지 제공
+    if (error instanceof Error) {
+      if (error.message.includes('403')) {
+        throw new Error('GitHub API 접근이 거부되었습니다. 토큰 권한을 확인해주세요. (repo 권한 필요)');
+      } else if (error.message.includes('422')) {
+        throw new Error('파일 업데이트 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      } else if (error.message.includes('404')) {
+        throw new Error('레포지토리를 찾을 수 없습니다. 레포지토리 권한을 확인해주세요.');
+      } else if (error.message.includes('401')) {
+        throw new Error('GitHub 토큰이 유효하지 않습니다. 토큰을 다시 확인해주세요.');
+      }
+    }
+    
     throw new Error('Failed to create PR. Please check your token and try again.');
   }
 };
