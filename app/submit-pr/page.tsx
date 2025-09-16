@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createPrivacyPolicyPR } from '../../lib/github';
 
 export default function SubmitPRPage() {
@@ -11,6 +11,25 @@ export default function SubmitPRPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [prUrl, setPrUrl] = useState('');
   const [error, setError] = useState('');
+  const [rememberToken, setRememberToken] = useState(false);
+
+  // Load saved token on component mount
+  useEffect(() => {
+    const savedToken = localStorage.getItem('github_token');
+    if (savedToken) {
+      setToken(savedToken);
+      setRememberToken(true);
+    }
+  }, []);
+
+  // Save or remove token based on remember preference
+  useEffect(() => {
+    if (rememberToken && token) {
+      localStorage.setItem('github_token', token);
+    } else if (!rememberToken) {
+      localStorage.removeItem('github_token');
+    }
+  }, [token, rememberToken]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,6 +65,18 @@ export default function SubmitPRPage() {
             required
             placeholder="ghp_..."
           />
+          <div className="flex items-center mt-2">
+            <input
+              type="checkbox"
+              id="rememberToken"
+              checked={rememberToken}
+              onChange={(e) => setRememberToken(e.target.checked)}
+              className="mr-2"
+            />
+            <label htmlFor="rememberToken" className="text-sm text-gray-600">
+              토큰 기억하기 (브라우저에 저장)
+            </label>
+          </div>
           <p className="text-sm text-gray-600 mt-1">
             repo 권한이 있는 토큰을 입력하세요.
           </p>
