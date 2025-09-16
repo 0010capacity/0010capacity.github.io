@@ -1,0 +1,12 @@
+{
+  "name": "Logit",
+  "description": "미니멀 하루 기록 앱",
+  "deployments": [
+    {
+      "type": "website",
+      "url": "http://localhost"
+    }
+  ],
+  "createdAt": "2025-09-16T14:48:02.375Z",
+  "updatedAt": "2025-09-16T14:48:02.375Z"
+}
