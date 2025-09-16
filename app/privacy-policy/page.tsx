@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { Home } from "lucide-react";
 import { getAllPrivacyPolicies } from "../data/privacy-policies";
 import { getAppNames } from "../data/apps";
+import { Button } from "../../components";
 
 export default function PrivacyPolicy() {
   const allPolicies = getAllPrivacyPolicies();
@@ -50,9 +52,8 @@ export default function PrivacyPolicy() {
           ))}
         </div>
         <div className="mt-8 text-center">
-          <Link href="/" className="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
-            홈으로 돌아가기
-          </Link>
+          <Button as={Link} href="/" variant="secondary" icon={Home}>
+          </Button>
         </div>
       </main>
     </div>

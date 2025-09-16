@@ -3,7 +3,9 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { Plus, Save, ArrowLeft, ExternalLink } from 'lucide-react';
 import { updateAppPR } from '../../lib/github';
+import { Button } from '../../components';
 
 interface Deployment {
   type: 'website' | 'appstore' | 'googleplay' | 'steam' | 'download' | 'other';
@@ -156,12 +158,13 @@ function EditAppForm() {
   return (
     <div className="max-w-2xl mx-auto p-6">
       <div className="mb-6">
-        <Link
+        <Button
+          as={Link}
           href={`/apps/${encodeURIComponent(appName)}`}
-          className="text-blue-500 hover:text-blue-700 mb-4 inline-block"
-        >
-          ← 앱 상세로 돌아가기
-        </Link>
+          variant="outline"
+          className="mb-4"
+          icon={ArrowLeft}
+        ></Button>
         <h1 className="text-2xl font-bold">앱 수정: {appName}</h1>
       </div>
 
@@ -233,13 +236,13 @@ function EditAppForm() {
         <div>
           <div className="flex justify-between items-center mb-3">
             <label className="block text-sm font-medium">배포 정보</label>
-            <button
+            <Button
               type="button"
               onClick={addDeployment}
-              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-            >
-              + 배포 추가
-            </button>
+              variant="outline"
+              size="sm"
+              icon={Plus}
+            ></Button>
           </div>
 
           <div className="space-y-3">
@@ -347,13 +350,14 @@ function EditAppForm() {
         </div>
 
         {/* 제출 버튼 */}
-        <button
+        <Button
           type="submit"
-          disabled={isLoading}
+          loading={isLoading}
           className="w-full bg-blue-500 text-white p-3 rounded hover:bg-blue-600 disabled:opacity-50 font-medium"
+          icon={Save}
         >
-          {isLoading ? '수정 중...' : '앱 정보 수정'}
-        </button>
+          {isLoading ? '수정 중...' : ''}
+        </Button>
       </form>
 
       {error && (
@@ -365,9 +369,15 @@ function EditAppForm() {
       {prUrl && (
         <div className="mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
           앱 정보가 성공적으로 수정되었습니다!{' '}
-          <a href={prUrl} target="_blank" rel="noopener noreferrer" className="underline">
-            PR 보기
-          </a>
+          <Button
+            as="a"
+            href={prUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            variant="outline"
+            size="sm"
+            icon={ExternalLink}
+          ></Button>
         </div>
       )}
     </div>

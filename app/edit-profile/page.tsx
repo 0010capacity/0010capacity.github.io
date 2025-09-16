@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Save, ExternalLink } from 'lucide-react';
 import { createProfilePR } from '../../lib/github';
 import { GitHubAnalyzer } from '../../lib/github';
 import { Button, Card, ErrorMessage, Badge, Form, FormField, FormActions, Input, Textarea } from '../../components';
@@ -333,8 +334,8 @@ export default function EditProfilePage() {
           </Card>
 
           <FormActions>
-            <Button type="submit" disabled={isLoading} className="w-full">
-              {isLoading ? '저장 중...' : '프로필 업데이트'}
+            <Button type="submit" disabled={isLoading} loading={isLoading} className="w-full" icon={Save}>
+              {isLoading ? '저장 중...' : ''}
             </Button>
           </FormActions>
         </Form>
@@ -348,9 +349,15 @@ export default function EditProfilePage() {
         <Card className="mt-4 bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
           <div className="text-green-800 dark:text-green-200">
             프로필이 성공적으로 업데이트되었습니다!{' '}
-            <a href={prUrl} target="_blank" rel="noopener noreferrer" className="underline hover:text-green-600">
-              PR 보기
-            </a>
+            <Button
+              as="a"
+              href={prUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              variant="outline"
+              size="sm"
+              icon={ExternalLink}
+            ></Button>
           </div>
         </Card>
       )}

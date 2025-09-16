@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { Home } from 'lucide-react';
 import { GitHubAnalyzer } from '../../lib/github';
 import { Button, Card, Loading, ErrorMessage, Badge, Form, FormField, Input } from '../../components';
 
@@ -237,7 +238,7 @@ export default function TechStackAnalysis() {
 
         {/* Back Button */}
         <div className="text-center mt-8">
-          <Button as={Link} href="/" variant="outline">
+          <Button as={Link} href="/" variant="outline" className="flex items-center justify-center gap-2" icon={Home}>
             홈으로 돌아가기
           </Button>
         </div>

@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import { ReactNode, ElementType } from 'react';
+import { LucideIcon } from 'lucide-react';
 
 interface ButtonProps {
-  children: ReactNode;
+  children?: ReactNode;
   onClick?: () => void;
   href?: string;
   as?: ElementType;
@@ -12,6 +13,9 @@ interface ButtonProps {
   loading?: boolean;
   className?: string;
   type?: 'button' | 'submit' | 'reset';
+  icon?: LucideIcon;
+  target?: string;
+  rel?: string;
 }
 
 const variantStyles = {
@@ -40,6 +44,7 @@ export default function Button({
   loading = false,
   className = '',
   type = 'button',
+  icon: Icon,
   ...props
 }: ButtonProps) {
   const baseStyles = 'font-semibold rounded-lg transition-colors duration-200 shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2';
@@ -62,6 +67,7 @@ export default function Button({
       disabled={disabled || loading}
     >
       {loading && <LoadingSpinner />}
+      {Icon && <Icon size={16} />}
       {children}
     </Component>
   );

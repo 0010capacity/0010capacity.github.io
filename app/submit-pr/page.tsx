@@ -2,7 +2,9 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { Send, ExternalLink } from 'lucide-react';
 import { createPrivacyPolicyPR } from '../../lib/github';
+import { Button } from '../../components';
 
 function SubmitPRForm() {
   const searchParams = useSearchParams();
@@ -143,13 +145,15 @@ function SubmitPRForm() {
           />
         </div>
 
-        <button
+        <Button
           type="submit"
           disabled={isLoading}
+          loading={isLoading}
           className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 disabled:opacity-50"
+          icon={Send}
         >
-          {isLoading ? 'PR 생성 중...' : 'PR 제출'}
-        </button>
+          {isLoading ? 'PR 생성 중...' : ''}
+        </Button>
       </form>
 
       {error && (
@@ -161,9 +165,15 @@ function SubmitPRForm() {
       {prUrl && (
         <div className="mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
           PR이 성공적으로 생성되었습니다!{' '}
-          <a href={prUrl} target="_blank" rel="noopener noreferrer" className="underline">
-            PR 보기
-          </a>
+          <Button
+            as="a"
+            href={prUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            variant="outline"
+            size="sm"
+            icon={ExternalLink}
+          ></Button>
         </div>
       )}
     </div>

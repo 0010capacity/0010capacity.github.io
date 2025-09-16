@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { Plus, ArrowLeft, Home, Eye } from "lucide-react";
 import { getAppNames } from "@/app/data/apps";
 import { getPrivacyPoliciesForApp } from "@/app/data/privacy-policies";
+import { Button } from "@/components";
 
 export async function generateStaticParams() {
   const appNames = getAppNames();
@@ -33,14 +35,15 @@ export default async function AppPrivacyPolicy({ params }: { params: Promise<{ a
                   </div>
                 </div>
                 <div className="mb-4">
-                  <a
+                  <Button
+                    as="a"
                     href={policy.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 inline-block"
-                  >
-                    개인정보 처리방침 보기
-                  </a>
+                    variant="primary"
+                    size="sm"
+                    icon={Eye}
+                  ></Button>
                 </div>
               </div>
             ))}
@@ -51,22 +54,21 @@ export default async function AppPrivacyPolicy({ params }: { params: Promise<{ a
             <p className="text-gray-300 mb-6">
               {app} 앱의 개인정보 처리방침이 아직 등록되지 않았습니다.
             </p>
-            <Link
+            <Button
+              as={Link}
               href={`/submit-pr?app=${app}`}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 inline-block"
-            >
-              개인정보 처리방침 추가하기
-            </Link>
+              variant="primary"
+              size="md"
+              icon={Plus}
+            ></Button>
           </div>
         )}
 
         <div className="mt-8 text-center">
-          <Link href="/privacy-policy" className="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 mr-4">
-            목록으로 돌아가기
-          </Link>
-          <Link href="/" className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
-            홈으로 돌아가기
-          </Link>
+          <Button as={Link} href="/privacy-policy" variant="secondary" className="mr-4" icon={ArrowLeft}>
+          </Button>
+          <Button as={Link} href="/" variant="primary" icon={Home}>
+          </Button>
         </div>
       </main>
     </div>

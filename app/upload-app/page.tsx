@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Plus, Upload, ExternalLink } from 'lucide-react';
 import { createAppPR } from '../../lib/github';
+import { Button } from '../../components';
 
 interface Deployment {
   type: 'website' | 'appstore' | 'googleplay' | 'steam' | 'download' | 'other';
@@ -163,13 +165,13 @@ export default function UploadAppPage() {
         <div>
           <div className="flex justify-between items-center mb-3">
             <label className="block text-sm font-medium">배포 정보</label>
-            <button
+            <Button
               type="button"
               onClick={addDeployment}
-              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-            >
-              + 배포 추가
-            </button>
+              variant="outline"
+              size="sm"
+              icon={Plus}
+            ></Button>
           </div>
 
           <div className="space-y-3">
@@ -277,13 +279,14 @@ export default function UploadAppPage() {
         </div>
 
         {/* 제출 버튼 */}
-        <button
+        <Button
           type="submit"
-          disabled={isLoading}
+          loading={isLoading}
           className="w-full bg-blue-500 text-white p-3 rounded hover:bg-blue-600 disabled:opacity-50 font-medium"
+          icon={Upload}
         >
-          {isLoading ? '업로드 중...' : '앱 업로드'}
-        </button>
+          {isLoading ? '업로드 중...' : ''}
+        </Button>
       </form>
 
       {error && (
@@ -295,9 +298,15 @@ export default function UploadAppPage() {
       {prUrl && (
         <div className="mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
           앱이 성공적으로 업로드되었습니다!{' '}
-          <a href={prUrl} target="_blank" rel="noopener noreferrer" className="underline">
-            PR 보기
-          </a>
+          <Button
+            as="a"
+            href={prUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            variant="outline"
+            size="sm"
+            icon={ExternalLink}
+          ></Button>
         </div>
       )}
     </div>

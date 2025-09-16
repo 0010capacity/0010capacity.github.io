@@ -1,6 +1,8 @@
 import Link from 'next/link';
+import { Plus, Edit, ArrowLeft, Eye } from 'lucide-react';
 import { getAppNames, getAppData, type Deployment } from '../../data/apps';
 import { getPrivacyPoliciesForApp } from '../../data/privacy-policies';
+import { Button } from '../../../components';
 
 export async function generateStaticParams() {
   // 실제 존재하는 앱들을 기반으로 정적 경로 생성
@@ -47,12 +49,13 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
     <div className="font-sans min-h-screen p-8 pb-20">
       <main className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <Link
+          <Button
+            as={Link}
             href="/apps"
-            className="text-blue-500 hover:text-blue-700 mb-4 inline-block"
-          >
-            ← 앱 목록으로 돌아가기
-          </Link>
+            variant="outline"
+            className="mb-4"
+            icon={ArrowLeft}
+          ></Button>
           <div className="flex justify-between items-start">
             <div>
               <h1 className="text-4xl font-bold mb-4">{decodedAppName}</h1>
@@ -160,12 +163,13 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-semibold">개인정보 처리방침</h2>
-            <Link
+            <Button
+              as={Link}
               href={`/submit-pr?app=${encodeURIComponent(decodedAppName)}`}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200"
-            >
-              개인정보 처리방침 추가
-            </Link>
+              variant="primary"
+              size="sm"
+              icon={Plus}
+            ></Button>
           </div>
 
           {privacyPolicies.length > 0 ? (
@@ -184,20 +188,22 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
                       </p>
                     </div>
                     <div className="flex gap-2">
-                      <a
+                      <Button
+                        as="a"
                         href={policy.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200"
-                      >
-                        보기
-                      </a>
-                      <Link
+                        variant="success"
+                        size="sm"
+                        icon={Eye}
+                      ></Button>
+                      <Button
+                        as={Link}
                         href={`/submit-pr?app=${encodeURIComponent(decodedAppName)}&lang=${policy.language}`}
-                        className="bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200"
-                      >
-                        수정
-                      </Link>
+                        variant="warning"
+                        size="sm"
+                        icon={Edit}
+                      ></Button>
                       <Link
                         href={`/submit-pr?app=${encodeURIComponent(decodedAppName)}&lang=${policy.language}&action=delete`}
                         className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200"
@@ -225,12 +231,12 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
         </div>
 
         <div className="text-center mt-8">
-          <Link
+          <Button
+            as={Link}
             href="/apps"
-            className="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
-          >
-            앱 목록으로 돌아가기
-          </Link>
+            variant="secondary"
+            icon={ArrowLeft}
+          ></Button>
         </div>
       </main>
     </div>

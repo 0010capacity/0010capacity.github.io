@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { Plus, Upload, Home, Eye } from "lucide-react";
 import { Button, Card, Badge } from "../../components";
 
 interface AppData {
@@ -106,8 +107,8 @@ export default function Apps() {
           <p className="text-lg text-center mb-6">
             제가 개발한 iOS, Android, 웹 앱들을 소개합니다. 각 앱을 다운로드하거나 사용해 보세요.
           </p>
-          <Button as={Link} href="/upload-app" variant="primary">
-            + 새 앱 업로드
+          <Button as={Link} href="/upload-app" variant="primary" icon={Upload}>
+            새 앱 업로드
           </Button>
         </Card>
 
@@ -131,7 +132,7 @@ export default function Apps() {
                       {app.deployments[0].type === 'website' ? '웹사이트' : '다운로드'}
                     </a>
                   )}
-                  <Button as={Link} href={`/apps/${app.name}`} variant="success" size="sm">
+                  <Button as={Link} href={`/apps/${app.name}`} variant="success" size="sm" icon={Eye}>
                     자세히 보기
                   </Button>
                 </div>
@@ -147,7 +148,7 @@ export default function Apps() {
           </div>
         )}
 
-        <Button as={Link} href="/" variant="outline">
+        <Button as={Link} href="/" variant="outline" icon={Home}>
           홈으로 돌아가기
         </Button>
       </main>

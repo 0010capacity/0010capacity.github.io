@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import GitHubCalendar from "react-github-calendar";
+import { Edit } from "lucide-react";
 import { Button, Card, Badge } from "../components";
 
 interface ProfileData {
@@ -103,8 +104,7 @@ export default function Home() {
         <section className="mb-12">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-4xl font-bold text-white">프로필</h2>
-            <Button as={Link} href="/edit-profile" variant="primary" size="sm">
-              편집
+            <Button as={Link} href="/edit-profile" variant="primary" size="sm" icon={Edit}>
             </Button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
