@@ -108,7 +108,6 @@ export default function Apps() {
             제가 개발한 iOS, Android, 웹 앱들을 소개합니다. 각 앱을 다운로드하거나 사용해 보세요.
           </p>
           <Button as={Link} href="/upload-app" variant="primary" icon={Upload}>
-            새 앱 업로드
           </Button>
         </Card>
 

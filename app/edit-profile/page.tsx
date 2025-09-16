@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Save, ExternalLink, X } from 'lucide-react';
+import { Save, ExternalLink, X, Plus } from 'lucide-react';
 import { createProfilePR } from '../../lib/github';
 import { GitHubAnalyzer } from '../../lib/github';
 import { Button, Card, ErrorMessage, Badge, Form, FormField, FormActions, Input, Textarea } from '../../components';
@@ -279,8 +279,8 @@ export default function EditProfilePage() {
                 disabled={!newTech.trim()}
                 variant="secondary"
                 size="sm"
+                icon={Plus}
               >
-                추가
               </Button>
             </div>
 
@@ -295,16 +295,16 @@ export default function EditProfilePage() {
                       onClick={addAllDetectedTech}
                       variant="success"
                       size="sm"
+                      icon={Plus}
                     >
-                      전체 추가
                     </Button>
                     <Button
                       type="button"
                       onClick={() => setShowTechStackEditor(false)}
                       variant="secondary"
                       size="sm"
+                      icon={X}
                     >
-                      닫기
                     </Button>
                   </div>
                 </div>
