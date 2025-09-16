@@ -145,15 +145,25 @@ function SubmitPRForm() {
           />
         </div>
 
-        <Button
-          type="submit"
-          disabled={isLoading}
-          loading={isLoading}
-          className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 disabled:opacity-50"
-          icon={Send}
-        >
-          {isLoading ? 'PR 생성 중...' : ''}
-        </Button>
+        <div className="flex gap-4">
+          <Button
+            type="button"
+            onClick={() => window.history.back()}
+            variant="secondary"
+            className="flex-1"
+          >
+            취소
+          </Button>
+          <Button
+            type="submit"
+            disabled={isLoading}
+            loading={isLoading}
+            className="flex-1 bg-blue-500 text-white p-2 rounded hover:bg-blue-600 disabled:opacity-50"
+            icon={Send}
+          >
+            {isLoading ? 'PR 생성 중...' : ''}
+          </Button>
+        </div>
       </form>
 
       {error && (

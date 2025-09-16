@@ -334,9 +334,19 @@ export default function EditProfilePage() {
           </Card>
 
           <FormActions>
-            <Button type="submit" disabled={isLoading} loading={isLoading} className="w-full" icon={Save}>
-              {isLoading ? '저장 중...' : ''}
-            </Button>
+            <div className="flex gap-4 w-full">
+              <Button
+                type="button"
+                onClick={() => window.history.back()}
+                variant="secondary"
+                className="flex-1"
+              >
+                취소
+              </Button>
+              <Button type="submit" disabled={isLoading} loading={isLoading} className="flex-1" icon={Save}>
+                {isLoading ? '저장 중...' : ''}
+              </Button>
+            </div>
           </FormActions>
         </Form>
       )}

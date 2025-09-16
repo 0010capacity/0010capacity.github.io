@@ -350,14 +350,24 @@ function EditAppForm() {
         </div>
 
         {/* 제출 버튼 */}
-        <Button
-          type="submit"
-          loading={isLoading}
-          className="w-full bg-blue-500 text-white p-3 rounded hover:bg-blue-600 disabled:opacity-50 font-medium"
-          icon={Save}
-        >
-          {isLoading ? '수정 중...' : ''}
-        </Button>
+        <div className="flex gap-4">
+          <Button
+            type="button"
+            onClick={() => window.history.back()}
+            variant="secondary"
+            className="flex-1"
+          >
+            취소
+          </Button>
+          <Button
+            type="submit"
+            loading={isLoading}
+            className="flex-1 bg-blue-500 text-white p-3 rounded hover:bg-blue-600 disabled:opacity-50 font-medium"
+            icon={Save}
+          >
+            {isLoading ? '수정 중...' : ''}
+          </Button>
+        </div>
       </form>
 
       {error && (
