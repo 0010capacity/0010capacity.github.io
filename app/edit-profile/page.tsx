@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { createProfilePR } from '../../lib/github';
 import { GitHubAnalyzer } from '../../lib/github';
+import { Button, Card, Loading, ErrorMessage, Badge, Form, FormField, FormActions, Input, Textarea } from '../../components';
 
 export default function EditProfilePage() {
   const [token, setToken] = useState('');
@@ -122,18 +123,12 @@ export default function EditProfilePage() {
     <div className="max-w-2xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-6">프로필 편집</h1>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="token" className="block text-sm font-medium mb-1">
-            GitHub Personal Access Token
-          </label>
-          <input
+      <Form onSubmit={handleSubmit}>
+        <FormField label="GitHub Personal Access Token" required>
+          <Input
             type="password"
-            id="token"
             value={token}
             onChange={(e) => setToken(e.target.value)}
-            className="w-full p-2 border rounded"
-            required
             placeholder="ghp_..."
           />
           <div className="flex items-center mt-2">
@@ -151,106 +146,79 @@ export default function EditProfilePage() {
           <p className="text-sm text-gray-600 mt-1">
             repo 권한이 있는 토큰을 입력하세요.
           </p>
-        </div>
+        </FormField>
 
-        <div>
-          <label htmlFor="name" className="block text-sm font-medium mb-1">
-            이름
-          </label>
-          <input
+        <FormField label="이름" required>
+          <Input
             type="text"
-            id="name"
             value={profileData.name}
             onChange={(e) => handleInputChange('name', e.target.value)}
-            className="w-full p-2 border rounded"
-            required
           />
-        </div>
+        </FormField>
 
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium mb-1">
-            이메일
-          </label>
-          <input
+        <FormField label="이메일" required>
+          <Input
             type="email"
-            id="email"
             value={profileData.email}
             onChange={(e) => handleInputChange('email', e.target.value)}
-            className="w-full p-2 border rounded"
-            required
           />
-        </div>
+        </FormField>
 
-        <div>
-          <label htmlFor="country" className="block text-sm font-medium mb-1">
-            국가
-          </label>
-          <input
+        <FormField label="국가" required>
+          <Input
             type="text"
-            id="country"
             value={profileData.country}
             onChange={(e) => handleInputChange('country', e.target.value)}
-            className="w-full p-2 border rounded"
-            required
           />
-        </div>
+        </FormField>
 
-        <div>
-          <label htmlFor="education" className="block text-sm font-medium mb-1">
-            학력
-          </label>
-          <input
+        <FormField label="학력" required>
+          <Input
             type="text"
-            id="education"
             value={profileData.education}
             onChange={(e) => handleInputChange('education', e.target.value)}
-            className="w-full p-2 border rounded"
-            required
           />
-        </div>
+        </FormField>
 
-        <div>
-          <label htmlFor="bio" className="block text-sm font-medium mb-1">
-            자기소개
-          </label>
-          <textarea
-            id="bio"
+        <FormField label="자기소개" required>
+          <Textarea
             value={profileData.bio}
             onChange={(e) => handleInputChange('bio', e.target.value)}
-            className="w-full p-2 border rounded h-24"
-            required
             placeholder="자기소개를 입력하세요..."
+            className="h-24"
           />
-        </div>
+        </FormField>
 
         {/* 테크 스택 섹션 */}
-        <div>
-          <div className="flex justify-between items-center mb-3">
-            <label className="block text-sm font-medium">기술 스택</label>
-            <button
+        <Card
+          title="기술 스택"
+          actions={
+            <Button
               type="button"
               onClick={detectTechStack}
               disabled={isDetecting || !token}
-              className="bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white text-sm font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+              variant="success"
+              size="sm"
             >
               {isDetecting ? '감지 중...' : '🔍 GitHub에서 자동 감지'}
-            </button>
-          </div>
+            </Button>
+          }
+        >
 
           {/* 현재 테크 스택 */}
           <div className="mb-4">
             <div className="flex flex-wrap gap-2 mb-2">
               {profileData.techStack.map((tech) => (
-                <span key={tech} className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2">
+                <Badge key={tech} variant="info" className="flex items-center gap-2">
                   {tech}
                   <button
                     type="button"
                     onClick={() => removeTechStack(tech)}
-                    className="text-blue-600 hover:text-blue-800 dark:text-blue-400"
+                    className="text-blue-600 hover:text-blue-800 dark:text-blue-400 ml-1"
                   >
                     ×
                   </button>
-                </span>
+                </Badge>
               ))}
             </div>
             {profileData.techStack.length === 0 && (
@@ -260,60 +228,65 @@ export default function EditProfilePage() {
 
           {/* 수동 추가 */}
           <div className="flex gap-2 mb-4">
-            <input
+            <Input
               type="text"
               value={newTech}
               onChange={(e) => setNewTech(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTechStack(newTech))}
-              className="flex-1 p-2 border rounded text-sm"
               placeholder="기술 스택 입력 (예: React, Python, Node.js)"
+              className="flex-1"
             />
-            <button
+            <Button
               type="button"
               onClick={() => addTechStack(newTech)}
               disabled={!newTech.trim()}
-              className="bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 text-white px-4 py-2 rounded text-sm font-medium transition-colors duration-200"
+              variant="secondary"
+              size="sm"
             >
               추가
-            </button>
+            </Button>
           </div>
 
           {/* 자동 감지 결과 */}
           {showTechStackEditor && detectedTechStack.length > 0 && (
-            <div className="border border-green-200 dark:border-green-800 rounded-lg p-4 bg-green-50 dark:bg-green-900/20">
+            <Card className="border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20">
               <div className="flex justify-between items-center mb-3">
                 <h3 className="font-semibold text-green-800 dark:text-green-200">GitHub에서 감지된 기술</h3>
                 <div className="flex gap-2">
-                  <button
+                  <Button
                     type="button"
                     onClick={addAllDetectedTech}
-                    className="bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-1 rounded transition-colors duration-200"
+                    variant="success"
+                    size="sm"
                   >
                     전체 추가
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
                     onClick={() => setShowTechStackEditor(false)}
-                    className="bg-gray-600 hover:bg-gray-700 text-white text-sm px-3 py-1 rounded transition-colors duration-200"
+                    variant="secondary"
+                    size="sm"
                   >
                     닫기
-                  </button>
+                  </Button>
                 </div>
               </div>
               <div className="flex flex-wrap gap-2">
                 {detectedTechStack.map((tech) => (
-                  <button
+                  <Button
                     key={tech}
                     type="button"
                     onClick={() => addDetectedTech(tech)}
                     disabled={profileData.techStack.includes(tech)}
-                    className="bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200 px-3 py-1 rounded-full text-sm font-medium hover:bg-green-200 dark:hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                    variant="outline"
+                    size="sm"
+                    className="bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200 hover:bg-green-200 dark:hover:bg-green-700 disabled:opacity-50"
                   >
                     + {tech}
-                  </button>
+                  </Button>
                 ))}
               </div>
-            </div>
+            </Card>
           )}
 
           {!token && (
@@ -321,30 +294,28 @@ export default function EditProfilePage() {
               ⚠️ GitHub 토큰을 입력해야 자동 감지 기능을 사용할 수 있습니다.
             </p>
           )}
-        </div>
+        </Card>
 
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 disabled:opacity-50"
-        >
-          {isLoading ? '저장 중...' : '프로필 업데이트'}
-        </button>
-      </form>
+        <FormActions>
+          <Button type="submit" disabled={isLoading} className="w-full">
+            {isLoading ? '저장 중...' : '프로필 업데이트'}
+          </Button>
+        </FormActions>
+      </Form>
 
       {error && (
-        <div className="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-          {error}
-        </div>
+        <ErrorMessage message={error} className="mt-4" />
       )}
 
       {prUrl && (
-        <div className="mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
-          프로필이 성공적으로 업데이트되었습니다!{' '}
-          <a href={prUrl} target="_blank" rel="noopener noreferrer" className="underline">
-            PR 보기
-          </a>
-        </div>
+        <Card className="mt-4 bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
+          <div className="text-green-800 dark:text-green-200">
+            프로필이 성공적으로 업데이트되었습니다!{' '}
+            <a href={prUrl} target="_blank" rel="noopener noreferrer" className="underline hover:text-green-600">
+              PR 보기
+            </a>
+          </div>
+        </Card>
       )}
     </div>
   );
