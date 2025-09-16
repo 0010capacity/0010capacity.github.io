@@ -2,11 +2,14 @@
 
 import Link from "next/link";
 import GitHubCalendar from "react-github-calendar";
-import { useTechStack } from "../hooks/useTechStack";
-import { Button, Card, Loading, ErrorMessage, Badge } from "../components";
+import { Button, Card, Badge } from "../components";
 
 export default function Home() {
-  const { techStack, loading, error } = useTechStack("0010capacity");
+  // 하드코딩된 기술 스택 사용 (API 호출 제거)
+  const techStack = [
+    "TypeScript", "JavaScript", "Python", "React", "Next.js", 
+    "Unity", "PyTorch", "React Native", "Machine Learning", "Game Development"
+  ];
   return (
     <div className="font-sans min-h-screen bg-black text-white">
       <main className="container mx-auto px-4 py-8 max-w-6xl">
@@ -103,8 +106,6 @@ export default function Home() {
             }
             className="mb-8"
           >
-            {loading && <Loading message="GitHub 저장소 분석 중..." />}
-            {error && <ErrorMessage message={`GitHub API 오류: ${error}`} />}
             <div className="flex flex-wrap gap-2">
               {techStack.map((tech) => (
                 <Badge key={tech} variant="info">
@@ -112,11 +113,9 @@ export default function Home() {
                 </Badge>
               ))}
             </div>
-            {!loading && (
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                * GitHub 저장소 분석을 통해 자동 감지된 기술 스택
-              </p>
-            )}
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+              * 프로필에서 기술 스택을 편집할 수 있습니다
+            </p>
           </Card>
 
           {/* GitHub Calendar */}
