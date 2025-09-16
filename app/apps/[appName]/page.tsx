@@ -1,10 +1,5 @@
 import Link from 'next/link';
-
-interface Deployment {
-  type: 'website' | 'appstore' | 'googleplay' | 'steam' | 'download' | 'other';
-  url: string;
-  label?: string;
-}
+import { getAppNames, getAppData, type Deployment } from '../../data/apps';
 
 interface PrivacyPolicy {
   language: string;
@@ -14,12 +9,10 @@ interface PrivacyPolicy {
 
 export async function generateStaticParams() {
   // 실제 존재하는 앱들을 기반으로 정적 경로 생성
-  return [
-    { appName: 'Logit' },
-    { appName: 'app1' },
-    { appName: 'app2' },
-    { appName: 'app3' },
-  ];
+  const appNames = getAppNames();
+  return appNames.map(appName => ({
+    appName: encodeURIComponent(appName)
+  }));
 }
 
 interface AppDetailPageProps {
@@ -32,60 +25,15 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
   const { appName } = await params;
   const decodedAppName = decodeURIComponent(appName);
 
-  // 실제 앱 데이터 불러오기 시도
-  let appData = null;
-  let deployments: Deployment[] = [];
-  let githubRepo: string | null = null;
-
-  try {
-    // 정적 내보내기 모드에서는 fetch 대신 import를 사용할 수 없으므로
-    // 하드코딩된 데이터로 처리 (실제로는 빌드 시점에 데이터를 주입해야 함)
-    if (decodedAppName === 'Logit') {
-      appData = {
-        name: 'Logit',
-        description: '미니멀 하루 기록 앱',
-        deployments: [
-          {
-            type: 'website' as const,
-            url: 'http://localhost'
-          }
-        ],
-        githubRepo: null,
-        createdAt: '2025-09-16T14:48:02.375Z',
-        updatedAt: '2025-09-16T14:48:02.375Z'
-      };
-      deployments = appData.deployments;
-      githubRepo = appData.githubRepo;
-    }
-  } catch (error) {
-    console.error('Failed to load app data:', error);
-  }
-
-  // 실제 배포 정보가 없으면 기본 더미 데이터 사용
-  if (deployments.length === 0) {
-    deployments = [
-      { type: 'website', url: 'https://example.com' },
-      { type: 'appstore', url: 'https://apps.apple.com/app/example' },
-      { type: 'googleplay', url: 'https://play.google.com/store/apps/details?id=com.example' }
-    ];
-  }
+  // 실제 앱 데이터 가져오기
+  const appData = getAppData(decodedAppName);
+  const deployments = appData?.deployments || [];
+  const githubRepo = appData?.githubRepo || null;
 
   const privacyPolicies: PrivacyPolicy[] = [
     { language: 'ko', url: `/privacy-policies/${decodedAppName}/ko.md`, lastUpdated: '2024-01-15' },
     { language: 'en', url: `/privacy-policies/${decodedAppName}/en.md`, lastUpdated: '2024-01-10' },
   ];
-
-  const getDeploymentIcon = (type: string) => {
-    switch (type) {
-      case 'website': return '🌐';
-      case 'appstore': return '📱';
-      case 'googleplay': return '🤖';
-      case 'steam': return '🎮';
-      case 'download': return '⬇️';
-      case 'other': return '🔗';
-      default: return '🔗';
-    }
-  };
 
   const getDeploymentLabel = (deployment: Deployment) => {
     if (deployment.type === 'other' && deployment.label) {
@@ -169,7 +117,13 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
                   rel="noopener noreferrer"
                   className="flex items-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
                 >
-                  <span className="text-2xl mr-3">{getDeploymentIcon(deployment.type)}</span>
+                  <span className="text-2xl mr-3">
+                    {deployment.type === 'website' ? '🌐' :
+                     deployment.type === 'appstore' ? '📱' :
+                     deployment.type === 'googleplay' ? '🤖' :
+                     deployment.type === 'steam' ? '🎮' :
+                     deployment.type === 'download' ? '⬇️' : '🔗'}
+                  </span>
                   <div>
                     <h3 className="font-semibold text-gray-900 dark:text-white">
                       {getDeploymentLabel(deployment)}
