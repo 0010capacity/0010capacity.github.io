@@ -37,6 +37,12 @@ export default function Home() {
               >
                 개인정보 처리방침
               </Link>
+              <Link
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 shadow-md"
+                href="/submit-pr"
+              >
+                개인정보 처리방침 업로드
+              </Link>
             </div>
           </div>
         </section>

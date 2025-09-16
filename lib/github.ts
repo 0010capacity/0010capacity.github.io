@@ -32,19 +32,27 @@ export class GitHubAnalyzer {
   private async fetchWithAuth(url: string) {
     const headers: Record<string, string> = {
       'Accept': 'application/vnd.github.v3+json',
+      'User-Agent': '0010capacity.github.io/1.0.0', // GitHub API requires User-Agent
     };
 
     if (this.token) {
       headers['Authorization'] = `token ${this.token}`;
     }
 
-    const response = await fetch(url, { headers });
-    
-    if (!response.ok) {
-      throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
-    }
+    try {
+      const response = await fetch(url, { headers });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`GitHub API error: ${response.status} ${response.statusText}`, errorText);
+        throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
+      }
 
-    return response.json();
+      return response.json();
+    } catch (error) {
+      console.error('Fetch error:', error);
+      throw error;
+    }
   }
 
   async getRepositories(): Promise<GitHubRepo[]> {

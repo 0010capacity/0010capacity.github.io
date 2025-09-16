@@ -21,13 +21,14 @@ export default function TechStackAnalysis() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [username, setUsername] = useState('0010capacity');
+  const [token, setToken] = useState('');
 
-  const analyzeUserRepos = async (user: string) => {
+  const analyzeUserRepos = async (user: string, userToken?: string) => {
     setLoading(true);
     setError(null);
     
     try {
-      const analyzer = new GitHubAnalyzer(user);
+      const analyzer = new GitHubAnalyzer(user, userToken);
       const repos = await analyzer.getRepositories();
       const techStack = await analyzer.analyzeTechStack();
       
@@ -50,8 +51,8 @@ export default function TechStackAnalysis() {
   };
 
   useEffect(() => {
-    analyzeUserRepos(username);
-  }, [username]);
+    analyzeUserRepos(username, token || undefined);
+  }, [username, token]);
 
   const formatBytes = (bytes: number): string => {
     if (bytes === 0) return '0 Bytes';
@@ -88,8 +89,15 @@ export default function TechStackAnalysis() {
               placeholder="GitHub 사용자명"
               className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
             />
+            <input
+              type="password"
+              value={token}
+              onChange={(e) => setToken(e.target.value)}
+              placeholder="GitHub Personal Access Token (선택)"
+              className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            />
             <button
-              onClick={() => analyzeUserRepos(username)}
+              onClick={() => analyzeUserRepos(username, token || undefined)}
               disabled={loading}
               className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-200"
             >
