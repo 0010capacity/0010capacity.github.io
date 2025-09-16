@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Plus, Edit, ArrowLeft, Eye } from 'lucide-react';
+import { Plus, Edit, ArrowLeft, Eye, Trash2 } from 'lucide-react';
 import { getAppNames, getAppData, type Deployment } from '../../data/apps';
 import { getPrivacyPoliciesForApp } from '../../data/privacy-policies';
 import { Button } from '../../../components';
@@ -63,12 +63,12 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
                 앱에 대한 자세한 정보와 개인정보 처리방침을 확인하세요.
               </p>
             </div>
-            <Link
+            <Button
+              as={Link}
               href={`/edit-app?app=${encodeURIComponent(decodedAppName)}`}
-              className="bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200"
-            >
-              앱 정보 수정
-            </Link>
+              variant="warning"
+              icon={Edit}
+            ></Button>
           </div>
         </div>
 
@@ -204,12 +204,13 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
                         size="sm"
                         icon={Edit}
                       ></Button>
-                      <Link
+                      <Button
+                        as={Link}
                         href={`/submit-pr?app=${encodeURIComponent(decodedAppName)}&lang=${policy.language}&action=delete`}
-                        className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200"
-                      >
-                        삭제
-                      </Link>
+                        variant="danger"
+                        size="sm"
+                        icon={Trash2}
+                      ></Button>
                     </div>
                   </div>
                 </div>

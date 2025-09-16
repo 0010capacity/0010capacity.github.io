@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Upload, ExternalLink } from 'lucide-react';
+import { Plus, Upload, ExternalLink, Trash2 } from 'lucide-react';
 import { createAppPR } from '../../lib/github';
 import { Button } from '../../components';
 
@@ -180,13 +180,13 @@ export default function UploadAppPage() {
                 <div className="flex justify-between items-start mb-3">
                   <h4 className="text-sm font-medium text-gray-700">배포 {index + 1}</h4>
                   {deployments.length > 1 && (
-                    <button
+                    <Button
                       type="button"
                       onClick={() => removeDeployment(index)}
-                      className="text-red-600 hover:text-red-800 text-sm"
-                    >
-                      삭제
-                    </button>
+                      variant="danger"
+                      size="sm"
+                      icon={Trash2}
+                    ></Button>
                   )}
                 </div>
 

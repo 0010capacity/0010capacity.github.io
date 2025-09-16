@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Plus, Save, ArrowLeft, ExternalLink } from 'lucide-react';
+import { Plus, Save, ArrowLeft, ExternalLink, Trash2 } from 'lucide-react';
 import { updateAppPR } from '../../lib/github';
 import { Button } from '../../components';
 
@@ -251,13 +251,13 @@ function EditAppForm() {
                 <div className="flex justify-between items-start mb-3">
                   <h4 className="text-sm font-medium text-gray-700">배포 {index + 1}</h4>
                   {deployments.length > 1 && (
-                    <button
+                    <Button
                       type="button"
                       onClick={() => removeDeployment(index)}
-                      className="text-red-600 hover:text-red-800 text-sm"
-                    >
-                      삭제
-                    </button>
+                      variant="danger"
+                      size="sm"
+                      icon={Trash2}
+                    ></Button>
                   )}
                 </div>
 

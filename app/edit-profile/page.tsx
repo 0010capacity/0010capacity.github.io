@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Save, ExternalLink } from 'lucide-react';
+import { Save, ExternalLink, X } from 'lucide-react';
 import { createProfilePR } from '../../lib/github';
 import { GitHubAnalyzer } from '../../lib/github';
 import { Button, Card, ErrorMessage, Badge, Form, FormField, FormActions, Input, Textarea } from '../../components';
@@ -253,7 +253,7 @@ export default function EditProfilePage() {
                       onClick={() => removeTechStack(tech)}
                       className="text-blue-600 hover:text-blue-800 dark:text-blue-400 ml-1"
                     >
-                      ×
+                      <X size={12} />
                     </button>
                   </Badge>
                 ))}
