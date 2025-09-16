@@ -90,7 +90,7 @@ export default function Home() {
                 프로필 편집
               </Button>
               <Button as={Link} href="/apps" variant="secondary">
-                제 작품들 보기
+                앱 목록
               </Button>
               <Button as={Link} href="/tech-stack-analysis" variant="success">
                 기술 스택 분석기
