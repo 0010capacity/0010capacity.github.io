@@ -1,7 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { createAppPR } from '../../lib/github';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { updateAppPR } from '../../lib/github';
 
 interface Deployment {
   type: 'website' | 'appstore' | 'googleplay' | 'steam' | 'download' | 'other';
@@ -9,7 +11,18 @@ interface Deployment {
   label?: string;
 }
 
-export default function UploadAppPage() {
+interface AppData {
+  name: string;
+  description: string;
+  platform: string;
+  deployments: Deployment[];
+  githubRepo?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+function EditAppForm() {
+  const searchParams = useSearchParams();
   const [token, setToken] = useState('');
   const [appName, setAppName] = useState('');
   const [description, setDescription] = useState('');
@@ -18,6 +31,7 @@ export default function UploadAppPage() {
   const [githubRepo, setGithubRepo] = useState('');
   const [showGithubField, setShowGithubField] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingApp, setIsLoadingApp] = useState(true);
   const [prUrl, setPrUrl] = useState('');
   const [error, setError] = useState('');
   const [rememberToken, setRememberToken] = useState(false);
@@ -39,6 +53,51 @@ export default function UploadAppPage() {
       localStorage.removeItem('github_token');
     }
   }, [token, rememberToken]);
+
+  // Load app data from URL parameter
+  useEffect(() => {
+    const loadAppData = async () => {
+      const appParam = searchParams.get('app');
+      if (!appParam) {
+        setError('앱 이름이 지정되지 않았습니다.');
+        setIsLoadingApp(false);
+        return;
+      }
+
+      const decodedAppName = decodeURIComponent(appParam);
+      setAppName(decodedAppName);
+
+      try {
+        // 실제로는 GitHub API나 파일 시스템에서 앱 데이터를 불러와야 함
+        // 현재는 mock 데이터 사용
+        const mockAppData: AppData = {
+          name: decodedAppName,
+          description: '이 앱은 사용자에게 훌륭한 경험을 제공합니다.',
+          platform: 'web',
+          deployments: [
+            { type: 'website', url: 'https://example.com' }
+          ],
+          githubRepo: 'https://github.com/username/repo',
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z'
+        };
+
+        setDescription(mockAppData.description);
+        setPlatform(mockAppData.platform);
+        setDeployments(mockAppData.deployments.length > 0 ? mockAppData.deployments : [{ type: 'website', url: '' }]);
+        if (mockAppData.githubRepo) {
+          setGithubRepo(mockAppData.githubRepo);
+          setShowGithubField(true);
+        }
+      } catch (err) {
+        setError('앱 데이터를 불러오는데 실패했습니다.');
+      } finally {
+        setIsLoadingApp(false);
+      }
+    };
+
+    loadAppData();
+  }, [searchParams]);
 
   const addDeployment = () => {
     setDeployments([...deployments, { type: 'website', url: '' }]);
@@ -84,7 +143,7 @@ export default function UploadAppPage() {
     }
 
     try {
-      const url = await createAppPR(
+      const url = await updateAppPR(
         token,
         appName,
         description,
@@ -100,9 +159,28 @@ export default function UploadAppPage() {
     }
   };
 
+  if (isLoadingApp) {
+    return (
+      <div className="max-w-2xl mx-auto p-6">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">앱 정보를 불러오는 중...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">앱 업로드</h1>
+      <div className="mb-6">
+        <Link
+          href={`/apps/${encodeURIComponent(appName)}`}
+          className="text-blue-500 hover:text-blue-700 mb-4 inline-block"
+        >
+          ← 앱 상세로 돌아가기
+        </Link>
+        <h1 className="text-2xl font-bold">앱 수정: {appName}</h1>
+      </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* GitHub Token */}
@@ -136,7 +214,7 @@ export default function UploadAppPage() {
           </p>
         </div>
 
-        {/* 앱 이름 */}
+        {/* 앱 이름 (읽기 전용) */}
         <div>
           <label htmlFor="appName" className="block text-sm font-medium mb-1">
             앱 이름
@@ -145,11 +223,12 @@ export default function UploadAppPage() {
             type="text"
             id="appName"
             value={appName}
-            onChange={(e) => setAppName(e.target.value)}
-            className="w-full p-2 border rounded"
-            required
-            placeholder="My Awesome App"
+            className="w-full p-2 border rounded bg-gray-100"
+            readOnly
           />
+          <p className="text-sm text-gray-600 mt-1">
+            앱 이름은 수정할 수 없습니다.
+          </p>
         </div>
 
         {/* 플랫폼 */}
@@ -310,7 +389,7 @@ export default function UploadAppPage() {
           disabled={isLoading}
           className="w-full bg-blue-500 text-white p-3 rounded hover:bg-blue-600 disabled:opacity-50 font-medium"
         >
-          {isLoading ? '업로드 중...' : '앱 업로드'}
+          {isLoading ? '수정 중...' : '앱 정보 수정'}
         </button>
       </form>
 
@@ -322,12 +401,20 @@ export default function UploadAppPage() {
 
       {prUrl && (
         <div className="mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
-          앱이 성공적으로 업로드되었습니다!{' '}
+          앱 정보가 성공적으로 수정되었습니다!{' '}
           <a href={prUrl} target="_blank" rel="noopener noreferrer" className="underline">
             PR 보기
           </a>
         </div>
       )}
     </div>
+  );
+}
+
+export default function EditAppPage() {
+  return (
+    <Suspense fallback={<div className="max-w-2xl mx-auto p-6">로딩 중...</div>}>
+      <EditAppForm />
+    </Suspense>
   );
 }

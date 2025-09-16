@@ -20,6 +20,22 @@ interface TechStackResult {
   technologies: string[];
 }
 
+interface Deployment {
+  type: 'website' | 'appstore' | 'googleplay' | 'steam' | 'download' | 'other';
+  url: string;
+  label?: string; // 사용자 정의 라벨
+}
+
+interface AppData {
+  name: string;
+  description: string;
+  platform: string;
+  deployments: Deployment[];
+  githubRepo?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export class GitHubAnalyzer {
   private username: string;
   private token?: string;
@@ -295,21 +311,49 @@ export const createAppPR = async (
   token: string,
   appName: string,
   description: string,
-  downloadUrl: string,
-  platform: string
+  platform: string,
+  deployments: Deployment[],
+  githubRepo?: string
 ): Promise<string> => {
   const filePath = `apps/${appName}.json`;
   const appData = JSON.stringify({
     name: appName,
     description,
-    downloadUrl,
     platform,
-    createdAt: new Date().toISOString()
+    deployments,
+    githubRepo,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   }, null, 2);
   
   const commitMessage = `Add app: ${appName}`;
   const prTitle = `Add new app: ${appName}`;
   const prBody = `This PR adds a new app "${appName}" for ${platform} platform.`;
+
+  return await createFilePR(token, filePath, appData, commitMessage, prTitle, prBody);
+};
+
+export const updateAppPR = async (
+  token: string,
+  appName: string,
+  description: string,
+  platform: string,
+  deployments: Deployment[],
+  githubRepo?: string
+): Promise<string> => {
+  const filePath = `apps/${appName}.json`;
+  const appData = JSON.stringify({
+    name: appName,
+    description,
+    platform,
+    deployments,
+    githubRepo,
+    updatedAt: new Date().toISOString()
+  }, null, 2);
+  
+  const commitMessage = `Update app: ${appName}`;
+  const prTitle = `Update app: ${appName}`;
+  const prBody = `This PR updates the app "${appName}".`;
 
   return await createFilePR(token, filePath, appData, commitMessage, prTitle, prBody);
 };
