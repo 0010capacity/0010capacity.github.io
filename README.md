@@ -1,6 +1,6 @@
-# 내 개인 홈페이지
+# 0010capacity
 
-이곳은 [Next.js](https://nextjs.org)를 사용하여 구축된 제 개인 웹사이트로, 포트폴리오를 소개하고 앱들의 개인정보 처리방침을 제공합니다. GitHub Pages에 배포됩니다.
+이곳은 [Next.js](https://nextjs.org)를 사용하여 구축된 0010capacity의 개인 웹사이트로, 포트폴리오를 소개하고 앱들의 개인정보 처리방침을 제공합니다. GitHub Pages에 배포됩니다.
 
 ## 시작하기
 
