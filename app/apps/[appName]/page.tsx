@@ -1,8 +1,4 @@
-'use client';
-
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
 
 interface PrivacyPolicy {
   language: string;
@@ -10,23 +6,30 @@ interface PrivacyPolicy {
   lastUpdated: string;
 }
 
-export default function AppDetailPage() {
-  const params = useParams();
-  const appName = params.appName as string;
+export async function generateStaticParams() {
+  // 실제 앱 목록을 기반으로 정적 경로 생성
+  // 현재는 샘플 앱들로 설정
+  return [
+    { appName: 'app1' },
+    { appName: 'app2' },
+    { appName: 'app3' },
+  ];
+}
 
-  const [privacyPolicies, setPrivacyPolicies] = useState<PrivacyPolicy[]>([]);
-  const [loading, setLoading] = useState(true);
+interface AppDetailPageProps {
+  params: {
+    appName: string;
+  };
+}
+
+export default function AppDetailPage({ params }: AppDetailPageProps) {
+  const appName = decodeURIComponent(params.appName);
 
   // Mock data - 실제로는 API나 파일 시스템에서 불러와야 함
-  useEffect(() => {
-    // 여기서는 목업 데이터 사용
-    const mockPolicies: PrivacyPolicy[] = [
-      { language: 'ko', url: `/privacy-policies/${appName}/ko.md`, lastUpdated: '2024-01-15' },
-      { language: 'en', url: `/privacy-policies/${appName}/en.md`, lastUpdated: '2024-01-10' },
-    ];
-    setPrivacyPolicies(mockPolicies);
-    setLoading(false);
-  }, [appName]);
+  const privacyPolicies: PrivacyPolicy[] = [
+    { language: 'ko', url: `/privacy-policies/${appName}/ko.md`, lastUpdated: '2024-01-15' },
+    { language: 'en', url: `/privacy-policies/${appName}/en.md`, lastUpdated: '2024-01-10' },
+  ];
 
   return (
     <div className="font-sans min-h-screen p-8 pb-20">
@@ -38,7 +41,7 @@ export default function AppDetailPage() {
           >
             ← 앱 목록으로 돌아가기
           </Link>
-          <h1 className="text-4xl font-bold mb-4">{decodeURIComponent(appName)}</h1>
+          <h1 className="text-4xl font-bold mb-4">{appName}</h1>
           <p className="text-lg text-gray-600 mb-6">
             앱에 대한 자세한 정보와 개인정보 처리방침을 확인하세요.
           </p>
@@ -77,12 +80,7 @@ export default function AppDetailPage() {
             </Link>
           </div>
 
-          {loading ? (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="text-gray-600 dark:text-gray-400 mt-2">로딩 중...</p>
-            </div>
-          ) : privacyPolicies.length > 0 ? (
+          {privacyPolicies.length > 0 ? (
             <div className="space-y-4">
               {privacyPolicies.map((policy) => (
                 <div key={policy.language} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">

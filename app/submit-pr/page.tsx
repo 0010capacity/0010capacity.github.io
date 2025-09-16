@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { createPrivacyPolicyPR } from '../../lib/github';
 
-export default function SubmitPRPage() {
+function SubmitPRForm() {
   const searchParams = useSearchParams();
   const [token, setToken] = useState('');
   const [appName, setAppName] = useState('');
@@ -167,5 +167,13 @@ export default function SubmitPRPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function SubmitPRPage() {
+  return (
+    <Suspense fallback={<div className="max-w-2xl mx-auto p-6">로딩 중...</div>}>
+      <SubmitPRForm />
+    </Suspense>
   );
 }
