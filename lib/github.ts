@@ -215,18 +215,19 @@ export const analyzeUserTechStack = async (username: string, token?: string): Pr
   return analyzer.getFormattedTechStack(result);
 };
 
-// PR 생성 함수 추가
-export const createPrivacyPolicyPR = async (
+// 일반적인 PR 생성 함수
+export const createFilePR = async (
   token: string,
-  appName: string,
-  language: string,
-  content: string
+  filePath: string,
+  content: string,
+  commitMessage: string,
+  prTitle: string,
+  prBody: string
 ): Promise<string> => {
   const octokit = new Octokit({ auth: token });
   const owner = '0010capacity'; // 레포지토리 소유자
   const repo = '0010capacity.github.io'; // 레포지토리 이름
-  const branchName = `feature/privacy-policy-${appName}-${language}`;
-  const filePath = `privacy-policies/${appName}/${language}.md`;
+  const branchName = `feature/update-${Date.now()}`;
 
   try {
     // 메인 브랜치의 최신 커밋 SHA 가져오기
@@ -253,7 +254,7 @@ export const createPrivacyPolicyPR = async (
       owner,
       repo,
       path: filePath,
-      message: `Add privacy policy for ${appName} in ${language}`,
+      message: commitMessage,
       content: contentBase64,
       branch: branchName,
     });
@@ -262,10 +263,10 @@ export const createPrivacyPolicyPR = async (
     const { data: prData } = await octokit.pulls.create({
       owner,
       repo,
-      title: `Add privacy policy for ${appName} in ${language}`,
+      title: prTitle,
       head: branchName,
       base: 'main',
-      body: `This PR adds a privacy policy for the app "${appName}" in language "${language}".`,
+      body: prBody,
     });
 
     return prData.html_url; // PR URL 반환
@@ -273,4 +274,62 @@ export const createPrivacyPolicyPR = async (
     console.error('Error creating PR:', error);
     throw new Error('Failed to create PR. Please check your token and try again.');
   }
+};
+
+// PR 생성 함수들
+export const createPrivacyPolicyPR = async (
+  token: string,
+  appName: string,
+  language: string,
+  content: string
+): Promise<string> => {
+  const filePath = `privacy-policies/${appName}/${language}.md`;
+  const commitMessage = `Add privacy policy for ${appName} in ${language}`;
+  const prTitle = `Add privacy policy for ${appName} in ${language}`;
+  const prBody = `This PR adds a privacy policy for the app "${appName}" in language "${language}".`;
+
+  return await createFilePR(token, filePath, content, commitMessage, prTitle, prBody);
+};
+
+export const createAppPR = async (
+  token: string,
+  appName: string,
+  description: string,
+  downloadUrl: string,
+  platform: string
+): Promise<string> => {
+  const filePath = `apps/${appName}.json`;
+  const appData = JSON.stringify({
+    name: appName,
+    description,
+    downloadUrl,
+    platform,
+    createdAt: new Date().toISOString()
+  }, null, 2);
+  
+  const commitMessage = `Add app: ${appName}`;
+  const prTitle = `Add new app: ${appName}`;
+  const prBody = `This PR adds a new app "${appName}" for ${platform} platform.`;
+
+  return await createFilePR(token, filePath, appData, commitMessage, prTitle, prBody);
+};
+
+export const createProfilePR = async (
+  token: string,
+  profileData: {
+    name: string;
+    email: string;
+    country: string;
+    education: string;
+    bio: string;
+  }
+): Promise<string> => {
+  const filePath = `data/profile.json`;
+  const profileJson = JSON.stringify(profileData, null, 2);
+  
+  const commitMessage = `Update profile information`;
+  const prTitle = `Update profile information`;
+  const prBody = `This PR updates the profile information.`;
+
+  return await createFilePR(token, filePath, profileJson, commitMessage, prTitle, prBody);
 };
