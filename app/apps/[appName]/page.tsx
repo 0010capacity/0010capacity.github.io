@@ -60,7 +60,7 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
             <div>
               <h1 className="text-4xl font-bold mb-4">{decodedAppName}</h1>
               <p className="text-lg text-gray-600 mb-6">
-                앱에 대한 자세한 정보와 개인정보 처리방침을 확인하세요.
+                Check detailed information and privacy policy for this app.
               </p>
             </div>
             <Button
@@ -74,10 +74,10 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
 
         {/* 앱 정보 섹션 */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8">
-          <h2 className="text-2xl font-semibold mb-4">앱 정보</h2>
+          <h2 className="text-2xl font-semibold mb-4">App Information</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <h3 className="font-semibold text-gray-700 dark:text-gray-300">플랫폼</h3>
+              <h3 className="font-semibold text-gray-700 dark:text-gray-300">Platform</h3>
               <p className="text-gray-600 dark:text-gray-400">
                 {deployments.length > 0 ? 
                   (deployments[0].type === 'website' ? '웹' : 
@@ -86,13 +86,13 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
               </p>
             </div>
             <div>
-              <h3 className="font-semibold text-gray-700 dark:text-gray-300">마지막 업데이트</h3>
+              <h3 className="font-semibold text-gray-700 dark:text-gray-300">Last Updated</h3>
               <p className="text-gray-600 dark:text-gray-400">
                 {appData ? new Date(appData.updatedAt).toLocaleDateString('ko-KR') : '2024-01-15'}
               </p>
             </div>
             <div className="md:col-span-2">
-              <h3 className="font-semibold text-gray-700 dark:text-gray-300">설명</h3>
+              <h3 className="font-semibold text-gray-700 dark:text-gray-300">Description</h3>
               <p className="text-gray-600 dark:text-gray-400">
                 {appData ? appData.description : '이 앱은 사용자에게 훌륭한 경험을 제공합니다.'}
               </p>
@@ -102,7 +102,7 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
 
         {/* 배포 정보 섹션 */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8">
-          <h2 className="text-2xl font-semibold mb-4">배포 정보</h2>
+          <h2 className="text-2xl font-semibold mb-4">Deployment Information</h2>
           {deployments.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {deployments.map((deployment, index) => (
@@ -133,14 +133,14 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
               ))}
             </div>
           ) : (
-            <p className="text-gray-600 dark:text-gray-400">배포 정보가 없습니다.</p>
+            <p className="text-gray-600 dark:text-gray-400">No deployment information available.</p>
           )}
         </div>
 
         {/* GitHub 레포지토리 섹션 */}
         {githubRepo && (
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8">
-            <h2 className="text-2xl font-semibold mb-4">소스 코드</h2>
+            <h2 className="text-2xl font-semibold mb-4">Source Code</h2>
             <a
               href={githubRepo}
               target="_blank"
@@ -162,7 +162,7 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
         {/* 개인정보 처리방침 섹션 */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-semibold">개인정보 처리방침</h2>
+            <h2 className="text-2xl font-semibold">Privacy Policy</h2>
             <Button
               as={Link}
               href={`/submit-pr?app=${encodeURIComponent(decodedAppName)}`}
@@ -184,7 +184,7 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
                          policy.language}
                       </h3>
                       <p className="text-sm text-gray-600 dark:text-gray-400">
-                        마지막 업데이트: {policy.lastUpdated}
+                        Last updated: {policy.lastUpdated}
                       </p>
                     </div>
                     <div className="flex gap-2">
@@ -219,7 +219,7 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
           ) : (
             <div className="text-center py-8">
               <p className="text-gray-600 dark:text-gray-400 mb-4">
-                아직 등록된 개인정보 처리방침이 없습니다.
+                No privacy policies have been registered yet.
               </p>
               <Link
                 href={`/submit-pr?app=${encodeURIComponent(decodedAppName)}`}

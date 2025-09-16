@@ -103,25 +103,25 @@ export default function Home() {
         {/* Profile Section */}
         <section className="mb-12">
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-4xl font-bold text-white">프로필</h2>
+            <h2 className="text-4xl font-bold text-white">Profile</h2>
             <Button as={Link} href="/edit-profile" variant="primary" size="sm" icon={Edit}>
             </Button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <Card className="bg-gray-800 border-gray-700 hover:shadow-2xl transition-shadow duration-300">
-              <h3 className="text-2xl font-semibold text-gray-400 mb-2">이름</h3>
+              <h3 className="text-2xl font-semibold text-gray-400 mb-2">Name</h3>
               <p className="text-gray-300">{profile.name}</p>
             </Card>
             <Card className="bg-gray-800 border-gray-700 hover:shadow-2xl transition-shadow duration-300">
-              <h3 className="text-2xl font-semibold text-gray-400 mb-2">이메일</h3>
+              <h3 className="text-2xl font-semibold text-gray-400 mb-2">Email</h3>
               <p className="text-gray-300">{profile.email}</p>
             </Card>
             <Card className="bg-gray-800 border-gray-700 hover:shadow-2xl transition-shadow duration-300">
-              <h3 className="text-2xl font-semibold text-gray-400 mb-2">국가</h3>
+              <h3 className="text-2xl font-semibold text-gray-400 mb-2">Country</h3>
               <p className="text-gray-300">{profile.country}</p>
             </Card>
             <Card className="bg-gray-800 border-gray-700 hover:shadow-2xl transition-shadow duration-300">
-              <h3 className="text-2xl font-semibold text-gray-400 mb-2">학력</h3>
+              <h3 className="text-2xl font-semibold text-gray-400 mb-2">Education</h3>
               <p className="text-gray-300">{profile.education}</p>
             </Card>
           </div>
@@ -139,12 +139,12 @@ export default function Home() {
               ))}
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-              * 프로필에서 기술 스택을 편집할 수 있습니다
+              * You can edit your tech stack in your profile
             </p>
           </Card>
 
           {/* GitHub Calendar */}
-          <Card title="GitHub 기여도" className="bg-gray-800 border-gray-700">
+          <Card title="GitHub Contributions" className="bg-gray-800 border-gray-700">
             <div className="overflow-x-auto bg-gray-900 rounded-lg p-4">
               <GitHubCalendar username="0010capacity" colorScheme="dark" />
             </div>

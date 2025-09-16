@@ -107,9 +107,9 @@ export default function Apps() {
             <Button as={Link} href="/" variant="outline" icon={Home}>
             </Button>
           </div>
-          <h1 className="text-4xl font-bold mb-4">내 앱들</h1>
+          <h1 className="text-4xl font-bold mb-4">My Apps</h1>
           <p className="text-lg text-center mb-6">
-            제가 개발한 iOS, Android, 웹 앱들을 소개합니다. 각 앱을 다운로드하거나 사용해 보세요.
+            Here are the iOS, Android, and web apps I've developed. Download or try them out.
           </p>
           <Button as={Link} href="/upload-app" variant="primary" icon={Upload}>
           </Button>
@@ -144,9 +144,8 @@ export default function Apps() {
           </div>
         ) : (
           <div className="text-center py-12">
-            <p className="text-lg text-gray-600 mb-4">등록된 앱이 없습니다.</p>
-            <Button as={Link} href="/upload-app" variant="primary">
-              첫 번째 앱 업로드하기
+            <p className="text-lg text-gray-600 mb-4">No apps registered yet.</p>
+            <Button as={Link} href="/upload-app" variant="primary" icon={Upload}>
             </Button>
           </div>
         )}
