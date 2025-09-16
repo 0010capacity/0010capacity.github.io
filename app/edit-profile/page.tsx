@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { createProfilePR } from '../../lib/github';
+import { GitHubAnalyzer } from '../../lib/github';
 
 export default function EditProfilePage() {
   const [token, setToken] = useState('');
@@ -10,11 +11,16 @@ export default function EditProfilePage() {
     email: '0010capacity@gmail.com',
     country: '대한민국',
     education: '광운대학교 인공지능학부 졸업',
-    bio: '게임 개발과 AI를 사랑하는 개발자입니다.'
+    bio: '게임 개발과 AI를 사랑하는 개발자입니다.',
+    techStack: [] as string[]
   });
   const [isLoading, setIsLoading] = useState(false);
   const [prUrl, setPrUrl] = useState('');
   const [error, setError] = useState('');
+  const [newTech, setNewTech] = useState('');
+  const [showTechStackEditor, setShowTechStackEditor] = useState(false);
+  const [detectedTechStack, setDetectedTechStack] = useState<string[]>([]);
+  const [isDetecting, setIsDetecting] = useState(false);
   const [rememberToken, setRememberToken] = useState(false);
 
   // Load saved token on component mount
@@ -55,6 +61,60 @@ export default function EditProfilePage() {
     setProfileData(prev => ({
       ...prev,
       [field]: value
+    }));
+  };
+
+  const addTechStack = (tech: string) => {
+    if (tech.trim() && !profileData.techStack.includes(tech.trim())) {
+      setProfileData(prev => ({
+        ...prev,
+        techStack: [...prev.techStack, tech.trim()]
+      }));
+    }
+    setNewTech('');
+  };
+
+  const removeTechStack = (tech: string) => {
+    setProfileData(prev => ({
+      ...prev,
+      techStack: prev.techStack.filter(t => t !== tech)
+    }));
+  };
+
+  const detectTechStack = async () => {
+    if (!token) {
+      alert('GitHub 토큰을 입력해주세요.');
+      return;
+    }
+
+    setIsDetecting(true);
+    try {
+      const analyzer = new GitHubAnalyzer('0010capacity', token);
+      const techStack = await analyzer.analyzeTechStack();
+      const formattedTechStack = analyzer.getFormattedTechStack(techStack);
+      setDetectedTechStack(formattedTechStack);
+      setShowTechStackEditor(true);
+    } catch (error) {
+      alert('테크 스택 감지에 실패했습니다: ' + (error instanceof Error ? error.message : '알 수 없는 오류'));
+    } finally {
+      setIsDetecting(false);
+    }
+  };
+
+  const addDetectedTech = (tech: string) => {
+    if (!profileData.techStack.includes(tech)) {
+      setProfileData(prev => ({
+        ...prev,
+        techStack: [...prev.techStack, tech]
+      }));
+    }
+  };
+
+  const addAllDetectedTech = () => {
+    const newTechs = detectedTechStack.filter(tech => !profileData.techStack.includes(tech));
+    setProfileData(prev => ({
+      ...prev,
+      techStack: [...prev.techStack, ...newTechs]
     }));
   };
 
@@ -161,6 +221,106 @@ export default function EditProfilePage() {
             required
             placeholder="자기소개를 입력하세요..."
           />
+        </div>
+
+        {/* 테크 스택 섹션 */}
+        <div>
+          <div className="flex justify-between items-center mb-3">
+            <label className="block text-sm font-medium">기술 스택</label>
+            <button
+              type="button"
+              onClick={detectTechStack}
+              disabled={isDetecting || !token}
+              className="bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white text-sm font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+            >
+              {isDetecting ? '감지 중...' : '🔍 GitHub에서 자동 감지'}
+            </button>
+          </div>
+
+          {/* 현재 테크 스택 */}
+          <div className="mb-4">
+            <div className="flex flex-wrap gap-2 mb-2">
+              {profileData.techStack.map((tech) => (
+                <span key={tech} className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2">
+                  {tech}
+                  <button
+                    type="button"
+                    onClick={() => removeTechStack(tech)}
+                    className="text-blue-600 hover:text-blue-800 dark:text-blue-400"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+            {profileData.techStack.length === 0 && (
+              <p className="text-sm text-gray-500 dark:text-gray-400">등록된 기술 스택이 없습니다.</p>
+            )}
+          </div>
+
+          {/* 수동 추가 */}
+          <div className="flex gap-2 mb-4">
+            <input
+              type="text"
+              value={newTech}
+              onChange={(e) => setNewTech(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTechStack(newTech))}
+              className="flex-1 p-2 border rounded text-sm"
+              placeholder="기술 스택 입력 (예: React, Python, Node.js)"
+            />
+            <button
+              type="button"
+              onClick={() => addTechStack(newTech)}
+              disabled={!newTech.trim()}
+              className="bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 text-white px-4 py-2 rounded text-sm font-medium transition-colors duration-200"
+            >
+              추가
+            </button>
+          </div>
+
+          {/* 자동 감지 결과 */}
+          {showTechStackEditor && detectedTechStack.length > 0 && (
+            <div className="border border-green-200 dark:border-green-800 rounded-lg p-4 bg-green-50 dark:bg-green-900/20">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="font-semibold text-green-800 dark:text-green-200">GitHub에서 감지된 기술</h3>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={addAllDetectedTech}
+                    className="bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-1 rounded transition-colors duration-200"
+                  >
+                    전체 추가
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowTechStackEditor(false)}
+                    className="bg-gray-600 hover:bg-gray-700 text-white text-sm px-3 py-1 rounded transition-colors duration-200"
+                  >
+                    닫기
+                  </button>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {detectedTechStack.map((tech) => (
+                  <button
+                    key={tech}
+                    type="button"
+                    onClick={() => addDetectedTech(tech)}
+                    disabled={profileData.techStack.includes(tech)}
+                    className="bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200 px-3 py-1 rounded-full text-sm font-medium hover:bg-green-200 dark:hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                  >
+                    + {tech}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {!token && (
+            <p className="text-sm text-orange-600 dark:text-orange-400 mt-2">
+              ⚠️ GitHub 토큰을 입력해야 자동 감지 기능을 사용할 수 있습니다.
+            </p>
+          )}
         </div>
 
         <button

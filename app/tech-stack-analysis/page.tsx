@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { GitHubAnalyzer } from '../../lib/github';
 
@@ -18,10 +18,11 @@ interface AnalysisResult {
 
 export default function TechStackAnalysis() {
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [username, setUsername] = useState('0010capacity');
   const [token, setToken] = useState('');
+  const [hasAnalyzed, setHasAnalyzed] = useState(false);
 
   const analyzeUserRepos = async (user: string, userToken?: string) => {
     setLoading(true);
@@ -43,6 +44,7 @@ export default function TechStackAnalysis() {
           html_url: repo.html_url
         }))
       });
+      setHasAnalyzed(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to analyze repositories');
     } finally {
@@ -50,9 +52,7 @@ export default function TechStackAnalysis() {
     }
   };
 
-  useEffect(() => {
-    analyzeUserRepos(username, token || undefined);
-  }, [username, token]);
+  // 자동 분석 제거 - 사용자가 버튼을 눌러야만 분석 시작
 
   const formatBytes = (bytes: number): string => {
     if (bytes === 0) return '0 Bytes';
@@ -126,6 +126,33 @@ export default function TechStackAnalysis() {
               • 사용자명이 존재하지 않을 수 있습니다.<br/>
               • 네트워크 연결을 확인해주세요.
             </p>
+          </div>
+        )}
+
+        {/* Initial State - 분석 전 */}
+        {!hasAnalyzed && !loading && (
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 mb-8 text-center">
+            <div className="mb-6">
+              <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
+                GitHub 기술 스택 분석
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
+                위의 정보를 입력하고 &ldquo;분석하기&rdquo; 버튼을 클릭하여 GitHub 저장소를 분석하세요.
+              </p>
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+                <h3 className="font-semibold text-blue-800 dark:text-blue-200 mb-2">💡 분석 팁</h3>
+                <ul className="text-sm text-blue-700 dark:text-blue-300 text-left space-y-1">
+                  <li>• Personal Access Token을 입력하면 더 정확한 분석이 가능합니다</li>
+                  <li>• 공개 저장소만 분석되며, 비공개 저장소는 토큰이 있어도 분석되지 않습니다</li>
+                  <li>• API 제한으로 인해 너무 자주 분석하지 마세요</li>
+                </ul>
+              </div>
+            </div>
           </div>
         )}
 

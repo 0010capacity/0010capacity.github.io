@@ -366,6 +366,7 @@ export const createProfilePR = async (
     country: string;
     education: string;
     bio: string;
+    techStack?: string[];
   }
 ): Promise<string> => {
   const filePath = `data/profile.json`;
