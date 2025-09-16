@@ -13,9 +13,9 @@ interface PrivacyPolicy {
 }
 
 export async function generateStaticParams() {
-  // 실제 앱 목록을 기반으로 정적 경로 생성
-  // 현재는 샘플 앱들로 설정
+  // 실제 존재하는 앱들을 기반으로 정적 경로 생성
   return [
+    { appName: 'Logit' },
     { appName: 'app1' },
     { appName: 'app2' },
     { appName: 'app3' },
