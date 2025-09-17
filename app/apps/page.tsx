@@ -109,7 +109,7 @@ export default function Apps() {
           </div>
           <h1 className="text-4xl font-bold mb-4">My Apps</h1>
           <p className="text-lg text-center mb-6">
-            Here are the iOS, Android, and web apps I've developed. Download or try them out.
+            Here are the iOS, Android, and web apps I&apos;ve developed. Download or try them out.
           </p>
           <Button as={Link} href="/upload-app" variant="primary" icon={Upload}>
           </Button>
