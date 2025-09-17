@@ -5,7 +5,7 @@ import { getPrivacyPoliciesForApp } from '../../data/privacy-policies';
 import { Button } from '../../../components';
 
 export async function generateStaticParams() {
-  // 실제 존재하는 앱들을 기반으로 정적 경로 생성
+  // Generate static paths based on actually existing apps
   const appNames = getAppNames();
   return appNames.map(appName => ({
     appName: encodeURIComponent(appName)
@@ -22,12 +22,12 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
   const { appName } = await params;
   const decodedAppName = decodeURIComponent(appName);
 
-  // 실제 앱 데이터 가져오기
+  // Fetch actual app data
   const appData = getAppData(decodedAppName);
   const deployments = appData?.deployments || [];
   const githubRepo = appData?.githubRepo || null;
 
-  // 실제 개인정보 처리방침 데이터 가져오기
+  // Fetch actual privacy policy data
   const privacyPolicies = getPrivacyPoliciesForApp(decodedAppName);
 
   const getDeploymentLabel = (deployment: Deployment) => {
@@ -35,12 +35,12 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
       return deployment.label;
     }
     switch (deployment.type) {
-      case 'website': return '웹사이트';
+      case 'website': return 'Website';
       case 'appstore': return 'App Store';
       case 'googleplay': return 'Google Play';
       case 'steam': return 'Steam';
-      case 'download': return '다운로드';
-      case 'other': return '기타';
+      case 'download': return 'Download';
+      case 'other': return 'Other';
       default: return deployment.type;
     }
   };
@@ -72,7 +72,7 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
           </div>
         </div>
 
-        {/* 앱 정보 섹션 */}
+        {/* App Information Section */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8">
           <h2 className="text-2xl font-semibold mb-4">App Information</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -80,9 +80,9 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
               <h3 className="font-semibold text-gray-700 dark:text-gray-300">Platform</h3>
               <p className="text-gray-600 dark:text-gray-400">
                 {deployments.length > 0 ? 
-                  (deployments[0].type === 'website' ? '웹' : 
+                  (deployments[0].type === 'website' ? 'Web' : 
                    deployments[0].type === 'appstore' ? 'iOS' :
-                   deployments[0].type === 'googleplay' ? 'Android' : '기타') : '알 수 없음'}
+                   deployments[0].type === 'googleplay' ? 'Android' : 'Other') : 'Unknown'}
               </p>
             </div>
             <div>
@@ -94,7 +94,7 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
             <div className="md:col-span-2">
               <h3 className="font-semibold text-gray-700 dark:text-gray-300">Description</h3>
               <p className="text-gray-600 dark:text-gray-400">
-                {appData ? appData.description : '이 앱은 사용자에게 훌륭한 경험을 제공합니다.'}
+                {appData ? appData.description : 'This app provides a great experience to users.'}
               </p>
             </div>
           </div>
@@ -149,7 +149,7 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
             >
               <span className="text-2xl mr-3">📂</span>
               <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">GitHub 레포지토리</h3>
+                <h3 className="font-semibold text-gray-900 dark:text-white">GitHub Repository</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
                   {githubRepo}
                 </p>
@@ -179,7 +179,7 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
                   <div className="flex justify-between items-center">
                     <div>
                       <h3 className="font-semibold text-lg">
-                        {policy.language === 'ko' ? '한국어' :
+                        {policy.language === 'ko' ? 'Korean' :
                          policy.language === 'en' ? 'English' :
                          policy.language}
                       </h3>
@@ -225,7 +225,7 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
                 href={`/submit-pr?app=${encodeURIComponent(decodedAppName)}`}
                 className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 inline-block"
               >
-                첫 번째 개인정보 처리방침 추가하기
+                Add First Privacy Policy
               </Link>
             </div>
           )}

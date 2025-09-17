@@ -80,10 +80,10 @@ export default function TechStackAnalysis() {
             </Button>
           </div>
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            GitHub 기술 스택 분석기
+            GitHub Tech Stack Analyzer
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 mb-6">
-            GitHub 저장소를 분석하여 개발자의 기술 스택을 자동으로 감지합니다.
+            Analyze GitHub repositories to automatically detect a developer's tech stack.
           </p>
           
           {/* Username Input */}
@@ -94,7 +94,7 @@ export default function TechStackAnalysis() {
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="GitHub 사용자명"
+                  placeholder="GitHub Username"
                 />
               </FormField>
               <FormField label="" className="flex-1">
@@ -102,11 +102,11 @@ export default function TechStackAnalysis() {
                   type="password"
                   value={token}
                   onChange={(e) => setToken(e.target.value)}
-                  placeholder="GitHub Personal Access Token (선택)"
+                  placeholder="GitHub Personal Access Token (Optional)"
                 />
               </FormField>
               <Button type="submit" disabled={loading} className="sm:w-auto">
-                {loading ? '분석 중...' : '분석하기'}
+                {loading ? 'Analyzing...' : 'Analyze'}
               </Button>
             </div>
           </Form>
@@ -115,7 +115,7 @@ export default function TechStackAnalysis() {
         {/* Loading State */}
         {loading && (
           <Card className="mb-8">
-            <Loading message="GitHub 저장소 분석 중..." />
+            <Loading message="Analyzing GitHub repositories..." />
           </Card>
         )}
 
@@ -128,7 +128,7 @@ export default function TechStackAnalysis() {
           />
         )}
 
-        {/* Initial State - 분석 전 */}
+        {/* Initial State - Before Analysis */}
         {!hasAnalyzed && !loading && (
           <Card className="mb-8 text-center">
             <div className="mb-6">
@@ -138,17 +138,17 @@ export default function TechStackAnalysis() {
                 </svg>
               </div>
               <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
-                GitHub 기술 스택 분석
+                GitHub Tech Stack Analysis
               </h2>
               <p className="text-gray-600 dark:text-gray-400 mb-6">
-                위의 정보를 입력하고 &ldquo;분석하기&rdquo; 버튼을 클릭하여 GitHub 저장소를 분석하세요.
+                Enter the information above and click the &ldquo;Analyze&rdquo; button to analyze GitHub repositories.
               </p>
               <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
-                <h3 className="font-semibold text-blue-800 dark:text-blue-200 mb-2">💡 분석 팁</h3>
+                <h3 className="font-semibold text-blue-800 dark:text-blue-200 mb-2">💡 Analysis Tips</h3>
                 <ul className="text-sm text-blue-700 dark:text-blue-300 text-left space-y-1">
-                  <li>• Personal Access Token을 입력하면 더 정확한 분석이 가능합니다</li>
-                  <li>• 공개 저장소만 분석되며, 비공개 저장소는 토큰이 있어도 분석되지 않습니다</li>
-                  <li>• API 제한으로 인해 너무 자주 분석하지 마세요</li>
+                  <li>• Entering a Personal Access Token enables more accurate analysis</li>
+                  <li>• Only public repositories are analyzed; private repositories are not analyzed even with a token</li>
+                  <li>• Do not analyze too frequently due to API rate limits</li>
                 </ul>
               </div>
             </div>
@@ -159,7 +159,7 @@ export default function TechStackAnalysis() {
         {analysis && !loading && (
           <div className="space-y-8">
             {/* Languages */}
-            <Card title="프로그래밍 언어">
+            <Card title="Programming Languages">
               <div className="space-y-3">
                 {Object.entries(analysis.languages).slice(0, 10).map(([lang, bytes]) => (
                   <div key={lang} className="flex items-center justify-between">
@@ -184,7 +184,7 @@ export default function TechStackAnalysis() {
             </Card>
 
             {/* Frameworks */}
-            <Card title="프레임워크 & 라이브러리">
+            <Card title="Frameworks & Libraries">
               <div className="flex flex-wrap gap-2">
                 {analysis.frameworks.length > 0 ? (
                   analysis.frameworks.map((framework) => (
@@ -193,13 +193,13 @@ export default function TechStackAnalysis() {
                     </Badge>
                   ))
                 ) : (
-                  <p className="text-gray-600 dark:text-gray-400">감지된 프레임워크가 없습니다.</p>
+                  <p className="text-gray-600 dark:text-gray-400">No frameworks detected.</p>
                 )}
               </div>
             </Card>
 
             {/* Technologies */}
-            <Card title="기술 스택">
+            <Card title="Tech Stack">
               <div className="flex flex-wrap gap-2">
                 {analysis.technologies.length > 0 ? (
                   analysis.technologies.map((tech) => (
@@ -208,13 +208,13 @@ export default function TechStackAnalysis() {
                     </Badge>
                   ))
                 ) : (
-                  <p className="text-gray-600 dark:text-gray-400">감지된 기술이 없습니다.</p>
+                  <p className="text-gray-600 dark:text-gray-400">No technologies detected.</p>
                 )}
               </div>
             </Card>
 
             {/* Repositories */}
-            <Card title={`분석된 저장소 (${analysis.repositories.length}개)`}>
+            <Card title={`Analyzed Repositories (${analysis.repositories.length})`}>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {analysis.repositories.slice(0, 12).map((repo) => (
                   <div key={repo.name} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow">

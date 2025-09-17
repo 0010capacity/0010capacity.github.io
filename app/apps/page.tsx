@@ -39,7 +39,7 @@ export default function Apps() {
           const appData = await Promise.all(appDataPromises);
           setApps(appData.filter(app => app !== null));
         } else {
-          // index.json이 없으면 직접 파일들을 시도
+          // If index.json doesn't exist, try files directly
           const knownApps = ['Logit'];
           const appDataPromises = knownApps.map(async (appName: string) => {
             try {
@@ -79,21 +79,21 @@ export default function Apps() {
   };
 
   const getPlatformBadge = (deployments: AppData['deployments']) => {
-    if (deployments.length === 0) return <Badge variant="default">개발 중</Badge>;
+    if (deployments.length === 0) return <Badge variant="default">In Development</Badge>;
 
     const types = deployments.map(d => d.type);
     if (types.includes('appstore')) return <Badge variant="info">iOS</Badge>;
     if (types.includes('googleplay')) return <Badge variant="warning">Android</Badge>;
-    if (types.includes('website')) return <Badge variant="default">웹</Badge>;
+    if (types.includes('website')) return <Badge variant="default">Web</Badge>;
     if (types.includes('steam')) return <Badge variant="error">PC</Badge>;
-    return <Badge variant="default">기타</Badge>;
+    return <Badge variant="default">Other</Badge>;
   };
 
   if (loading) {
     return (
       <div className="font-sans min-h-screen p-8 pb-20 gap-16 sm:p-20">
         <main className="flex flex-col gap-8 items-center">
-          <div className="text-xl">앱 목록을 불러오는 중...</div>
+          <div className="text-xl">Loading app list...</div>
         </main>
       </div>
     );
@@ -132,11 +132,11 @@ export default function Apps() {
                       rel="noopener noreferrer"
                       className="inline-flex items-center px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
                     >
-                      {app.deployments[0].type === 'website' ? '웹사이트' : '다운로드'}
+                      {app.deployments[0].type === 'website' ? 'Website' : 'Download'}
                     </a>
                   )}
                   <Button as={Link} href={`/apps/${app.name}`} variant="success" size="sm" icon={Eye}>
-                    자세히 보기
+                    View Details
                   </Button>
                 </div>
               </Card>

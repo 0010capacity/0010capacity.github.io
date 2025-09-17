@@ -47,7 +47,7 @@ export default function EditProfilePage() {
         setProfileData(data);
       } catch (err) {
         console.error('Error fetching profile data:', err);
-        setError('프로필 데이터를 불러오는데 실패했습니다.');
+        setError('Failed to load profile data.');
       } finally {
         setProfileLoading(false);
       }
@@ -116,7 +116,7 @@ export default function EditProfilePage() {
 
   const detectTechStack = async () => {
     if (!token) {
-      alert('GitHub 토큰을 입력해주세요.');
+      alert('Please enter your GitHub token.');
       return;
     }
 
@@ -128,7 +128,7 @@ export default function EditProfilePage() {
       setDetectedTechStack(formattedTechStack);
       setShowTechStackEditor(true);
     } catch (error) {
-      alert('테크 스택 감지에 실패했습니다: ' + (error instanceof Error ? error.message : '알 수 없는 오류'));
+      alert('Failed to detect tech stack: ' + (error instanceof Error ? error.message : 'Unknown error'));
     } finally {
       setIsDetecting(false);
     }
@@ -153,11 +153,11 @@ export default function EditProfilePage() {
 
   return (
     <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">프로필 편집</h1>
+      <h1 className="text-2xl font-bold mb-6">Edit Profile</h1>
 
       {profileLoading ? (
         <div className="text-center py-8">
-          <p className="text-lg">프로필 데이터를 불러오는 중...</p>
+          <p className="text-lg">Loading profile data...</p>
         </div>
       ) : (
         <Form onSubmit={handleSubmit}>
@@ -177,15 +177,15 @@ export default function EditProfilePage() {
                 className="mr-2"
               />
               <label htmlFor="rememberToken" className="text-sm text-gray-600">
-                토큰 기억하기 (브라우저에 저장)
+                Remember token (save in browser)
               </label>
             </div>
             <p className="text-sm text-gray-600 mt-1">
-              repo 권한이 있는 토큰을 입력하세요.
+              Please enter a token with repo permissions.
             </p>
           </FormField>
 
-          <FormField label="이름" required>
+          <FormField label="Name" required>
             <Input
               type="text"
               value={profileData.name}
@@ -193,7 +193,7 @@ export default function EditProfilePage() {
             />
           </FormField>
 
-          <FormField label="이메일" required>
+          <FormField label="Email" required>
             <Input
               type="email"
               value={profileData.email}
@@ -201,7 +201,7 @@ export default function EditProfilePage() {
             />
           </FormField>
 
-          <FormField label="국가" required>
+          <FormField label="Country" required>
             <Input
               type="text"
               value={profileData.country}
@@ -209,7 +209,7 @@ export default function EditProfilePage() {
             />
           </FormField>
 
-          <FormField label="학력" required>
+          <FormField label="Education" required>
             <Input
               type="text"
               value={profileData.education}
@@ -217,18 +217,18 @@ export default function EditProfilePage() {
             />
           </FormField>
 
-          <FormField label="자기소개" required>
+          <FormField label="Bio" required>
             <Textarea
               value={profileData.bio}
               onChange={(e) => handleInputChange('bio', e.target.value)}
-              placeholder="자기소개를 입력하세요..."
+              placeholder="Enter your bio..."
               className="h-24"
             />
           </FormField>
 
           {/* 테크 스택 섹션 */}
           <Card
-            title="기술 스택"
+            title="Tech Stack"
             actions={
               <Button
                 type="button"
@@ -237,12 +237,12 @@ export default function EditProfilePage() {
                 variant="success"
                 size="sm"
               >
-                {isDetecting ? '감지 중...' : 'GitHub에서 자동 감지'}
+                {isDetecting ? 'Detecting...' : 'Auto-detect from GitHub'}
               </Button>
             }
           >
 
-            {/* 현재 테크 스택 */}
+            {/* Current Tech Stack */}
             <div className="mb-4">
               <div className="flex flex-wrap gap-2 mb-2">
                 {profileData.techStack.map((tech) => (
@@ -259,18 +259,18 @@ export default function EditProfilePage() {
                 ))}
               </div>
               {profileData.techStack.length === 0 && (
-                <p className="text-sm text-gray-500 dark:text-gray-400">등록된 기술 스택이 없습니다.</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">No tech stack registered.</p>
               )}
             </div>
 
-            {/* 수동 추가 */}
+            {/* Manual Add */}
             <div className="flex gap-2 mb-4">
               <Input
                 type="text"
                 value={newTech}
                 onChange={(e) => setNewTech(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTechStack(newTech))}
-                placeholder="기술 스택 입력 (예: React, Python, Node.js)"
+                placeholder="Enter tech stack (e.g., React, Python, Node.js)"
                 className="flex-1"
               />
               <Button
@@ -284,11 +284,11 @@ export default function EditProfilePage() {
               </Button>
             </div>
 
-            {/* 자동 감지 결과 */}
+            {/* Auto-detection Results */}
             {showTechStackEditor && detectedTechStack.length > 0 && (
               <Card className="border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20">
                 <div className="flex justify-between items-center mb-3">
-                  <h3 className="font-semibold text-green-800 dark:text-green-200">GitHub에서 감지된 기술</h3>
+                  <h3 className="font-semibold text-green-800 dark:text-green-200">Technologies detected from GitHub</h3>
                   <div className="flex gap-2">
                     <Button
                       type="button"
@@ -328,7 +328,7 @@ export default function EditProfilePage() {
 
             {!token && (
               <p className="text-sm text-orange-600 dark:text-orange-400 mt-2">
-                GitHub 토큰을 입력해야 자동 감지 기능을 사용할 수 있습니다.
+                You need to enter a GitHub token to use the auto-detection feature.
               </p>
             )}
           </Card>
@@ -344,7 +344,7 @@ export default function EditProfilePage() {
                 취소
               </Button>
               <Button type="submit" disabled={isLoading} loading={isLoading} className="flex-1" icon={Save}>
-                {isLoading ? '저장 중...' : ''}
+                {isLoading ? 'Saving...' : ''}
               </Button>
             </div>
           </FormActions>
@@ -358,7 +358,7 @@ export default function EditProfilePage() {
       {prUrl && (
         <Card className="mt-4 bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
           <div className="text-green-800 dark:text-green-200">
-            프로필이 성공적으로 업데이트되었습니다!{' '}
+            Profile updated successfully!{' '}
             <Button
               as="a"
               href={prUrl}

@@ -22,7 +22,7 @@ export default async function AppPrivacyPolicy({ params }: { params: Promise<{ a
           <Button as={Link} href="/privacy-policy" variant="outline" className="mb-4" icon={ArrowLeft}>
           </Button>
         </div>
-        <h1 className="text-4xl font-bold mb-8 text-center">{app} 개인정보 처리방침</h1>
+        <h1 className="text-4xl font-bold mb-8 text-center">{app} Privacy Policy</h1>
 
         {policies.length > 0 ? (
           <div className="space-y-6">
@@ -30,12 +30,12 @@ export default async function AppPrivacyPolicy({ params }: { params: Promise<{ a
               <div key={policy.language} className="bg-gray-800 rounded-xl shadow-xl p-6 border border-gray-700">
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-2xl font-semibold text-gray-400">
-                    {policy.language === 'ko' ? '한국어 버전' :
+                    {policy.language === 'ko' ? 'Korean Version' :
                      policy.language === 'en' ? 'English Version' :
                      policy.language}
                   </h2>
                   <div className="text-sm text-gray-500">
-                    마지막 업데이트: {policy.lastUpdated}
+                    Last updated: {policy.lastUpdated}
                   </div>
                 </div>
                 <div className="mb-4">
@@ -54,9 +54,9 @@ export default async function AppPrivacyPolicy({ params }: { params: Promise<{ a
           </div>
         ) : (
           <div className="bg-gray-800 rounded-xl shadow-xl p-6 border border-gray-700 text-center">
-            <h2 className="text-2xl font-semibold text-gray-400 mb-4">개인정보 처리방침이 없습니다</h2>
+            <h2 className="text-2xl font-semibold text-gray-400 mb-4">No Privacy Policy</h2>
             <p className="text-gray-300 mb-6">
-              {app} 앱의 개인정보 처리방침이 아직 등록되지 않았습니다.
+              The privacy policy for {app} app has not been registered yet.
             </p>
             <Button
               as={Link}

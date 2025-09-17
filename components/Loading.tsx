@@ -10,7 +10,7 @@ const sizeStyles = {
   lg: 'h-8 w-8',
 };
 
-export default function Loading({ message = '로딩 중...', size = 'md', className = '' }: LoadingProps) {
+export default function Loading({ message = 'Loading...', size = 'md', className = '' }: LoadingProps) {
   return (
     <div className={`flex items-center justify-center space-x-2 ${className}`}>
       <div className={`animate-spin rounded-full border-b-2 border-blue-600 ${sizeStyles[size]}`}></div>

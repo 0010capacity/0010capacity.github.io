@@ -59,7 +59,7 @@ function EditAppForm() {
     const loadAppData = async () => {
       const appParam = searchParams.get('app');
       if (!appParam) {
-        setError('앱 이름이 지정되지 않았습니다.');
+        setError('App name is not specified.');
         setIsLoadingApp(false);
         return;
       }
@@ -68,11 +68,11 @@ function EditAppForm() {
       setAppName(decodedAppName);
 
       try {
-        // 실제로는 GitHub API나 파일 시스템에서 앱 데이터를 불러와야 함
-        // 현재는 mock 데이터 사용
+        // Should actually fetch app data from GitHub API or file system
+        // Currently using mock data
         const mockAppData: AppData = {
           name: decodedAppName,
-          description: '이 앱은 사용자에게 훌륭한 경험을 제공합니다.',
+          description: 'This app provides a great experience to users.',
           deployments: [
             { type: 'website', url: 'https://example.com' }
           ],
@@ -88,7 +88,7 @@ function EditAppForm() {
           setShowGithubField(true);
         }
       } catch (err) {
-        setError('앱 데이터를 불러오는데 실패했습니다.');
+        setError('Failed to load app data.');
       } finally {
         setIsLoadingApp(false);
       }
@@ -123,7 +123,7 @@ function EditAppForm() {
     // Validate deployments
     const validDeployments = deployments.filter(d => d.url.trim() !== '');
     if (validDeployments.length === 0) {
-      setError('최소 하나의 배포 URL을 입력해주세요.');
+      setError('Please enter at least one deployment URL.');
       setIsLoading(false);
       return;
     }
@@ -149,7 +149,7 @@ function EditAppForm() {
       <div className="max-w-2xl mx-auto p-6">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">앱 정보를 불러오는 중...</p>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">Loading app information...</p>
         </div>
       </div>
     );
@@ -165,7 +165,7 @@ function EditAppForm() {
           className="mb-4"
           icon={ArrowLeft}
         ></Button>
-        <h1 className="text-2xl font-bold">앱 수정: {appName}</h1>
+        <h1 className="text-2xl font-bold">Edit App: {appName}</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -192,18 +192,18 @@ function EditAppForm() {
               className="mr-2"
             />
             <label htmlFor="rememberToken" className="text-sm text-gray-600">
-              토큰 기억하기 (브라우저에 저장)
+              Remember token (save in browser)
             </label>
           </div>
           <p className="text-sm text-gray-600 mt-1">
-            repo 권한이 있는 토큰을 입력하세요.
+            Enter a token with repo permissions.
           </p>
         </div>
 
         {/* 앱 이름 (읽기 전용) */}
         <div>
           <label htmlFor="appName" className="block text-sm font-medium mb-1">
-            앱 이름
+            App Name
           </label>
           <input
             type="text"
@@ -213,14 +213,14 @@ function EditAppForm() {
             readOnly
           />
           <p className="text-sm text-gray-600 mt-1">
-            앱 이름은 수정할 수 없습니다.
+            App name cannot be modified.
           </p>
         </div>
 
         {/* 앱 설명 */}
         <div>
           <label htmlFor="description" className="block text-sm font-medium mb-1">
-            앱 설명
+            App Description
           </label>
           <textarea
             id="description"
@@ -228,14 +228,14 @@ function EditAppForm() {
             onChange={(e) => setDescription(e.target.value)}
             className="w-full p-2 border rounded h-24"
             required
-            placeholder="앱에 대한 자세한 설명을 입력하세요..."
+            placeholder="Enter a detailed description of the app..."
           />
         </div>
 
         {/* 배포 정보 */}
         <div>
           <div className="flex justify-between items-center mb-3">
-            <label className="block text-sm font-medium">배포 정보</label>
+            <label className="block text-sm font-medium">Deployment Info</label>
             <Button
               type="button"
               onClick={addDeployment}
@@ -249,7 +249,7 @@ function EditAppForm() {
             {deployments.map((deployment, index) => (
               <div key={index} className="border border-gray-200 rounded-lg p-4">
                 <div className="flex justify-between items-start mb-3">
-                  <h4 className="text-sm font-medium text-gray-700">배포 {index + 1}</h4>
+                  <h4 className="text-sm font-medium text-gray-700">Deployment {index + 1}</h4>
                   {deployments.length > 1 && (
                     <Button
                       type="button"
@@ -264,19 +264,19 @@ function EditAppForm() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div>
                     <label className="block text-xs font-medium text-gray-600 mb-1">
-                      배포 유형
+                      Deployment Type
                     </label>
                     <select
                       value={deployment.type}
                       onChange={(e) => updateDeployment(index, 'type', e.target.value)}
                       className="w-full p-2 border rounded text-sm"
                     >
-                      <option value="website">웹사이트</option>
+                      <option value="website">Website</option>
                       <option value="appstore">App Store</option>
                       <option value="googleplay">Google Play</option>
                       <option value="steam">Steam</option>
-                      <option value="download">다운로드</option>
-                      <option value="other">기타</option>
+                      <option value="download">Download</option>
+                      <option value="other">Other</option>
                     </select>
                   </div>
 
@@ -298,14 +298,14 @@ function EditAppForm() {
                 {deployment.type === 'other' && (
                   <div className="mt-3">
                     <label className="block text-xs font-medium text-gray-600 mb-1">
-                      사용자 정의 라벨 (선택사항)
+                      Custom Label (Optional)
                     </label>
                     <input
                       type="text"
                       value={deployment.label || ''}
                       onChange={(e) => updateDeployment(index, 'label', e.target.value)}
                       className="w-full p-2 border rounded text-sm"
-                      placeholder="예: Microsoft Store, Itch.io 등"
+                      placeholder="e.g., Microsoft Store, Itch.io, etc."
                     />
                   </div>
                 )}
@@ -325,14 +325,14 @@ function EditAppForm() {
               className="mr-2"
             />
             <label htmlFor="showGithubField" className="text-sm font-medium">
-              GitHub 레포지토리 추가
+              Add GitHub Repository
             </label>
           </div>
 
           {showGithubField && (
             <div>
               <label htmlFor="githubRepo" className="block text-sm font-medium mb-1">
-                GitHub 레포지토리 URL
+                GitHub Repository URL
               </label>
               <input
                 type="url"
@@ -343,13 +343,13 @@ function EditAppForm() {
                 placeholder="https://github.com/username/repo"
               />
               <p className="text-sm text-gray-600 mt-1">
-                앱의 소스 코드가 있는 GitHub 레포지토리 URL을 입력하세요.
+                Please enter the GitHub repository URL where the app's source code is located.
               </p>
             </div>
           )}
         </div>
 
-        {/* 제출 버튼 */}
+        {/* Submit Button */}
         <div className="flex gap-4">
           <Button
             type="button"
@@ -357,7 +357,7 @@ function EditAppForm() {
             variant="secondary"
             className="flex-1"
           >
-            취소
+            Cancel
           </Button>
           <Button
             type="submit"
@@ -365,7 +365,7 @@ function EditAppForm() {
             className="flex-1 bg-blue-500 text-white p-3 rounded hover:bg-blue-600 disabled:opacity-50 font-medium"
             icon={Save}
           >
-            {isLoading ? '수정 중...' : ''}
+            {isLoading ? 'Updating...' : ''}
           </Button>
         </div>
       </form>
@@ -378,7 +378,7 @@ function EditAppForm() {
 
       {prUrl && (
         <div className="mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
-          앱 정보가 성공적으로 수정되었습니다!{' '}
+          App information updated successfully!{' '}
           <Button
             as="a"
             href={prUrl}
@@ -396,7 +396,7 @@ function EditAppForm() {
 
 export default function EditAppPage() {
   return (
-    <Suspense fallback={<div className="max-w-2xl mx-auto p-6">로딩 중...</div>}>
+    <Suspense fallback={<div className="max-w-2xl mx-auto p-6">Loading...</div>}>
       <EditAppForm />
     </Suspense>
   );

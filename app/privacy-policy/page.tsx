@@ -8,7 +8,7 @@ export default function PrivacyPolicy() {
   const allPolicies = getAllPrivacyPolicies();
   const appNames = getAppNames();
 
-  // 각 앱별로 최신 개인정보 처리방침을 가져옴
+  // Fetch the latest privacy policy for each app
   const appsWithPolicies = appNames.map(appName => {
     const policies = allPolicies.filter(policy => policy.appName === appName);
     return {
@@ -26,9 +26,9 @@ export default function PrivacyPolicy() {
           <Button as={Link} href="/" variant="outline" className="mb-4" icon={Home}>
           </Button>
         </div>
-        <h1 className="text-4xl font-bold mb-8 text-center">개인정보 처리방침</h1>
+        <h1 className="text-4xl font-bold mb-8 text-center">Privacy Policy</h1>
         <p className="text-lg text-gray-300 mb-8 text-center">
-          아래에서 각 앱의 개인정보 처리방침을 확인하세요.
+          Check each app's privacy policy below.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {appsWithPolicies.map((app) => (
@@ -41,16 +41,16 @@ export default function PrivacyPolicy() {
               {app.hasPolicies ? (
                 <div>
                   <p className="text-gray-300 mb-2">
-                    {app.policyCount}개의 언어 버전 제공
+                    Provides {app.policyCount} language versions
                   </p>
                   {app.latestUpdate && (
                     <p className="text-sm text-gray-500">
-                      마지막 업데이트: {new Date(app.latestUpdate).toLocaleDateString('ko-KR')}
+                      Last updated: {new Date(app.latestUpdate).toLocaleDateString('en-US')}
                     </p>
                   )}
                 </div>
               ) : (
-                <p className="text-gray-300">개인정보 처리방침이 아직 등록되지 않았습니다.</p>
+                <p className="text-gray-300">Privacy policy has not been registered yet.</p>
               )}
             </Link>
           ))}

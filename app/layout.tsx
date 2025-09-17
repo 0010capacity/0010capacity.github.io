@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "0010capacity",
-  description: "0010capacity의 포트폴리오 소개와 앱들의 개인정보 처리방침 제공.",
+  description: "Introduction to 0010capacity's portfolio and provision of privacy policies for apps.",
   icons: {
     icon: '/next.svg',
   },

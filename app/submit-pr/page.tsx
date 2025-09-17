@@ -66,7 +66,7 @@ function SubmitPRForm() {
 
   return (
     <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">개인정보 처리방침 PR 제출</h1>
+      <h1 className="text-2xl font-bold mb-6">Submit Privacy Policy PR</h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -91,17 +91,17 @@ function SubmitPRForm() {
               className="mr-2"
             />
             <label htmlFor="rememberToken" className="text-sm text-gray-600">
-              토큰 기억하기 (브라우저에 저장)
+              Remember token (save in browser)
             </label>
           </div>
           <p className="text-sm text-gray-600 mt-1">
-            repo 권한이 있는 토큰을 입력하세요.
+            Please enter a token with repo permissions.
           </p>
         </div>
 
         <div>
           <label htmlFor="appName" className="block text-sm font-medium mb-1">
-            앱 이름
+            App Name
           </label>
           <input
             type="text"
@@ -116,7 +116,7 @@ function SubmitPRForm() {
 
         <div>
           <label htmlFor="language" className="block text-sm font-medium mb-1">
-            언어
+            Language
           </label>
           <select
             id="language"
@@ -124,16 +124,16 @@ function SubmitPRForm() {
             onChange={(e) => setLanguage(e.target.value)}
             className="w-full p-2 border rounded"
           >
-            <option value="ko">한국어 (ko)</option>
-            <option value="en">영어 (en)</option>
-            <option value="ja">일본어 (ja)</option>
-            <option value="zh">중국어 (zh)</option>
+            <option value="ko">Korean (ko)</option>
+            <option value="en">English (en)</option>
+            <option value="ja">Japanese (ja)</option>
+            <option value="zh">Chinese (zh)</option>
           </select>
         </div>
 
         <div>
           <label htmlFor="content" className="block text-sm font-medium mb-1">
-            개인정보 처리방침 내용
+            Privacy Policy Content
           </label>
           <textarea
             id="content"
@@ -141,7 +141,7 @@ function SubmitPRForm() {
             onChange={(e) => setContent(e.target.value)}
             className="w-full p-2 border rounded h-64"
             required
-            placeholder="개인정보 처리방침 내용을 입력하세요..."
+            placeholder="Enter the privacy policy content..."
           />
         </div>
 
@@ -161,7 +161,7 @@ function SubmitPRForm() {
             className="flex-1 bg-blue-500 text-white p-2 rounded hover:bg-blue-600 disabled:opacity-50"
             icon={Send}
           >
-            {isLoading ? 'PR 생성 중...' : ''}
+            {isLoading ? 'Creating PR...' : ''}
           </Button>
         </div>
       </form>
@@ -174,7 +174,7 @@ function SubmitPRForm() {
 
       {prUrl && (
         <div className="mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
-          PR이 성공적으로 생성되었습니다!{' '}
+          PR created successfully!{' '}
           <Button
             as="a"
             href={prUrl}
@@ -192,7 +192,7 @@ function SubmitPRForm() {
 
 export default function SubmitPRPage() {
   return (
-    <Suspense fallback={<div className="max-w-2xl mx-auto p-6">로딩 중...</div>}>
+    <Suspense fallback={<div className="max-w-2xl mx-auto p-6">Loading...</div>}>
       <SubmitPRForm />
     </Suspense>
   );

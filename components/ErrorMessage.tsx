@@ -13,7 +13,7 @@ export default function ErrorMessage({ message, className = '', onRetry }: Error
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <div>
-            <h3 className="text-lg font-semibold text-red-800 dark:text-red-200 mb-1">오류 발생</h3>
+            <h3 className="text-lg font-semibold text-red-800 dark:text-red-200 mb-1">Error Occurred</h3>
             <p className="text-red-600 dark:text-red-300 text-sm">{message}</p>
           </div>
         </div>
@@ -22,7 +22,7 @@ export default function ErrorMessage({ message, className = '', onRetry }: Error
             onClick={onRetry}
             className="bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 rounded transition-colors duration-200"
           >
-            다시 시도
+            Retry
           </button>
         )}
       </div>
