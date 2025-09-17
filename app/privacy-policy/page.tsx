@@ -28,7 +28,7 @@ export default function PrivacyPolicy() {
         </div>
         <h1 className="text-4xl font-bold mb-8 text-center">Privacy Policy</h1>
         <p className="text-lg text-gray-300 mb-8 text-center">
-          Check each app's privacy policy below.
+          Check each app&apos;s privacy policy below.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {appsWithPolicies.map((app) => (

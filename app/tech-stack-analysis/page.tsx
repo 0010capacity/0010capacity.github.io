@@ -83,7 +83,7 @@ export default function TechStackAnalysis() {
             GitHub Tech Stack Analyzer
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 mb-6">
-            Analyze GitHub repositories to automatically detect a developer's tech stack.
+            Analyze GitHub repositories to automatically detect a developer&apos;s tech stack.
           </p>
           
           {/* Username Input */}

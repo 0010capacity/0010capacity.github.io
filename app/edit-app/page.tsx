@@ -343,7 +343,7 @@ function EditAppForm() {
                 placeholder="https://github.com/username/repo"
               />
               <p className="text-sm text-gray-600 mt-1">
-                Please enter the GitHub repository URL where the app's source code is located.
+                Please enter the GitHub repository URL where the app&apos;s source code is located.
               </p>
             </div>
           )}
