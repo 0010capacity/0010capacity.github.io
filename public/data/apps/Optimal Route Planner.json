@@ -1,0 +1,13 @@
+{
+  "name": "Optimal Route Planner",
+  "description": "When you have many places to visit, it finds the optimal permutation between the stopovers.",
+  "deployments": [
+    {
+      "type": "website",
+      "url": "https://my-optimal-route-planner.web.app/"
+    }
+  ],
+  "githubRepo": "https://github.com/0010capacity/optimal-route-planner",
+  "createdAt": "2025-09-17T06:23:34.707Z",
+  "updatedAt": "2025-09-17T06:23:34.707Z"
+}
