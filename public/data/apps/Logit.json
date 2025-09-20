@@ -3,10 +3,9 @@
   "description": "미니멀 하루 기록 앱",
   "deployments": [
     {
-      "type": "website",
-      "url": "http://localhost"
+      "type": "appstore",
+      "url": "https://apps.apple.com/kr/app/logit-log-of-the-day/id6752603467"
     }
   ],
-  "createdAt": "2025-09-16T14:48:02.375Z",
-  "updatedAt": "2025-09-16T14:48:02.375Z"
+  "updatedAt": "2025-09-20T00:51:16.145Z"
 }
