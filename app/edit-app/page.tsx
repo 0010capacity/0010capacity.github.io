@@ -49,27 +49,22 @@ function EditAppForm() {
       setAppName(decodedAppName);
 
       try {
-        // Should actually fetch app data from GitHub API or file system
-        // Currently using mock data
-        const mockAppData: AppData = {
-          name: decodedAppName,
-          description: 'This app provides a great experience to users.',
-          deployments: [
-            { type: 'website', url: 'https://example.com' }
-          ],
-          githubRepo: 'https://github.com/username/repo',
-          createdAt: '2024-01-01T00:00:00Z',
-          updatedAt: '2024-01-01T00:00:00Z'
-        };
+        // Load actual app data from JSON file
+        const response = await fetch(`/data/apps/${encodeURIComponent(decodedAppName)}.json`);
+        if (!response.ok) {
+          throw new Error('App data not found');
+        }
+        const appData: AppData = await response.json();
 
-        setDescription(mockAppData.description);
-        setDeployments(mockAppData.deployments.length > 0 ? mockAppData.deployments : [{ type: 'website', url: '' }]);
-        if (mockAppData.githubRepo) {
-          setGithubRepo(mockAppData.githubRepo);
+        setDescription(appData.description || '');
+        setDeployments(appData.deployments && appData.deployments.length > 0 ? appData.deployments : [{ type: 'website', url: '' }]);
+        if (appData.githubRepo) {
+          setGithubRepo(appData.githubRepo);
           setShowGithubField(true);
         }
       } catch (err) {
-        setError('Failed to load app data.');
+        console.error('Failed to load app data:', err);
+        setError('Failed to load app data. The app may not exist or there was a network error.');
       } finally {
         setIsLoadingApp(false);
       }
