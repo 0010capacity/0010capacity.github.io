@@ -41,7 +41,7 @@ export function ThemeProvider({
   useEffect(() => {
     const root = window.document.documentElement;
 
-    root.classList.remove('light', 'dark');
+    root.classList.remove('dark');
 
     if (theme === 'system') {
       const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
@@ -49,11 +49,15 @@ export function ThemeProvider({
         ? 'dark'
         : 'light';
 
-      root.classList.add(systemTheme);
+      if (systemTheme === 'dark') {
+        root.classList.add('dark');
+      }
       return;
     }
 
-    root.classList.add(theme);
+    if (theme === 'dark') {
+      root.classList.add('dark');
+    }
   }, [theme]);
 
   const value = {
