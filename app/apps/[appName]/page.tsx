@@ -79,7 +79,7 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
             <div>
               <h3 className="font-semibold text-gray-700 dark:text-gray-300">Platform</h3>
               <p className="text-gray-600 dark:text-gray-400">
-                {deployments.length > 0 ? 
+                {deployments.length > 0 && deployments[0] ? 
                   (deployments[0].type === 'website' ? 'Web' : 
                    deployments[0].type === 'appstore' ? 'iOS' :
                    deployments[0].type === 'googleplay' ? 'Android' : 'Other') : 'Unknown'}

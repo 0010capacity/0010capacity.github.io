@@ -17,6 +17,21 @@ interface AppData {
   updatedAt: string;
 }
 
+export const metadata = {
+  title: "Apps",
+  description: "0010capacity가 개발한 iOS, Android, 웹 앱들을 소개합니다. 각 앱의 기능과 다운로드 링크를 확인하세요.",
+  openGraph: {
+    title: "Apps - 0010capacity Portfolio",
+    description: "0010capacity가 개발한 iOS, Android, 웹 앱들을 소개합니다.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Apps - 0010capacity Portfolio",
+    description: "0010capacity가 개발한 iOS, Android, 웹 앱들을 소개합니다.",
+  },
+};
+
 export default async function Apps() {
   // Read all JSON files from public/data/apps directory
   const appsDir = join(process.cwd(), 'public', 'data', 'apps');
@@ -65,7 +80,7 @@ export default async function Apps() {
               >
                 <p className="text-gray-600 mb-4">{app.description}</p>
                 <div className="flex gap-2">
-                  {app.deployments.length > 0 && (
+                  {app.deployments.length > 0 && app.deployments[0] && (
                     <a
                       href={app.deployments[0].url}
                       target="_blank"

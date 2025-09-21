@@ -26,15 +26,6 @@ interface Deployment {
   label?: string; // 사용자 정의 라벨
 }
 
-interface AppData {
-  name: string;
-  description: string;
-  deployments: Deployment[];
-  githubRepo?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
 export class GitHubAnalyzer {
   private username: string;
   private token?: string;
@@ -291,15 +282,20 @@ export const createFilePR = async (
     const contentBase64 = btoa(unescape(encodeURIComponent(content)));
 
     // 파일 생성 또는 업데이트
-    await octokit.repos.createOrUpdateFileContents({
+    const params: Parameters<typeof octokit.repos.createOrUpdateFileContents>[0] = {
       owner,
       repo,
       path: filePath,
       message: commitMessage,
       content: contentBase64,
       branch: branchName,
-      sha: fileSha, // 파일이 존재할 때만 SHA 제공
-    });
+    };
+    
+    if (fileSha) {
+      params.sha = fileSha;
+    }
+    
+    await octokit.repos.createOrUpdateFileContents(params);
 
     // PR 생성
     const { data: prData } = await octokit.pulls.create({

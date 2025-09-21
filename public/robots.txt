@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://0010capacity.github.io/sitemap.xml

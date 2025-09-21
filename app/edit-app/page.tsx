@@ -34,25 +34,6 @@ function EditAppForm() {
   const [isLoadingApp, setIsLoadingApp] = useState(true);
   const [prUrl, setPrUrl] = useState('');
   const [error, setError] = useState('');
-  const [rememberToken, setRememberToken] = useState(false);
-
-  // Load saved token on component mount
-  useEffect(() => {
-    const savedToken = localStorage.getItem('github_token');
-    if (savedToken) {
-      setToken(savedToken);
-      setRememberToken(true);
-    }
-  }, []);
-
-  // Save or remove token based on remember preference
-  useEffect(() => {
-    if (rememberToken && token) {
-      localStorage.setItem('github_token', token);
-    } else if (!rememberToken) {
-      localStorage.removeItem('github_token');
-    }
-  }, [token, rememberToken]);
 
   // Load app data from URL parameter
   useEffect(() => {
@@ -183,18 +164,6 @@ function EditAppForm() {
             required
             placeholder="ghp_..."
           />
-          <div className="flex items-center mt-2">
-            <input
-              type="checkbox"
-              id="rememberToken"
-              checked={rememberToken}
-              onChange={(e) => setRememberToken(e.target.checked)}
-              className="mr-2"
-            />
-            <label htmlFor="rememberToken" className="text-sm text-gray-600">
-              Remember token (save in browser)
-            </label>
-          </div>
           <p className="text-sm text-gray-600 mt-1">
             Enter a token with repo permissions.
           </p>

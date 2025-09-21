@@ -16,6 +16,8 @@ interface ButtonProps {
   icon?: LucideIcon;
   target?: string;
   rel?: string;
+  'aria-label'?: string;
+  'aria-describedby'?: string;
 }
 
 const variantStyles = {
@@ -65,9 +67,11 @@ export default function Button({
       {...componentProps}
       className={styles}
       disabled={disabled || loading}
+      aria-label={props['aria-label']}
+      aria-describedby={props['aria-describedby']}
     >
       {loading && <LoadingSpinner />}
-      {Icon && <Icon size={16} />}
+      {Icon && <Icon size={16} aria-hidden="true" />}
       {children}
     </Component>
   );

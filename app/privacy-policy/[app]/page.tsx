@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus, ArrowLeft, Home, Eye } from "lucide-react";
+import { Plus, ArrowLeft, Eye } from "lucide-react";
 import { getAppNames } from "@/app/data/apps";
 import { getPrivacyPoliciesForApp } from "@/app/data/privacy-policies";
 import { Button } from "@/components";

@@ -61,7 +61,7 @@ function generatePrivacyPoliciesData(): PrivacyPolicyData[] {
             appName,
             language,
             url: `/data/privacy-policies/${appName}/${file}`,
-            lastUpdated: stats.mtime.toISOString().split('T')[0], // YYYY-MM-DD 형식
+            lastUpdated: stats?.mtime?.toISOString().split('T')[0] || '2024-01-01', // YYYY-MM-DD 형식
           };
         });
 
