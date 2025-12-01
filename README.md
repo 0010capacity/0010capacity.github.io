@@ -1,35 +1,95 @@
 # 0010capacity
 
-이곳은 [Next.js](https://nextjs.org)를 사용하여 구축된 0010capacity의 개인 웹사이트로, 포트폴리오를 소개하고 앱들의 개인정보 처리방침을 제공합니다. GitHub Pages에 배포됩니다.
+0010capacity의 개인 브랜드 플랫폼 - 소설, 블로그, 앱 마켓플레이스를 제공하는 종합 서비스입니다.
 
-## 시작하기
+## 🏗️ 프로젝트 구조
 
-개발 서버를 실행합니다:
+이 저장소는 Monorepo로 구성되어 있습니다:
+
+```
+0010capacity.github.io/
+├── frontend/          # Next.js 프론트엔드 (GitHub Pages)
+│   ├── app/          # Next.js 15 App Router
+│   ├── components/   # React 컴포넌트
+│   ├── hooks/        # Custom React Hooks
+│   ├── lib/          # 유틸리티 함수
+│   └── public/       # 정적 파일
+├── backend/           # Rust API 서버 (Fly.io)
+│   ├── src/          # Rust 소스 코드
+│   ├── migrations/   # 데이터베이스 마이그레이션
+│   └── Cargo.toml    # Rust 의존성
+└── .github/
+    └── workflows/     # CI/CD 파이프라인
+```
+
+## 🚀 시작하기
+
+### Frontend (Next.js)
 
 ```bash
+cd frontend
+npm install
 npm run dev
 ```
 
-브라우저에서 [http://localhost:3000](http://localhost:3000)을 열어 결과를 확인하세요.
+브라우저에서 [http://localhost:3000](http://localhost:3000)을 열어 확인하세요.
 
-`app/page.tsx` 파일을 수정하여 페이지를 업데이트할 수 있습니다. 파일을 편집하면 페이지가 자동으로 업데이트됩니다.
+### Backend (Rust)
 
-## GitHub Pages에 배포
+```bash
+cd backend
+cargo run
+```
 
-GitHub Pages에 배포하려면:
+API 서버가 [http://localhost:8080](http://localhost:8080)에서 실행됩니다.
 
-1. 프로젝트를 빌드합니다:
-   ```bash
-   npm run export
-   ```
+## 📦 기술 스택
 
-2. 정적 파일은 `out` 디렉토리에 생성됩니다.
+### Frontend
+- **Framework**: Next.js 15 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS 4
+- **Deployment**: GitHub Pages
 
-3. `out` 디렉토리를 `gh-pages` 브랜치에 푸시하거나 GitHub Pages가 `out` 폴더를 제공하도록 설정하세요.
+### Backend
+- **Language**: Rust
+- **Framework**: Axum
+- **Database**: PostgreSQL (Fly.io Postgres)
+- **ORM**: SQLx
+- **Deployment**: Fly.io
 
-## 더 알아보기
+## 🌐 배포
 
-Next.js에 대해 더 알아보려면 다음 리소스를 확인하세요:
+### 자동 배포 (GitHub Actions)
 
-- [Next.js 문서](https://nextjs.org/docs) - Next.js 기능과 API에 대해 알아보세요.
-- [Next.js 학습](https://nextjs.org/learn) - 대화형 Next.js 튜토리얼입니다.
+- **Frontend**: `main` 브랜치에 `frontend/` 경로 변경 시 자동으로 GitHub Pages에 배포
+- **Backend**: `main` 브랜치에 `backend/` 경로 변경 시 자동으로 Fly.io에 배포
+
+### 수동 배포
+
+#### Frontend
+```bash
+cd frontend
+npm run export
+# out/ 디렉토리가 생성되고 GitHub Pages로 배포됩니다
+```
+
+#### Backend
+```bash
+cd backend
+flyctl deploy
+```
+
+## 🔗 링크
+
+- **Website**: [https://0010capacity.github.io](https://0010capacity.github.io)
+- **API**: [https://0010capacity-backend.fly.dev](https://0010capacity-backend.fly.dev)
+- **GitHub**: [https://github.com/0010capacity](https://github.com/0010capacity)
+
+## 📝 라이센스
+
+이 프로젝트는 개인 포트폴리오 프로젝트입니다.
+
+## 📧 연락처
+
+문의사항이 있으시면 GitHub Issues를 통해 연락 주세요.
