@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "next build && npm run postbuild",
+    "postbuild": "cp public/404.html out/404.html",
     "export": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -17,11 +18,14 @@
   },
   "dependencies": {
     "@octokit/rest": "^22.0.0",
+    "@uiw/react-md-editor": "^4.0.11",
     "lucide-react": "^0.544.0",
     "next": "15.5.3",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "react-github-calendar": "^4.5.10"
+    "react-github-calendar": "^4.5.10",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
