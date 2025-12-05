@@ -9,6 +9,7 @@ interface AdminLayoutProps {
   title: string;
   backHref?: string;
   backLabel?: string;
+  onBack?: () => void;
 }
 
 export default function AdminLayout({
@@ -16,6 +17,7 @@ export default function AdminLayout({
   title,
   backHref = "/admin/dashboard",
   backLabel = "← 대시보드",
+  onBack,
 }: AdminLayoutProps) {
   const router = useRouter();
   const [user, setUser] = useState<{ id: string; username: string } | null>(
@@ -28,7 +30,7 @@ export default function AdminLayout({
     const storedUser = localStorage.getItem("admin_user");
 
     if (!storedToken || !storedUser) {
-      router.push("/admin/login");
+      router.push("/admin/login/");
       return;
     }
 
@@ -39,7 +41,7 @@ export default function AdminLayout({
   const handleLogout = () => {
     localStorage.removeItem("admin_token");
     localStorage.removeItem("admin_user");
-    router.push("/admin/login");
+    router.push("/admin/login/");
   };
 
   if (isLoading) {
@@ -52,16 +54,25 @@ export default function AdminLayout({
 
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-100">
-      <div className="max-w-5xl mx-auto px-6 py-8">
+      <div className="max-w-2xl mx-auto px-6 py-8">
         {/* Header */}
         <header className="mb-8">
           <div className="flex items-center justify-between mb-6">
-            <Link
-              href={backHref}
-              className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
-            >
-              {backLabel}
-            </Link>
+            {onBack ? (
+              <button
+                onClick={onBack}
+                className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
+              >
+                {backLabel}
+              </button>
+            ) : (
+              <Link
+                href={backHref}
+                className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
+              >
+                {backLabel}
+              </Link>
+            )}
             <div className="flex items-center gap-4">
               <span className="text-sm text-neutral-500">{user?.username}</span>
               <button

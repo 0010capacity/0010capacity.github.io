@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { authApi } from "@/lib/api";
@@ -19,6 +19,26 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("admin_token");
+    const storedUser = localStorage.getItem("admin_user");
+
+    if (storedToken && storedUser) {
+      router.push("/admin/dashboard/");
+    } else {
+      setCheckingAuth(false);
+    }
+  }, [router]);
+
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen bg-neutral-950 text-neutral-100 flex items-center justify-center">
+        <p className="text-neutral-600 text-sm">로딩 중...</p>
+      </div>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,7 +54,7 @@ export default function AdminLoginPage() {
       localStorage.setItem("admin_token", response.token);
       localStorage.setItem("admin_user", JSON.stringify(response.user));
 
-      router.push("/admin/dashboard");
+      router.push("/admin/dashboard/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "로그인에 실패했습니다");
     } finally {

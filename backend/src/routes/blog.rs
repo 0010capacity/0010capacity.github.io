@@ -6,6 +6,7 @@ use axum::{
     Json, Router,
 };
 use serde::Deserialize;
+use uuid::Uuid;
 use validator::Validate;
 
 use crate::{
@@ -84,12 +85,41 @@ async fn create_post(
 
     let tags: Vec<String> = payload.tags.unwrap_or_default();
 
+    // Generate slug from provided value or create UUID-based slug
+    let slug = match &payload.slug {
+        Some(s) if !s.trim().is_empty() => s.trim().to_string(),
+        _ => format!(
+            "post-{}",
+            Uuid::new_v4()
+                .to_string()
+                .split('-')
+                .next()
+                .unwrap_or("unknown")
+        ),
+    };
+
+    // Check for duplicate slug
+    let existing = sqlx::query_scalar::<_, i64>("SELECT COUNT(*) FROM blog_posts WHERE slug = $1")
+        .bind(&slug)
+        .fetch_one(&state.pool)
+        .await?;
+
+    let final_slug = if existing > 0 {
+        format!(
+            "{}-{}",
+            slug,
+            Uuid::new_v4().to_string().split('-').next().unwrap_or("1")
+        )
+    } else {
+        slug
+    };
+
     let post = sqlx::query_as::<_, BlogPost>(
         "INSERT INTO blog_posts (slug, title, content, excerpt, cover_image_url, tags, published, published_at)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
          RETURNING id, slug, title, content, excerpt, cover_image_url, tags, published, view_count, published_at, created_at, updated_at"
     )
-    .bind(&payload.slug)
+    .bind(&final_slug)
     .bind(&payload.title)
     .bind(&payload.content)
     .bind(&payload.excerpt)

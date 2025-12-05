@@ -4,7 +4,51 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { appsApi } from "@/lib/api";
-import { App } from "@/lib/types";
+import { App, DistributionChannel, Platform } from "@/lib/types";
+
+// Platform display info
+const PLATFORM_INFO: Record<Platform, { name: string; color: string }> = {
+  ios: { name: "iOS", color: "bg-blue-900/50 text-blue-400" },
+  android: { name: "Android", color: "bg-green-900/50 text-green-400" },
+  web: { name: "Web", color: "bg-purple-900/50 text-purple-400" },
+  windows: { name: "Windows", color: "bg-cyan-900/50 text-cyan-400" },
+  macos: { name: "macOS", color: "bg-gray-700/50 text-gray-300" },
+  linux: { name: "Linux", color: "bg-orange-900/50 text-orange-400" },
+  game: { name: "Game", color: "bg-pink-900/50 text-pink-400" },
+};
+
+// Distribution channel display names
+const CHANNEL_NAMES: Record<string, string> = {
+  app_store: "App Store",
+  play_store: "Google Play",
+  web: "Web App",
+  steam: "Steam",
+  stove: "Stove",
+  epic: "Epic Games",
+  gog: "GOG",
+  itch: "itch.io",
+  landing_page: "Website",
+  direct_download: "Download",
+  github: "GitHub",
+  other: "Link",
+};
+
+function PlatformBadge({ platform }: { platform: Platform }) {
+  const info = PLATFORM_INFO[platform] || {
+    name: platform,
+    color: "bg-neutral-800 text-neutral-400",
+  };
+  return (
+    <span className={`px-2 py-1 text-xs rounded ${info.color}`}>
+      {info.name}
+    </span>
+  );
+}
+
+function getChannelName(channel: DistributionChannel): string {
+  if (channel.label) return channel.label;
+  return CHANNEL_NAMES[channel.type] || channel.type;
+}
 
 // App List Component
 function AppList() {
@@ -16,8 +60,10 @@ function AppList() {
     const fetchApps = async () => {
       try {
         setLoading(true);
-        const data = (await appsApi.list({ limit: 50 })) as App[];
-        setApps(Array.isArray(data) ? data : []);
+        const data = await appsApi.list({ limit: 50 });
+        // API might return array directly or wrapped
+        const appsList = Array.isArray(data) ? data : [];
+        setApps(appsList as App[]);
         setError("");
       } catch (err) {
         setError(
@@ -31,21 +77,6 @@ function AppList() {
 
     fetchApps();
   }, []);
-
-  const getPlatformLabel = (platform: string) => {
-    switch (platform) {
-      case "ios":
-        return "iOS";
-      case "android":
-        return "Android";
-      case "web":
-        return "Web";
-      case "desktop":
-        return "Desktop";
-      default:
-        return platform;
-    }
-  };
 
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-100">
@@ -81,19 +112,39 @@ function AppList() {
                   href={`/apps/${app.slug}`}
                   className="block group py-6 border-b border-neutral-800 hover:border-neutral-600 transition-colors"
                 >
-                  <div className="flex justify-between items-start mb-2">
-                    <h2 className="text-lg font-medium text-neutral-200 group-hover:text-white transition-colors">
-                      {app.name}
-                    </h2>
-                    <span className="text-xs text-neutral-600 border border-neutral-800 px-2 py-1 rounded">
-                      {getPlatformLabel(app.platform)}
-                    </span>
+                  <div className="flex items-start gap-4">
+                    {app.icon_url && (
+                      <div className="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 bg-neutral-800">
+                        <img
+                          src={app.icon_url}
+                          alt={app.name}
+                          className="w-full h-full object-cover"
+                          onError={e => {
+                            (e.target as HTMLImageElement).style.display =
+                              "none";
+                          }}
+                        />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-2 flex-wrap">
+                        <h2 className="text-lg font-medium text-neutral-200 group-hover:text-white transition-colors">
+                          {app.name}
+                        </h2>
+                        {(app.platforms || []).map(platform => (
+                          <PlatformBadge
+                            key={platform}
+                            platform={platform as Platform}
+                          />
+                        ))}
+                      </div>
+                      {app.description && (
+                        <p className="text-sm text-neutral-500 line-clamp-2">
+                          {app.description}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  {app.description && (
-                    <p className="text-sm text-neutral-500 line-clamp-2">
-                      {app.description}
-                    </p>
-                  )}
                 </Link>
               </li>
             ))}
@@ -139,36 +190,6 @@ function AppDetail({ slug }: { slug: string }) {
     }
   }, [slug]);
 
-  const getPlatformLabel = (platform: string) => {
-    switch (platform) {
-      case "ios":
-        return "iOS";
-      case "android":
-        return "Android";
-      case "web":
-        return "Web";
-      case "desktop":
-        return "Desktop";
-      default:
-        return platform;
-    }
-  };
-
-  const getDownloadLabel = (key: string) => {
-    switch (key) {
-      case "appstore":
-        return "App Store";
-      case "googleplay":
-        return "Google Play";
-      case "website":
-        return "Website";
-      case "github":
-        return "GitHub";
-      default:
-        return key;
-    }
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-neutral-950 text-neutral-100 flex items-center justify-center">
@@ -208,17 +229,27 @@ function AppDetail({ slug }: { slug: string }) {
         <header className="mt-12 mb-16">
           <div className="flex items-center gap-4 mb-6">
             {app.icon_url && (
-              <img
-                src={app.icon_url}
-                alt={app.name}
-                className="w-16 h-16 rounded-xl"
-              />
+              <div className="w-16 h-16 rounded-xl overflow-hidden bg-neutral-800">
+                <img
+                  src={app.icon_url}
+                  alt={app.name}
+                  className="w-full h-full object-cover"
+                  onError={e => {
+                    (e.target as HTMLImageElement).style.display = "none";
+                  }}
+                />
+              </div>
             )}
             <div>
-              <h1 className="text-3xl font-light">{app.name}</h1>
-              <span className="text-sm text-neutral-600">
-                {getPlatformLabel(app.platform)}
-              </span>
+              <h1 className="text-3xl font-light mb-2">{app.name}</h1>
+              <div className="flex flex-wrap gap-2">
+                {(app.platforms || []).map(platform => (
+                  <PlatformBadge
+                    key={platform}
+                    platform={platform as Platform}
+                  />
+                ))}
+              </div>
             </div>
           </div>
 
@@ -233,23 +264,23 @@ function AppDetail({ slug }: { slug: string }) {
           </div>
         </header>
 
-        {/* Download Links */}
-        {app.download_links && Object.keys(app.download_links).length > 0 && (
+        {/* Distribution Channels */}
+        {app.distribution_channels && app.distribution_channels.length > 0 && (
           <section className="mb-12">
             <h2 className="text-sm text-neutral-600 uppercase tracking-widest mb-6">
-              Download
+              Download / Links
             </h2>
             <div className="space-y-2">
-              {Object.entries(app.download_links).map(([key, url]) => (
+              {app.distribution_channels.map((channel, index) => (
                 <a
-                  key={key}
-                  href={url}
+                  key={index}
+                  href={channel.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group flex items-center justify-between py-4 border-b border-neutral-900 hover:border-neutral-700 transition-colors"
                 >
                   <span className="text-neutral-300 group-hover:text-white transition-colors">
-                    {getDownloadLabel(key)}
+                    {getChannelName(channel)}
                   </span>
                   <span className="text-neutral-700 text-sm">→</span>
                 </a>
@@ -271,6 +302,9 @@ function AppDetail({ slug }: { slug: string }) {
                   src={screenshot}
                   alt={`${app.name} screenshot ${index + 1}`}
                   className="w-full rounded-lg"
+                  onError={e => {
+                    (e.target as HTMLImageElement).style.display = "none";
+                  }}
                 />
               ))}
             </div>
@@ -323,25 +357,10 @@ export default function AppsPageClient() {
     return <AppList />;
   }
 
-  if (paramsArray.length === 1) {
-    const slug = paramsArray[0];
-    if (slug) {
-      return <AppDetail slug={slug} />;
-    }
+  const slug = paramsArray[0];
+  if (!slug) {
+    return <AppList />;
   }
 
-  // Invalid route - show 404-like message
-  return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100">
-      <div className="max-w-2xl mx-auto px-6 py-16">
-        <p className="text-neutral-500 mb-6">페이지를 찾을 수 없습니다</p>
-        <Link
-          href="/apps"
-          className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
-        >
-          ← 앱 목록으로
-        </Link>
-      </div>
-    </div>
-  );
+  return <AppDetail slug={slug} />;
 }

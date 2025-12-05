@@ -3,10 +3,13 @@ pub mod auth;
 pub mod blog;
 pub mod novel;
 
-pub use app::{App, CreateApp, UpdateApp};
+pub use app::{
+    get_all_distribution_channels, get_all_platforms, App, CreateApp, DistributionChannel,
+    UpdateApp,
+};
 pub use auth::{Admin, AdminInfo, Claims, LoginRequest, LoginResponse};
 pub use blog::{BlogPost, BlogPostPreview, CreateBlogPost, UpdateBlogPost};
 pub use novel::{
-    ChapterPreview, CreateChapter, CreateNovel, Novel, NovelChapter, NovelWithStats, UpdateChapter,
-    UpdateNovel,
+    get_all_genres, get_all_novel_types, AddRelatedNovel, ChapterPreview, CreateChapter,
+    CreateNovel, Novel, NovelChapter, NovelWithStats, RelatedNovel, UpdateChapter, UpdateNovel,
 };

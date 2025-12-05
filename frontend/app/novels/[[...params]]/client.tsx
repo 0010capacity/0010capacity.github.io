@@ -1,13 +1,40 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState,
+  useCallback,
+  createContext,
+  useContext,
+} from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
 import { novelsApi } from "@/lib/api";
 import { Novel, NovelChapter } from "@/lib/types";
 
+// Navigation Context for SPA-style routing
+interface NavState {
+  view: "list" | "detail" | "chapter";
+  slug?: string;
+  chapterNumber?: number;
+}
+
+interface NavContextType {
+  navState: NavState;
+  navigate: (state: NavState) => void;
+  goBack: () => void;
+}
+
+const NavContext = createContext<NavContextType | null>(null);
+
+function useNav() {
+  const ctx = useContext(NavContext);
+  if (!ctx) throw new Error("useNav must be used within NavProvider");
+  return ctx;
+}
+
 // Novel List Component
 function NovelList() {
+  const { navigate } = useNav();
   const [novels, setNovels] = useState<Novel[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -16,8 +43,11 @@ function NovelList() {
     const fetchNovels = async () => {
       try {
         setLoading(true);
-        const data = (await novelsApi.list({ limit: 50 })) as Novel[];
-        setNovels(Array.isArray(data) ? data : []);
+        const response = (await novelsApi.list({ limit: 50 })) as {
+          novels: Novel[];
+          total: number;
+        };
+        setNovels(response.novels || []);
         setError("");
       } catch (err) {
         setError(
@@ -47,7 +77,7 @@ function NovelList() {
 
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-100">
-      <div className="max-w-4xl mx-auto px-6 py-16">
+      <div className="max-w-2xl mx-auto px-6 py-16">
         <header className="mb-16">
           <Link
             href="/"
@@ -55,8 +85,8 @@ function NovelList() {
           >
             ← 돌아가기
           </Link>
-          <h1 className="text-3xl font-light mt-8 mb-4">소설</h1>
-          <p className="text-neutral-500">이야기를 씁니다</p>
+          <h1 className="text-2xl font-light mt-8 mb-2">소설</h1>
+          <p className="text-neutral-500 text-sm">이야기를 씁니다</p>
         </header>
 
         {error && (
@@ -74,10 +104,10 @@ function NovelList() {
         {!loading && novels.length > 0 && (
           <div className="space-y-8">
             {novels.map(novel => (
-              <Link
+              <button
                 key={novel.id}
-                href={`/novels/${novel.slug}`}
-                className="group block py-6 border-b border-neutral-900 hover:border-neutral-700 transition-colors"
+                onClick={() => navigate({ view: "detail", slug: novel.slug })}
+                className="group block w-full text-left py-6 border-b border-neutral-900 hover:border-neutral-700 transition-colors"
               >
                 <div className="flex justify-between items-start mb-2">
                   <h2 className="text-xl font-medium text-neutral-200 group-hover:text-white transition-colors">
@@ -94,9 +124,9 @@ function NovelList() {
                 )}
                 <div className="flex items-center gap-4 text-xs text-neutral-600">
                   {novel.genre && <span>{novel.genre}</span>}
-                  <span>{novel.view_count.toLocaleString()} views</span>
+                  <span>{novel.view_count?.toLocaleString() || 0} views</span>
                 </div>
-              </Link>
+              </button>
             ))}
           </div>
         )}
@@ -116,6 +146,7 @@ function NovelList() {
 
 // Novel Detail Component
 function NovelDetail({ slug }: { slug: string }) {
+  const { navigate } = useNav();
   const [novel, setNovel] = useState<Novel | null>(null);
   const [chapters, setChapters] = useState<NovelChapter[]>([]);
   const [loading, setLoading] = useState(true);
@@ -163,6 +194,11 @@ function NovelDetail({ slug }: { slug: string }) {
     }
   };
 
+  // 소설 유형에 따른 단위
+  const getUnit = (novelType?: string) => {
+    return novelType === "series" ? "화" : "장";
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-neutral-950 text-neutral-100 flex items-center justify-center">
@@ -178,26 +214,28 @@ function NovelDetail({ slug }: { slug: string }) {
           <p className="text-neutral-500 mb-6">
             {error || "소설을 찾을 수 없습니다"}
           </p>
-          <Link
-            href="/novels"
+          <button
+            onClick={() => navigate({ view: "list" })}
             className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
           >
             ← 목록으로
-          </Link>
+          </button>
         </div>
       </div>
     );
   }
 
+  const unit = getUnit(novel.novel_type);
+
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-100">
       <div className="max-w-2xl mx-auto px-6 py-16">
-        <Link
-          href="/novels"
+        <button
+          onClick={() => navigate({ view: "list" })}
           className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
         >
           ← 목록으로
-        </Link>
+        </button>
 
         <header className="mt-12 mb-16">
           <div className="flex items-center gap-3 mb-4">
@@ -206,6 +244,15 @@ function NovelDetail({ slug }: { slug: string }) {
             </span>
             {novel.genre && (
               <span className="text-xs text-neutral-600">{novel.genre}</span>
+            )}
+            {novel.novel_type && (
+              <span className="text-xs text-neutral-600">
+                {novel.novel_type === "series"
+                  ? "연재물"
+                  : novel.novel_type === "long"
+                    ? "장편"
+                    : "단편"}
+              </span>
             )}
           </div>
 
@@ -218,8 +265,10 @@ function NovelDetail({ slug }: { slug: string }) {
           )}
 
           <div className="flex gap-6 mt-8 pt-8 border-t border-neutral-900 text-sm text-neutral-600">
-            <span>{novel.view_count.toLocaleString()} views</span>
-            <span>{chapters.length} chapters</span>
+            <span>{novel.view_count?.toLocaleString() || 0} views</span>
+            <span>
+              {chapters.length} {unit}
+            </span>
             <span>
               {new Date(novel.created_at).toLocaleDateString("ko-KR")}
             </span>
@@ -228,20 +277,27 @@ function NovelDetail({ slug }: { slug: string }) {
 
         <section>
           <h2 className="text-sm text-neutral-600 uppercase tracking-widest mb-8">
-            Chapters
+            {novel.novel_type === "series" ? "회차 목록" : "목차"}
           </h2>
 
           {chapters.length > 0 ? (
             <div className="space-y-1">
               {chapters.map(chapter => (
-                <Link
+                <button
                   key={chapter.id}
-                  href={`/novels/${slug}/chapter/${chapter.chapter_number}`}
-                  className="group flex items-baseline justify-between py-4 border-b border-neutral-900 hover:border-neutral-700 transition-colors"
+                  onClick={() =>
+                    navigate({
+                      view: "chapter",
+                      slug,
+                      chapterNumber: chapter.chapter_number,
+                    })
+                  }
+                  className="group flex items-baseline justify-between w-full text-left py-4 border-b border-neutral-900 hover:border-neutral-700 transition-colors"
                 >
                   <div className="flex items-baseline gap-4">
-                    <span className="text-neutral-600 text-sm w-8">
+                    <span className="text-neutral-600 text-sm w-12">
                       {chapter.chapter_number}
+                      {unit}
                     </span>
                     <span className="text-neutral-300 group-hover:text-white transition-colors">
                       {chapter.title}
@@ -253,11 +309,11 @@ function NovelDetail({ slug }: { slug: string }) {
                       day: "numeric",
                     })}
                   </span>
-                </Link>
+                </button>
               ))}
             </div>
           ) : (
-            <p className="text-neutral-600 text-sm">아직 챕터가 없습니다</p>
+            <p className="text-neutral-600 text-sm">아직 {unit}이 없습니다</p>
           )}
         </section>
       </div>
@@ -273,6 +329,7 @@ function ChapterRead({
   slug: string;
   chapterNumber: number;
 }) {
+  const { navigate } = useNav();
   const [novel, setNovel] = useState<Novel | null>(null);
   const [chapter, setChapter] = useState<NovelChapter | null>(null);
   const [chapters, setChapters] = useState<NovelChapter[]>([]);
@@ -309,6 +366,11 @@ function ChapterRead({
     }
   }, [slug, chapterNumber]);
 
+  // 소설 유형에 따른 단위
+  const getUnit = (novelType?: string) => {
+    return novelType === "series" ? "화" : "장";
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-neutral-950 text-neutral-100 flex items-center justify-center">
@@ -324,17 +386,18 @@ function ChapterRead({
           <p className="text-neutral-500 mb-6">
             {error || "챕터를 찾을 수 없습니다"}
           </p>
-          <Link
-            href={`/novels/${slug}`}
+          <button
+            onClick={() => navigate({ view: "detail", slug })}
             className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
           >
             ← 돌아가기
-          </Link>
+          </button>
         </div>
       </div>
     );
   }
 
+  const unit = getUnit(novel.novel_type);
   const currentIndex = chapters.findIndex(
     c => c.chapter_number === chapterNumber
   );
@@ -346,12 +409,12 @@ function ChapterRead({
     <div className="min-h-screen bg-neutral-950 text-neutral-100">
       <div className="max-w-2xl mx-auto px-6 py-16">
         <div className="flex items-center justify-between mb-12">
-          <Link
-            href={`/novels/${slug}`}
+          <button
+            onClick={() => navigate({ view: "detail", slug })}
             className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
           >
             ← {novel.title}
-          </Link>
+          </button>
           <span className="text-sm text-neutral-700">
             {chapterNumber} / {chapters.length}
           </span>
@@ -359,7 +422,8 @@ function ChapterRead({
 
         <header className="mb-12 pb-8 border-b border-neutral-900">
           <span className="text-sm text-neutral-600 block mb-2">
-            Chapter {chapter.chapter_number}
+            {chapterNumber}
+            {unit}
           </span>
           <h1 className="text-2xl font-light mb-4">{chapter.title}</h1>
           <time className="text-sm text-neutral-700">
@@ -379,30 +443,42 @@ function ChapterRead({
 
         <div className="flex justify-between items-center py-8 border-t border-neutral-900">
           {prevChapter ? (
-            <Link
-              href={`/novels/${slug}/chapter/${prevChapter.chapter_number}`}
+            <button
+              onClick={() =>
+                navigate({
+                  view: "chapter",
+                  slug,
+                  chapterNumber: prevChapter.chapter_number,
+                })
+              }
               className="text-sm text-neutral-500 hover:text-neutral-300 transition-colors"
             >
               ← 이전
-            </Link>
+            </button>
           ) : (
             <span />
           )}
 
-          <Link
-            href={`/novels/${slug}`}
+          <button
+            onClick={() => navigate({ view: "detail", slug })}
             className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
           >
             목차
-          </Link>
+          </button>
 
           {nextChapter ? (
-            <Link
-              href={`/novels/${slug}/chapter/${nextChapter.chapter_number}`}
+            <button
+              onClick={() =>
+                navigate({
+                  view: "chapter",
+                  slug,
+                  chapterNumber: nextChapter.chapter_number,
+                })
+              }
               className="text-sm text-neutral-500 hover:text-neutral-300 transition-colors"
             >
               다음 →
-            </Link>
+            </button>
           ) : (
             <span />
           )}
@@ -412,52 +488,56 @@ function ChapterRead({
   );
 }
 
-// Main Page Component with Client-Side Routing
+// Main Page Component with SPA-style Routing
 export default function NovelsPageClient() {
-  const params = useParams();
-  const paramsArray = params?.params as string[] | undefined;
+  const [navState, setNavState] = useState<NavState>({ view: "list" });
+  const [history, setHistory] = useState<NavState[]>([]);
 
-  // Route parsing:
-  // /novels -> []
-  // /novels/[slug] -> [slug]
-  // /novels/[slug]/chapter/[number] -> [slug, "chapter", number]
+  const navigate = useCallback(
+    (state: NavState) => {
+      setHistory(prev => [...prev, navState]);
+      setNavState(state);
+    },
+    [navState]
+  );
 
-  if (!paramsArray || paramsArray.length === 0) {
-    return <NovelList />;
-  }
-
-  const slug = paramsArray[0];
-
-  if (!slug) {
-    return <NovelList />;
-  }
-
-  if (paramsArray.length === 1) {
-    return <NovelDetail slug={slug} />;
-  }
-
-  if (paramsArray.length === 3 && paramsArray[1] === "chapter") {
-    const chapterNumberStr = paramsArray[2];
-    if (chapterNumberStr) {
-      const chapterNumber = parseInt(chapterNumberStr, 10);
-      if (!isNaN(chapterNumber)) {
-        return <ChapterRead slug={slug} chapterNumber={chapterNumber} />;
-      }
+  const goBack = useCallback(() => {
+    if (history.length > 0) {
+      const newHistory = [...history];
+      const prevState = newHistory.pop();
+      setHistory(newHistory);
+      setNavState(prevState || { view: "list" });
+    } else {
+      setNavState({ view: "list" });
     }
-  }
+  }, [history]);
 
-  // Invalid route - show 404-like message
+  const renderView = () => {
+    switch (navState.view) {
+      case "detail":
+        return navState.slug ? (
+          <NovelDetail slug={navState.slug} />
+        ) : (
+          <NovelList />
+        );
+      case "chapter":
+        return navState.slug && navState.chapterNumber ? (
+          <ChapterRead
+            slug={navState.slug}
+            chapterNumber={navState.chapterNumber}
+          />
+        ) : (
+          <NovelList />
+        );
+      case "list":
+      default:
+        return <NovelList />;
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100">
-      <div className="max-w-2xl mx-auto px-6 py-16">
-        <p className="text-neutral-500 mb-6">페이지를 찾을 수 없습니다</p>
-        <Link
-          href="/novels"
-          className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
-        >
-          ← 소설 목록으로
-        </Link>
-      </div>
-    </div>
+    <NavContext.Provider value={{ navState, navigate, goBack }}>
+      {renderView()}
+    </NavContext.Provider>
   );
 }

@@ -73,15 +73,20 @@ async fn main() -> anyhow::Result<()> {
 }
 
 fn create_router(state: db::AppState) -> Router {
-    // CORS configuration
+    // CORS configuration - specific origins only
     let cors = CorsLayer::new()
         .allow_origin([
             "http://localhost:3000".parse().unwrap(),
             "https://0010capacity.github.io".parse().unwrap(),
         ])
-        .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
-        .allow_headers([header::CONTENT_TYPE, header::AUTHORIZATION])
-        .allow_credentials(true);
+        .allow_methods([
+            Method::GET,
+            Method::POST,
+            Method::PUT,
+            Method::DELETE,
+            Method::OPTIONS,
+        ])
+        .allow_headers([header::CONTENT_TYPE, header::AUTHORIZATION]);
 
     // Build API routes
     let api_routes = Router::new()
@@ -96,12 +101,12 @@ fn create_router(state: db::AppState) -> Router {
         .route("/", get(root_handler))
         .route("/health", get(health_handler))
         .nest("/api", api_routes)
+        .fallback(handler_404)
         .layer(cors)
         .layer(
             TraceLayer::new_for_http()
                 .make_span_with(DefaultMakeSpan::default().include_headers(true)),
         )
-        .fallback(handler_404)
 }
 
 async fn root_handler() -> impl IntoResponse {

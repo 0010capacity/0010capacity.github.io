@@ -36,8 +36,10 @@ export interface Novel {
   title: string;
   description?: string;
   cover_image_url?: string;
+  novel_type?: "short" | "long" | "series";
   genre?: string;
-  status: "draft" | "ongoing" | "completed";
+  genres?: string[];
+  status: "draft" | "ongoing" | "completed" | "hiatus";
   view_count: number;
   created_at: string;
   updated_at: string;
@@ -124,15 +126,30 @@ export interface UpdateBlogPost {
 }
 
 // App Types
+export type Platform =
+  | "ios"
+  | "android"
+  | "web"
+  | "windows"
+  | "macos"
+  | "linux"
+  | "game";
+
+export interface DistributionChannel {
+  type: string;
+  url: string;
+  label?: string;
+}
+
 export interface App {
   id: string;
   name: string;
   slug: string;
   description?: string;
-  platform: "ios" | "android" | "web" | "desktop";
+  platforms: Platform[];
   icon_url?: string;
   screenshots: string[];
-  download_links: Record<string, string>;
+  distribution_channels: DistributionChannel[];
   privacy_policy_url?: string;
   created_at: string;
   updated_at: string;
@@ -140,22 +157,21 @@ export interface App {
 
 export interface CreateApp {
   name: string;
-  slug: string;
   description?: string;
-  platform: "ios" | "android" | "web" | "desktop";
+  platforms?: Platform[];
   icon_url?: string;
   screenshots?: string[];
-  download_links?: Record<string, string>;
+  distribution_channels?: DistributionChannel[];
   privacy_policy_url?: string;
 }
 
 export interface UpdateApp {
   name?: string;
   description?: string;
-  platform?: "ios" | "android" | "web" | "desktop";
+  platforms?: Platform[];
   icon_url?: string;
   screenshots?: string[];
-  download_links?: Record<string, string>;
+  distribution_channels?: DistributionChannel[];
   privacy_policy_url?: string;
 }
 
@@ -174,5 +190,5 @@ export interface BlogListQuery extends ListQuery {
 }
 
 export interface AppListQuery extends ListQuery {
-  platform?: "ios" | "android" | "web" | "desktop";
+  platform?: Platform;
 }

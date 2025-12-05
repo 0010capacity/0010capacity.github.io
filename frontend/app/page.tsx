@@ -50,12 +50,19 @@ export default function HomePage() {
       </main>
 
       {/* Footer */}
-      <footer className="py-8 text-center">
+      <footer className="py-8 text-center flex justify-center gap-4">
         <Link
           href="/about"
           className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
         >
           이정원에 대해
+        </Link>
+        <span className="text-neutral-800">·</span>
+        <Link
+          href="/admin/login"
+          className="text-sm text-neutral-800 hover:text-neutral-600 transition-colors"
+        >
+          관리
         </Link>
       </footer>
     </div>

@@ -24,8 +24,8 @@ pub struct BlogPost {
 /// Create blog post request
 #[derive(Debug, Deserialize, Validate)]
 pub struct CreateBlogPost {
-    #[validate(length(min = 1, max = 255))]
-    pub slug: String,
+    #[validate(length(max = 255))]
+    pub slug: Option<String>, // Optional - will be auto-generated from UUID if not provided
 
     #[validate(length(min = 1, max = 500))]
     pub title: String,

@@ -15,7 +15,7 @@ export default function AdminDashboardPage() {
     const storedUser = localStorage.getItem("admin_user");
 
     if (!storedToken || !storedUser) {
-      router.push("/admin/login");
+      router.push("/admin/login/");
       return;
     }
 
@@ -25,7 +25,7 @@ export default function AdminDashboardPage() {
   const handleLogout = () => {
     localStorage.removeItem("admin_token");
     localStorage.removeItem("admin_user");
-    router.push("/admin/login");
+    router.push("/admin/login/");
   };
 
   if (!user) {

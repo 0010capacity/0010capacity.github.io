@@ -21,8 +21,14 @@ export default function SPARedirectHandler() {
           const { path, search, hash } = JSON.parse(redirectData);
           sessionStorage.removeItem("spa-redirect");
 
+          // Ensure trailing slash for consistency with Next.js config
+          let cleanPath = path;
+          if (!cleanPath.endsWith("/")) {
+            cleanPath = cleanPath + "/";
+          }
+
           // Clean up the URL (remove spa-redirect param)
-          const cleanUrl = path + (search || "") + (hash || "");
+          const cleanUrl = cleanPath + (search || "") + (hash || "");
           router.replace(cleanUrl);
         } catch (e) {
           console.error("Failed to parse redirect data:", e);

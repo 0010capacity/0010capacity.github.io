@@ -4,7 +4,7 @@ import NovelsPageClient from "./client";
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return [{ params: undefined }];
+  return [{ params: [] }];
 }
 
 export default function NovelsPage() {

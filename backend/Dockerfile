@@ -1,13 +1,20 @@
 # Build stage
-FROM rust:1.75-slim as builder
+FROM rust:1.87-slim AS builder
 
 WORKDIR /usr/src/app
 
-# Install dependencies
+# Install dependencies including clang for ring crate
 RUN apt-get update && apt-get install -y \
     pkg-config \
     libssl-dev \
+    build-essential \
+    clang \
+    llvm \
     && rm -rf /var/lib/apt/lists/*
+
+# Set clang as the C compiler
+ENV CC=clang
+ENV CXX=clang++
 
 # Copy manifests
 COPY Cargo.toml Cargo.lock ./
@@ -28,6 +35,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     ca-certificates \
     libssl3 \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy binary from builder
