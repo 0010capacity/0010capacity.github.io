@@ -27,11 +27,13 @@ async fn login(
     payload.validate()?;
 
     // Find admin by username
-    let admin = sqlx::query_as::<_, Admin>("SELECT * FROM admins WHERE username = $1")
-        .bind(&payload.username)
-        .fetch_optional(&state.pool)
-        .await?
-        .ok_or(AppError::InvalidCredentials)?;
+    let admin = sqlx::query_as::<_, Admin>(
+        "SELECT id, username, password_hash, created_at FROM admins WHERE username = $1",
+    )
+    .bind(&payload.username)
+    .fetch_optional(&state.pool)
+    .await?
+    .ok_or(AppError::InvalidCredentials)?;
 
     // Verify password
     let parsed_hash = PasswordHash::new(&admin.password_hash)
@@ -51,8 +53,9 @@ async fn login(
     let token = encode(
         &Header::default(),
         &claims,
-        &EncodingKey::from_secret(state.config.jwt_secret.as_bytes()),
-    )?;
+        &EncodingKey::from_secret(state.config.jwt_secret.as_ref()),
+    )
+    .map_err(|_| AppError::InternalError("Token generation failed".to_string()))?;
 
     let expires_at = Utc::now() + Duration::seconds(state.config.jwt_expiration);
 
@@ -66,7 +69,7 @@ async fn login(
     }))
 }
 
-/// Register admin handler (for initial setup - should be protected in production)
+/// Register admin (should only work if no admin exists)
 async fn register_admin(
     State(state): State<AppState>,
     Json(payload): Json<LoginRequest>,
@@ -74,42 +77,31 @@ async fn register_admin(
     payload.validate()?;
 
     // Check if admin already exists
-    let existing: Option<(i64,)> =
-        sqlx::query_as("SELECT COUNT(*) FROM admins WHERE username = $1")
-            .bind(&payload.username)
-            .fetch_optional(&state.pool)
-            .await?;
+    let existing = sqlx::query("SELECT 1 FROM admins LIMIT 1")
+        .fetch_optional(&state.pool)
+        .await?;
 
-    if let Some((count,)) = existing {
-        if count > 0 {
-            return Err(AppError::Conflict(
-                "Admin with this username already exists".to_string(),
-            ));
-        }
+    if existing.is_some() {
+        return Err(AppError::Conflict(
+            "Admin already exists. Registration is disabled.".to_string(),
+        ));
     }
 
     // Hash password
-    let salt = SaltString::generate(&mut OsRng);
-    let argon2 = Argon2::default();
-    let password_hash = argon2
+    let salt = SaltString::generate(OsRng);
+    let password_hash = Argon2::default()
         .hash_password(payload.password.as_bytes(), &salt)
-        .map_err(|e| AppError::InternalError(format!("Failed to hash password: {}", e)))?
+        .map_err(|_| AppError::InternalError("Password hashing failed".to_string()))?
         .to_string();
 
     // Create admin
     let admin = sqlx::query_as::<_, Admin>(
-        "INSERT INTO admins (username, password_hash) VALUES ($1, $2) RETURNING *",
+        "INSERT INTO admins (username, password_hash) VALUES ($1, $2) RETURNING id, username, password_hash, created_at"
     )
     .bind(&payload.username)
     .bind(&password_hash)
     .fetch_one(&state.pool)
     .await?;
 
-    Ok((
-        StatusCode::CREATED,
-        Json(AdminInfo {
-            id: admin.id,
-            username: admin.username,
-        }),
-    ))
+    Ok((StatusCode::CREATED, Json(admin)))
 }

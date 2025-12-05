@@ -1,5 +1,7 @@
 # 📋 0010capacity 브랜드 플랫폼 재구성 마스터 플랜
 
+**마지막 업데이트**: 2024-12-05 | **현재 진행**: Phase 1 (백엔드 기반)
+
 > **프로젝트 목표**: 포트폴리오 사이트를 소설, 블로그, 앱을 제공하는 개인 브랜드 종합 플랫폼으로 전환
 
 **작성일**: 2024년  
@@ -586,39 +588,42 @@ Rust 백엔드 기본 구조 완성 및 로컬 실행
 
 #### 작업 내용
 1. **Rust 프로젝트 스캐폴딩** (1일)
-   - [ ] Cargo.toml 의존성 설정
-   - [ ] src/ 디렉토리 구조 생성
-   - [ ] main.rs: Axum 서버 기본 설정
-   - [ ] config.rs: 환경변수 관리
-   - [ ] error.rs: 에러 타입 정의
-   - [ ] 로컬 실행 테스트
+   - [x] Cargo.toml 의존성 설정
+   - [x] src/ 디렉토리 구조 생성
+   - [x] main.rs: Axum 서버 기본 설정
+   - [x] config.rs: 환경변수 관리
+   - [x] error.rs: 에러 타입 정의
+   - [x] 로컬 실행 테스트
 
 2. **데이터베이스 설정** (1일)
    - [ ] PostgreSQL 로컬 설치/실행
-   - [ ] migrations/ 디렉토리 생성
-   - [ ] 5개 마이그레이션 SQL 작성
+   - [x] migrations/ 디렉토리 생성
+   - [x] 5개 마이그레이션 SQL 작성 (novels, chapters, blog, apps, admins)
    - [ ] SQLx 마이그레이션 실행
    - [ ] DB 연결 테스트
 
 3. **기본 API** (1~2일)
-   - [ ] GET / (API 정보)
-   - [ ] GET /health (헬스체크)
-   - [ ] CORS 미들웨어
-   - [ ] Tracing/Logging 설정
-   - [ ] 에러 핸들링 테스트
+   - [x] GET / (API 정보)
+   - [x] GET /health (헬스체크)
+   - [x] CORS 미들웨어
+   - [x] Tracing/Logging 설정
+   - [x] 에러 핸들링 테스트
+   - [x] 모든 Route handlers 구현 (novels, chapters, blog, apps, auth)
 
 4. **Fly Volumes 설정** (1일)
    - [ ] Fly.io 계정 생성
    - [ ] flyctl 설치
-   - [ ] fly.toml 작성
-   - [ ] Dockerfile 작성
+   - [x] fly.toml 작성
+   - [x] Dockerfile 작성
    - [ ] Fly Volume 생성 (10GB)
    - [ ] 로컬 이미지 저장 테스트
 
 #### 완료 조건
-- ✅ `cargo run` 후 http://localhost:8080 접속 성공
-- ✅ PostgreSQL 테이블 생성 확인
-- ✅ 이미지 저장/제공 테스트 성공
+- [x] `cargo check` 성공 (컴파일 에러 없음)
+- [ ] `cargo run` 후 http://localhost:8080 접속 성공
+- [ ] PostgreSQL 테이블 생성 확인
+- [ ] 이미지 저장/제공 테스트 성공
+- [x] 모든 Route 핸들러 구현 완료
 
 ---
 

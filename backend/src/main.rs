@@ -1,7 +1,7 @@
 use axum::{
     http::{header, Method, StatusCode},
-    response::{IntoResponse, Response},
-    routing::{get, post},
+    response::IntoResponse,
+    routing::get,
     Json, Router,
 };
 use serde_json::json;
@@ -48,9 +48,7 @@ async fn main() -> anyhow::Result<()> {
 
     // Run migrations
     tracing::info!("Running database migrations...");
-    sqlx::migrate!("./migrations")
-        .run(&pool)
-        .await?;
+    sqlx::migrate!("./migrations").run(&pool).await?;
 
     tracing::info!("Database migrations completed successfully");
 

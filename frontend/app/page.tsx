@@ -1,137 +1,216 @@
-import type { Metadata } from "next";
+"use client";
+
 import Link from "next/link";
-import { readFileSync } from 'fs';
-import { join } from 'path';
-import GitHubCalendar from "react-github-calendar";
-import { Edit } from "lucide-react";
-import { Button, Card, Badge } from "../components";
+import { useEffect, useState } from "react";
+import { systemApi } from "@/lib/api";
 
-interface ProfileData {
-  name: string;
-  email: string;
-  country: string;
-  education: string;
-  bio: string;
-  techStack: string[];
-}
+export default function HomePage() {
+  const [apiStatus, setApiStatus] = useState<"healthy" | "error">("error");
 
-export const metadata: Metadata = {
-  title: "Home",
-  description: "0010capacity의 개발자 포트폴리오입니다. iOS, Android, 웹 앱 개발 프로젝트와 기술 스택을 소개합니다.",
-  openGraph: {
-    title: "0010capacity - Developer Portfolio",
-    description: "0010capacity의 개발자 포트폴리오입니다. iOS, Android, 웹 앱 개발 프로젝트와 기술 스택을 소개합니다.",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "0010capacity - Developer Portfolio",
-    description: "0010capacity의 개발자 포트폴리오입니다. iOS, Android, 웹 앱 개발 프로젝트와 기술 스택을 소개합니다.",
-  },
-};
+  useEffect(() => {
+    const checkApiStatus = async () => {
+      try {
+        await systemApi.health();
+        setApiStatus("healthy");
+      } catch (err) {
+        setApiStatus("error");
+      }
+    };
 
-export default async function Home() {
-  // Read profile data on server side
-  const profilePath = join(process.cwd(), 'public', 'data', 'profile.json');
-  const profileContent = readFileSync(profilePath, 'utf-8');
-  const profile: ProfileData = JSON.parse(profileContent);
+    checkApiStatus();
+  }, []);
 
-  // Fetch tech stack data
-  const techStack = profile.techStack;
   return (
-    <div className="font-sans min-h-screen bg-black text-white">
-      <main className="container mx-auto px-4 py-8 max-w-6xl">
-        {/* Header Section */}
-        <section className="text-center mb-12">
-          <Card className="bg-gray-800 border-gray-700 shadow-2xl">
-            <h1 className="text-6xl font-bold mb-4 text-white">
-              {profile.name}
-            </h1>
-            <p className="text-xl text-gray-300 mb-6 max-w-2xl mx-auto">
-              {profile.bio}
-            </p>
-            
-            {/* GitHub Link */}
-            <div className="mb-6">
-              <a
-                href="https://github.com/0010capacity"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 shadow-md"
-                aria-label="Visit GitHub profile"
-              >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                </svg>
-                Visit GitHub
-              </a>
-            </div>
-            
-            <div className="flex gap-4 justify-center flex-col sm:flex-row">
-              <Button as={Link} href="/apps" variant="secondary">
-                App List
-              </Button>
-              <Button as={Link} href="/tech-stack-analysis" variant="success">
-                Tech Stack Analyzer
-              </Button>
-              <Button as={Link} href="/privacy-policy" variant="outline">
-                Privacy Policy
-              </Button>
-            </div>
-          </Card>
-        </section>
-
-        {/* Profile Section */}
-        <section className="mb-12">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-4xl font-bold text-white">Profile</h2>
-            <Button as={Link} href="/edit-profile" variant="primary" size="sm" icon={Edit}>
-            </Button>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white">
+      {/* Navigation */}
+      <nav className="border-b border-gray-700 bg-gray-800/50 backdrop-blur">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+          <h1 className="text-2xl font-bold text-white">0010capacity</h1>
+          <div className="flex gap-6 items-center">
+            <Link
+              href="/novels"
+              className="hover:text-blue-400 transition-colors"
+            >
+              📚 Novels
+            </Link>
+            <Link
+              href="/blog"
+              className="hover:text-blue-400 transition-colors"
+            >
+              📝 Blog
+            </Link>
+            <Link
+              href="/apps"
+              className="hover:text-blue-400 transition-colors"
+            >
+              📱 Apps
+            </Link>
+            <Link
+              href="/about"
+              className="hover:text-blue-400 transition-colors"
+            >
+              👤 About
+            </Link>
+            <Link
+              href="/admin/login"
+              className="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded transition-colors text-sm"
+            >
+              Admin
+            </Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <Card className="bg-gray-800 border-gray-700 hover:shadow-2xl transition-shadow duration-300">
-              <h3 className="text-2xl font-semibold text-gray-400 mb-2">Name</h3>
-              <p className="text-gray-300">{profile.name}</p>
-            </Card>
-            <Card className="bg-gray-800 border-gray-700 hover:shadow-2xl transition-shadow duration-300">
-              <h3 className="text-2xl font-semibold text-gray-400 mb-2">Email</h3>
-              <p className="text-gray-300">{profile.email}</p>
-            </Card>
-            <Card className="bg-gray-800 border-gray-700 hover:shadow-2xl transition-shadow duration-300">
-              <h3 className="text-2xl font-semibold text-gray-400 mb-2">Country</h3>
-              <p className="text-gray-300">{profile.country}</p>
-            </Card>
-            <Card className="bg-gray-800 border-gray-700 hover:shadow-2xl transition-shadow duration-300">
-              <h3 className="text-2xl font-semibold text-gray-400 mb-2">Education</h3>
-              <p className="text-gray-300">{profile.education}</p>
-            </Card>
-          </div>
+        </div>
+      </nav>
 
-          {/* Tech Stack */}
-          <Card
-            title="Tech Stack"
-            className="mb-8"
+      {/* Hero Section */}
+      <section className="max-w-7xl mx-auto px-4 py-24 text-center">
+        <div className="mb-8">
+          <div className="text-6xl mb-4 animate-bounce">✨</div>
+          <h2 className="text-6xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+            0010capacity
+          </h2>
+          <p className="text-xl md:text-2xl text-gray-400 mb-8 max-w-2xl mx-auto">
+            소설, 블로그, 앱을 한곳에서 만나는 창작자의 플랫폼
+          </p>
+          <p className="text-gray-500 mb-8">
+            {apiStatus === "healthy" ? (
+              <span className="text-green-400">✓ Backend API 정상 작동</span>
+            ) : (
+              <span className="text-red-400">✗ Backend API 연결 실패</span>
+            )}
+          </p>
+        </div>
+
+        {/* CTA Buttons */}
+        <div className="flex flex-col md:flex-row gap-4 justify-center mb-12">
+          <Link
+            href="/novels"
+            className="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition-all hover:shadow-lg hover:shadow-blue-500/50 text-lg"
           >
-            <div className="flex flex-wrap gap-2">
-              {techStack.map((tech) => (
-                <Badge key={tech} variant="info">
-                  {tech}
-                </Badge>
-              ))}
-            </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-              * You can edit your tech stack in your profile
-            </p>
-          </Card>
+            📚 소설 탐색하기
+          </Link>
+          <Link
+            href="/blog"
+            className="px-8 py-4 bg-purple-600 hover:bg-purple-700 rounded-lg font-semibold transition-all hover:shadow-lg hover:shadow-purple-500/50 text-lg"
+          >
+            📝 블로그 읽기
+          </Link>
+          <Link
+            href="/apps"
+            className="px-8 py-4 bg-pink-600 hover:bg-pink-700 rounded-lg font-semibold transition-all hover:shadow-lg hover:shadow-pink-500/50 text-lg"
+          >
+            📱 앱 보기
+          </Link>
+        </div>
+      </section>
 
-          {/* GitHub Calendar */}
-          <Card title="GitHub Contributions" className="bg-gray-800 border-gray-700">
-            <div className="overflow-x-auto bg-gray-900 rounded-lg p-4">
-              <GitHubCalendar username="0010capacity" colorScheme="dark" />
-            </div>
-          </Card>
-        </section>
-      </main>
+      {/* Features Section */}
+      <section className="max-w-7xl mx-auto px-4 py-20">
+        <h3 className="text-4xl font-bold text-center mb-16">주요 기능</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Novels Feature */}
+          <div className="bg-gray-800 border border-gray-700 rounded-lg p-8 hover:shadow-lg hover:border-blue-600 transition-all">
+            <div className="text-5xl mb-4">📚</div>
+            <h4 className="text-2xl font-bold mb-3">소설 플랫폼</h4>
+            <p className="text-gray-400 mb-6">
+              창작한 소설을 연재하고 독자들과 만나세요. 챕터별로 구성되어 편리한
+              읽기 경험을 제공합니다.
+            </p>
+            <Link
+              href="/novels"
+              className="text-blue-400 hover:text-blue-300 font-medium"
+            >
+              둘러보기 →
+            </Link>
+          </div>
+
+          {/* Blog Feature */}
+          <div className="bg-gray-800 border border-gray-700 rounded-lg p-8 hover:shadow-lg hover:border-purple-600 transition-all">
+            <div className="text-5xl mb-4">📝</div>
+            <h4 className="text-2xl font-bold mb-3">기술 블로그</h4>
+            <p className="text-gray-400 mb-6">
+              개발 경험, 기술 분석, 그리고 일상의 생각들을 나누는 공간입니다.
+              태그로 쉽게 원하는 글을 찾을 수 있습니다.
+            </p>
+            <Link
+              href="/blog"
+              className="text-purple-400 hover:text-purple-300 font-medium"
+            >
+              글 읽기 →
+            </Link>
+          </div>
+
+          {/* Apps Feature */}
+          <div className="bg-gray-800 border border-gray-700 rounded-lg p-8 hover:shadow-lg hover:border-pink-600 transition-all">
+            <div className="text-5xl mb-4">📱</div>
+            <h4 className="text-2xl font-bold mb-3">앱 마켓</h4>
+            <p className="text-gray-400 mb-6">
+              iOS, Android, 웹 등 다양한 플랫폼의 앱을 소개합니다. 각 앱의 상세
+              정보와 다운로드 링크를 제공합니다.
+            </p>
+            <Link
+              href="/apps"
+              className="text-pink-400 hover:text-pink-300 font-medium"
+            >
+              앱 보기 →
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="max-w-7xl mx-auto px-4 py-20 bg-gray-800 rounded-lg border border-gray-700 mb-20">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+          <div>
+            <div className="text-5xl font-bold text-blue-400 mb-2">∞</div>
+            <p className="text-gray-400">창작물</p>
+          </div>
+          <div>
+            <div className="text-5xl font-bold text-purple-400 mb-2">∞</div>
+            <p className="text-gray-400">기술 블로그</p>
+          </div>
+          <div>
+            <div className="text-5xl font-bold text-pink-400 mb-2">∞</div>
+            <p className="text-gray-400">개발 프로젝트</p>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="max-w-7xl mx-auto px-4 py-20 text-center mb-12">
+        <h3 className="text-4xl font-bold mb-6">시작해보세요</h3>
+        <p className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
+          0010capacity와 함께 소설, 블로그, 앱의 세계로 떠나보세요.
+        </p>
+        <Link
+          href="/novels"
+          className="inline-block px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg font-semibold transition-all hover:shadow-lg hover:shadow-blue-500/50"
+        >
+          지금 바로 시작하기
+        </Link>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-gray-700 bg-gray-800/50">
+        <div className="max-w-7xl mx-auto px-4 py-8 text-center text-gray-400">
+          <p>© 2024 0010capacity. All rights reserved.</p>
+          <div className="mt-4 flex justify-center gap-6">
+            <a
+              href="https://github.com/0010capacity"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-blue-400 transition-colors"
+            >
+              GitHub
+            </a>
+            <a
+              href="/privacy-policy"
+              className="hover:text-blue-400 transition-colors"
+            >
+              Privacy Policy
+            </a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

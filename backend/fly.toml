@@ -1,0 +1,37 @@
+app = "capacity-backend"
+primary_region = "nrt"
+
+[build]
+builder = "docker"
+
+[env]
+DATABASE_URL = "postgresql://postgres:${DB_PASSWORD}@capacity-db.internal:5432/capacity"
+JWT_SECRET = "${JWT_SECRET}"
+JWT_EXPIRATION = "604800"
+RUST_LOG = "backend=info,tower_http=info"
+
+[http_service]
+internal_port = 8080
+force_https = true
+auto_stop_machines = true
+auto_start_machines = true
+min_machines_running = 1
+
+[[services]]
+protocol = "http"
+internal_port = 8080
+force_https = true
+auto_stop_machines = true
+auto_start_machines = true
+
+[[services.ports]]
+port = 80
+handlers = ["http"]
+
+[[services.ports]]
+port = 443
+handlers = ["tls", "http"]
+
+[mounts]
+source = "capacity_images"
+destination = "/data/images"

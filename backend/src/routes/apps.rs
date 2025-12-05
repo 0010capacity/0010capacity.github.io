@@ -6,7 +6,6 @@ use axum::{
     Json, Router,
 };
 use serde::Deserialize;
-use uuid::Uuid;
 use validator::Validate;
 
 use crate::{
@@ -33,7 +32,7 @@ struct ListQuery {
 }
 
 fn default_limit() -> i64 {
-    50
+    20
 }
 
 /// List all apps
@@ -41,15 +40,18 @@ async fn list_apps(
     State(state): State<AppState>,
     Query(query): Query<ListQuery>,
 ) -> Result<impl IntoResponse, AppError> {
-    let mut sql = "SELECT * FROM apps".to_string();
+    let where_clause = if let Some(ref platform) = query.platform {
+        format!(" WHERE platform = '{}'", platform)
+    } else {
+        String::new()
+    };
 
-    if let Some(ref platform) = query.platform {
-        sql.push_str(&format!(" WHERE platform = '{}'", platform));
-    }
+    let sql = format!(
+        "SELECT id, name, slug, description, platform, icon_url, screenshots, download_links, privacy_policy_url, created_at, updated_at FROM apps{} ORDER BY created_at DESC LIMIT $1 OFFSET $2",
+        where_clause
+    );
 
-    sql.push_str(" ORDER BY created_at DESC LIMIT $1 OFFSET $2");
-
-    let apps = sqlx::query_as::<_, App>(&sql)
+    let apps: Vec<App> = sqlx::query_as(&sql)
         .bind(query.limit)
         .bind(query.offset)
         .fetch_all(&state.pool)
@@ -63,10 +65,12 @@ async fn get_app(
     State(state): State<AppState>,
     Path(slug): Path<String>,
 ) -> Result<impl IntoResponse, AppError> {
-    let app = sqlx::query_as::<_, App>("SELECT * FROM apps WHERE slug = $1")
-        .bind(&slug)
-        .fetch_one(&state.pool)
-        .await?;
+    let app = sqlx::query_as::<_, App>(
+        "SELECT id, name, slug, description, platform, icon_url, screenshots, download_links, privacy_policy_url, created_at, updated_at FROM apps WHERE slug = $1"
+    )
+    .bind(&slug)
+    .fetch_one(&state.pool)
+    .await?;
 
     Ok(Json(app))
 }
@@ -79,15 +83,13 @@ async fn create_app(
 ) -> Result<impl IntoResponse, AppError> {
     payload.validate()?;
 
-    let screenshots = payload.screenshots.unwrap_or_default();
-    let download_links = payload
-        .download_links
-        .unwrap_or_else(|| serde_json::json!({}));
+    let screenshots: Vec<String> = payload.screenshots.unwrap_or_default();
+    let download_links = payload.download_links.unwrap_or(serde_json::json!({}));
 
     let app = sqlx::query_as::<_, App>(
         "INSERT INTO apps (name, slug, description, platform, icon_url, screenshots, download_links, privacy_policy_url)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-         RETURNING *",
+         RETURNING id, name, slug, description, platform, icon_url, screenshots, download_links, privacy_policy_url, created_at, updated_at"
     )
     .bind(&payload.name)
     .bind(&payload.slug)
@@ -98,15 +100,7 @@ async fn create_app(
     .bind(&download_links)
     .bind(&payload.privacy_policy_url)
     .fetch_one(&state.pool)
-    .await
-    .map_err(|e| {
-        if let sqlx::Error::Database(db_err) = &e {
-            if db_err.is_unique_violation() {
-                return AppError::Conflict("App with this slug already exists".to_string());
-            }
-        }
-        AppError::from(e)
-    })?;
+    .await?;
 
     Ok((StatusCode::CREATED, Json(app)))
 }
@@ -118,30 +112,24 @@ async fn update_app(
     Path(slug): Path<String>,
     Json(payload): Json<UpdateApp>,
 ) -> Result<impl IntoResponse, AppError> {
-    payload.validate()?;
+    let mut updates = Vec::<String>::new();
+    let mut bindings: Vec<String> = Vec::new();
 
-    let mut updates = Vec::new();
-
-    if payload.name.is_some() {
+    if let Some(name) = &payload.name {
         updates.push(format!("name = ${}", updates.len() + 1));
+        bindings.push(name.clone());
     }
-    if payload.description.is_some() {
+    if let Some(description) = &payload.description {
         updates.push(format!("description = ${}", updates.len() + 1));
+        bindings.push(description.clone());
     }
-    if payload.platform.is_some() {
+    if let Some(platform) = &payload.platform {
         updates.push(format!("platform = ${}", updates.len() + 1));
+        bindings.push(platform.clone());
     }
-    if payload.icon_url.is_some() {
+    if let Some(icon_url) = &payload.icon_url {
         updates.push(format!("icon_url = ${}", updates.len() + 1));
-    }
-    if payload.screenshots.is_some() {
-        updates.push(format!("screenshots = ${}", updates.len() + 1));
-    }
-    if payload.download_links.is_some() {
-        updates.push(format!("download_links = ${}", updates.len() + 1));
-    }
-    if payload.privacy_policy_url.is_some() {
-        updates.push(format!("privacy_policy_url = ${}", updates.len() + 1));
+        bindings.push(icon_url.clone());
     }
 
     if updates.is_empty() {
@@ -149,37 +137,18 @@ async fn update_app(
     }
 
     updates.push("updated_at = NOW()".to_string());
+    let param_idx = updates.len();
 
-    let query_str = format!(
-        "UPDATE apps SET {} WHERE slug = ${} RETURNING *",
+    let sql = format!(
+        "UPDATE apps SET {} WHERE slug = ${} RETURNING id, name, slug, description, platform, icon_url, screenshots, download_links, privacy_policy_url, created_at, updated_at",
         updates.join(", "),
-        updates.len()
+        param_idx
     );
 
-    let mut query = sqlx::query_as::<_, App>(&query_str);
-
-    if let Some(name) = &payload.name {
-        query = query.bind(name);
+    let mut query = sqlx::query_as::<_, App>(&sql);
+    for binding in bindings {
+        query = query.bind(binding);
     }
-    if let Some(description) = &payload.description {
-        query = query.bind(description);
-    }
-    if let Some(platform) = &payload.platform {
-        query = query.bind(platform);
-    }
-    if let Some(icon_url) = &payload.icon_url {
-        query = query.bind(icon_url);
-    }
-    if let Some(screenshots) = &payload.screenshots {
-        query = query.bind(screenshots);
-    }
-    if let Some(download_links) = &payload.download_links {
-        query = query.bind(download_links);
-    }
-    if let Some(privacy_policy_url) = &payload.privacy_policy_url {
-        query = query.bind(privacy_policy_url);
-    }
-
     query = query.bind(&slug);
 
     let app = query.fetch_one(&state.pool).await?;
@@ -192,15 +161,11 @@ async fn delete_app(
     State(state): State<AppState>,
     _auth: AuthUser,
     Path(slug): Path<String>,
-) -> Result<impl IntoResponse, AppError> {
-    let result = sqlx::query("DELETE FROM apps WHERE slug = $1")
+) -> Result<StatusCode, AppError> {
+    sqlx::query("DELETE FROM apps WHERE slug = $1")
         .bind(&slug)
         .execute(&state.pool)
         .await?;
-
-    if result.rows_affected() == 0 {
-        return Err(AppError::NotFound("App".to_string()));
-    }
 
     Ok(StatusCode::NO_CONTENT)
 }
