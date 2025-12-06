@@ -16,19 +16,17 @@ interface SnowfallContextValue {
   toggle: () => void;
 }
 
-const SnowfallContext = createContext<SnowfallContextValue | null>(null);
+const SnowfallContext = createContext<SnowfallContextValue>({
+  isEnabled: true,
+  toggle: () => {},
+});
 
 export function useSnowfall() {
-  const context = useContext(SnowfallContext);
-  if (!context) {
-    throw new Error("useSnowfall must be used within SnowfallProvider");
-  }
-  return context;
+  return useContext(SnowfallContext);
 }
 
 export function SnowfallProvider({ children }: { children: ReactNode }) {
   const [isEnabled, setIsEnabled] = useState(true);
-  const [isInitialized, setIsInitialized] = useState(false);
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -38,7 +36,6 @@ export function SnowfallProvider({ children }: { children: ReactNode }) {
     if (stored !== null) {
       setIsEnabled(stored === "true");
     }
-    setIsInitialized(true);
   }, []);
 
   const toggle = useCallback(() => {
@@ -50,11 +47,6 @@ export function SnowfallProvider({ children }: { children: ReactNode }) {
       return newValue;
     });
   }, []);
-
-  // Don't render children until initialized to prevent hydration mismatch
-  if (!isInitialized) {
-    return <>{children}</>;
-  }
 
   return (
     <SnowfallContext.Provider value={{ isEnabled, toggle }}>
