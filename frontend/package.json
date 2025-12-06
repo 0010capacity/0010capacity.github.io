@@ -28,7 +28,8 @@
     "react-github-calendar": "^4.5.10",
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1",
-    "tone": "^15.1.22"
+    "tone": "^15.1.22",
+    "zustand": "^5.0.9"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import SPARedirectHandler from "@/components/SPARedirectHandler";
+import { MusicPlayerProvider } from "@/components/MusicPlayerProvider";
+import MusicPlayer from "@/components/MusicPlayer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -100,7 +102,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-neutral-950 text-neutral-100`}
       >
         <SPARedirectHandler />
-        {children}
+        <MusicPlayerProvider>
+          {children}
+          <MusicPlayer />
+        </MusicPlayerProvider>
       </body>
     </html>
   );

@@ -1,317 +1,44 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
-import * as Tone from "tone";
-import { Midi } from "@tonejs/midi";
-
-// Low-pass filter for softer sound
-const FILTER_FREQUENCY = 2000;
-const VOLUME_STORAGE_KEY = "music-player-volume";
-const REPEAT_MODE_STORAGE_KEY = "music-player-repeat-mode";
-const DEFAULT_VOLUME = 0.5;
-
-type RepeatMode = "one" | "all";
-
-interface Song {
-  id: string;
-  title: string;
-  url: string;
-}
-
-const PLAYLIST: Song[] = [
-  { id: "mast-in-mist", title: "Mast in Mist", url: "/music/mast-in-mist.mid" },
-  { id: "wind-ahead", title: "Wind Ahead", url: "/music/wind-ahead.mid" },
-];
-
-type OscillatorType = "square" | "triangle" | "sawtooth" | "sine";
-
-const TRACK_INSTRUMENTS: OscillatorType[] = [
-  "square", // Track 1 - Melody
-  "sawtooth", // Track 2 - Harmony/Arp
-  "triangle", // Track 3 - Bass
-  "sine", // Track 4 - Pad
-];
-
-const getStoredVolume = (): number => {
-  if (typeof window === "undefined") return DEFAULT_VOLUME;
-  const stored = localStorage.getItem(VOLUME_STORAGE_KEY);
-  if (stored) {
-    const vol = parseFloat(stored);
-    if (!isNaN(vol) && vol >= 0 && vol <= 1) return vol;
-  }
-  return DEFAULT_VOLUME;
-};
-
-const getStoredRepeatMode = (): RepeatMode => {
-  if (typeof window === "undefined") return "all";
-  const stored = localStorage.getItem(REPEAT_MODE_STORAGE_KEY);
-  if (stored === "one" || stored === "all") return stored;
-  return "all";
-};
+import { useState, useCallback } from "react";
+import {
+  useMusicPlayer,
+  useMusicPlayerStore,
+  PLAYLIST,
+} from "./MusicPlayerProvider";
 
 export default function MusicPlayer() {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [currentSongIndex, setCurrentSongIndex] = useState(0);
   const [showPlaylist, setShowPlaylist] = useState(false);
-  const [volume, setVolume] = useState(DEFAULT_VOLUME);
   const [showVolume, setShowVolume] = useState(false);
-  const [repeatMode, setRepeatMode] = useState<RepeatMode>("all");
-  const synthsRef = useRef<Tone.PolySynth[]>([]);
-  const filtersRef = useRef<Tone.Filter[]>([]);
-  const partsRef = useRef<Tone.Part[]>([]);
-  const midiRef = useRef<Midi | null>(null);
-  const masterVolumeRef = useRef<Tone.Volume | null>(null);
-  const wasPlayingRef = useRef(false);
 
-  // Load volume and repeat mode from localStorage on mount
-  useEffect(() => {
-    const storedVolume = getStoredVolume();
-    setVolume(storedVolume);
-    const storedRepeatMode = getStoredRepeatMode();
-    setRepeatMode(storedRepeatMode);
-  }, []);
+  const { isPlaying, isLoaded, currentSongIndex, volume, repeatMode } =
+    useMusicPlayerStore();
 
-  const getCurrentSong = (): Song => {
-    const song = PLAYLIST[currentSongIndex];
-    if (song) return song;
-    return {
-      id: "mast-in-mist",
-      title: "Mast in Mist",
-      url: "/music/mast-in-mist.mid",
-    };
-  };
+  const {
+    togglePlay,
+    playNext,
+    playPrev,
+    selectSong,
+    toggleRepeatMode,
+    setVolume,
+  } = useMusicPlayer();
 
-  const currentSong = getCurrentSong();
+  const currentSong = PLAYLIST[currentSongIndex] ?? PLAYLIST[0];
 
-  const createSynth = useCallback(
-    (
-      trackIndex: number,
-      vol: number
-    ): { synth: Tone.PolySynth; filter: Tone.Filter } => {
-      const oscType =
-        TRACK_INSTRUMENTS[trackIndex % TRACK_INSTRUMENTS.length] || "square";
-
-      // Create master volume if not exists
-      if (!masterVolumeRef.current) {
-        masterVolumeRef.current = new Tone.Volume(0).toDestination();
-      }
-
-      // Create a low-pass filter to soften harsh frequencies
-      const filter = new Tone.Filter({
-        frequency: FILTER_FREQUENCY,
-        type: "lowpass",
-        rolloff: -12,
-      }).connect(masterVolumeRef.current);
-
-      const synth = new Tone.PolySynth(Tone.Synth, {
-        oscillator: {
-          type: oscType,
-        },
-        envelope: {
-          attack: 0.05, // Softer attack
-          decay: 0.15,
-          sustain: 0.4,
-          release: 0.4, // Longer release for smoother sound
-        },
-      }).connect(filter);
-
-      synth.volume.value = Tone.gainToDb(vol);
-      return { synth, filter };
-    },
-    []
-  );
-
-  const cleanup = useCallback(() => {
-    Tone.getTransport().stop();
-    Tone.getTransport().cancel();
-    Tone.getTransport().position = 0;
-
-    partsRef.current.forEach(part => {
-      part.stop();
-      part.dispose();
-    });
-    synthsRef.current.forEach(synth => synth.dispose());
-    filtersRef.current.forEach(filter => filter.dispose());
-
-    partsRef.current = [];
-    synthsRef.current = [];
-    filtersRef.current = [];
-  }, []);
-
-  const loadMidi = useCallback(
-    async (url: string) => {
-      cleanup();
-      setIsLoaded(false);
-
-      try {
-        const midi = await Midi.fromUrl(url);
-        midiRef.current = midi;
-        setIsLoaded(true);
-        return true;
-      } catch (error) {
-        console.warn("Failed to load MIDI file:", error);
-        return false;
-      }
-    },
-    [cleanup]
-  );
-
-  const startPlayback = useCallback(async () => {
-    const midi = midiRef.current;
-    if (!midi) return;
-
-    if (Tone.getContext().state !== "running") {
-      await Tone.start();
-    }
-
-    cleanup();
-
-    Tone.getTransport().bpm.value = midi.header.tempos[0]?.bpm || 120;
-
-    // Calculate total duration for looping
-    let maxEndTime = 0;
-    midi.tracks.forEach(track => {
-      track.notes.forEach(note => {
-        const endTime = note.time + note.duration;
-        if (endTime > maxEndTime) {
-          maxEndTime = endTime;
-        }
-      });
-    });
-
-    // Create synths and parts for each track
-    midi.tracks.forEach((track, trackIndex) => {
-      if (track.notes.length === 0) return;
-
-      // Calculate volume based on track (melody louder, bass medium, etc.)
-      const baseVolume = trackIndex === 0 ? 0.6 : trackIndex === 2 ? 0.45 : 0.3;
-      const { synth, filter } = createSynth(trackIndex, baseVolume);
-      synthsRef.current.push(synth);
-      filtersRef.current.push(filter);
-
-      const events = track.notes.map(note => ({
-        time: note.time,
-        note: note.name,
-        duration: note.duration,
-        velocity: note.velocity,
-      }));
-
-      const part = new Tone.Part((time, event) => {
-        synth.triggerAttackRelease(
-          event.note,
-          event.duration,
-          time,
-          event.velocity
-        );
-      }, events);
-
-      part.loop = true;
-      part.loopEnd = maxEndTime;
-      part.start(0);
-
-      partsRef.current.push(part);
-    });
-
-    Tone.getTransport().start();
-    setIsPlaying(true);
-  }, [cleanup, createSynth]);
-
-  const stopPlayback = useCallback(() => {
-    Tone.getTransport().pause();
-    setIsPlaying(false);
-  }, []);
-
-  const togglePlay = useCallback(async () => {
-    if (isPlaying) {
-      stopPlayback();
-    } else {
-      if (
-        Tone.getTransport().state === "paused" &&
-        partsRef.current.length > 0
-      ) {
-        Tone.getTransport().start();
-        setIsPlaying(true);
-      } else {
-        await startPlayback();
-      }
-    }
-  }, [isPlaying, startPlayback, stopPlayback]);
-
-  const playNext = useCallback(() => {
-    wasPlayingRef.current = isPlaying;
-    const nextIndex = (currentSongIndex + 1) % PLAYLIST.length;
-    setCurrentSongIndex(nextIndex);
-  }, [currentSongIndex, isPlaying]);
-
-  const playPrev = useCallback(() => {
-    wasPlayingRef.current = isPlaying;
-    const prevIndex =
-      (currentSongIndex - 1 + PLAYLIST.length) % PLAYLIST.length;
-    setCurrentSongIndex(prevIndex);
-  }, [currentSongIndex, isPlaying]);
-
-  const selectSong = useCallback(
+  const handleSelectSong = useCallback(
     (index: number) => {
-      wasPlayingRef.current = isPlaying;
-      setCurrentSongIndex(index);
+      selectSong(index);
       setShowPlaylist(false);
     },
-    [isPlaying]
+    [selectSong]
   );
-
-  const toggleRepeatMode = useCallback(() => {
-    setRepeatMode(prev => {
-      const newMode = prev === "one" ? "all" : "one";
-      if (typeof window !== "undefined") {
-        localStorage.setItem(REPEAT_MODE_STORAGE_KEY, newMode);
-      }
-      return newMode;
-    });
-  }, []);
-
-  // Load MIDI when song changes and auto-play if was playing
-  useEffect(() => {
-    const loadAndPlay = async () => {
-      const loaded = await loadMidi(currentSong.url);
-      if (loaded && wasPlayingRef.current) {
-        await startPlayback();
-      }
-    };
-    loadAndPlay();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentSong.url]);
-
-  // Update master volume when volume changes
-  useEffect(() => {
-    if (masterVolumeRef.current) {
-      // Convert 0-1 range to dB (-60 to 0)
-      const dbValue = volume === 0 ? -Infinity : Tone.gainToDb(volume);
-      masterVolumeRef.current.volume.value = dbValue;
-    }
-    // Save to localStorage
-    if (typeof window !== "undefined") {
-      localStorage.setItem(VOLUME_STORAGE_KEY, volume.toString());
-    }
-  }, [volume]);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      cleanup();
-      if (masterVolumeRef.current) {
-        masterVolumeRef.current.dispose();
-        masterVolumeRef.current = null;
-      }
-    };
-  }, [cleanup]);
 
   const handleVolumeChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const newVolume = parseFloat(e.target.value);
       setVolume(newVolume);
     },
-    []
+    [setVolume]
   );
 
   return (
@@ -328,7 +55,7 @@ export default function MusicPlayer() {
             {PLAYLIST.map((song, index) => (
               <li key={song.id}>
                 <button
-                  onClick={() => selectSong(index)}
+                  onClick={() => handleSelectSong(index)}
                   className={`w-full text-left px-3 py-2 text-sm transition-colors ${
                     index === currentSongIndex
                       ? "bg-neutral-800 text-white"
@@ -492,7 +219,7 @@ export default function MusicPlayer() {
 
       {/* Song Title */}
       <div className="text-center mt-1">
-        <span className="text-xs text-neutral-500">{currentSong.title}</span>
+        <span className="text-xs text-neutral-500">{currentSong?.title}</span>
       </div>
     </div>
   );
