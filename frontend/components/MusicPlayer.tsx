@@ -2,11 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import * as Tone from "tone";
-import {
-  parseMusicScore,
-  type MusicScore,
-  type Track,
-} from "@/lib/musicParser";
+import { Midi } from "@tonejs/midi";
 
 interface Song {
   id: string;
@@ -15,8 +11,17 @@ interface Song {
 }
 
 const PLAYLIST: Song[] = [
-  { id: "mast-in-mist", title: "Mast in Mist", url: "/music/mast-in-mist.txt" },
-  { id: "wind-ahead", title: "Wind Ahead", url: "/music/wind-ahead.txt" },
+  { id: "mast-in-mist", title: "Mast in Mist", url: "/music/mast-in-mist.mid" },
+  { id: "wind-ahead", title: "Wind Ahead", url: "/music/wind-ahead.mid" },
+];
+
+type OscillatorType = "square" | "triangle" | "sawtooth" | "sine";
+
+const TRACK_INSTRUMENTS: OscillatorType[] = [
+  "square", // Track 1 - Melody
+  "sawtooth", // Track 2 - Harmony/Arp
+  "triangle", // Track 3 - Bass
+  "sine", // Track 4 - Pad
 ];
 
 export default function MusicPlayer() {
@@ -24,117 +29,80 @@ export default function MusicPlayer() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [currentSongIndex, setCurrentSongIndex] = useState(0);
   const [showPlaylist, setShowPlaylist] = useState(false);
-  const synthsRef = useRef<Tone.Synth[]>([]);
-  const sequencesRef = useRef<Tone.Part[]>([]);
-  const scoreRef = useRef<MusicScore | null>(null);
+  const synthsRef = useRef<Tone.PolySynth[]>([]);
+  const partsRef = useRef<Tone.Part[]>([]);
+  const midiRef = useRef<Midi | null>(null);
 
   const getCurrentSong = (): Song => {
     const song = PLAYLIST[currentSongIndex];
     if (song) return song;
-    return { id: "mist", title: "Mist of the Sea", url: "/music/theme.txt" };
+    return {
+      id: "mast-in-mist",
+      title: "Mast in Mist",
+      url: "/music/mast-in-mist.mid",
+    };
   };
 
   const currentSong = getCurrentSong();
 
-  const createSynth = useCallback((track: Track): Tone.Synth => {
-    const synth = new Tone.Synth({
-      oscillator: {
-        type: track.instrument,
-      },
-      envelope: {
-        attack: 0.01,
-        decay: 0.1,
-        sustain: 0.3,
-        release: 0.2,
-      },
-    }).toDestination();
+  const createSynth = useCallback(
+    (trackIndex: number, volume: number): Tone.PolySynth => {
+      const oscType =
+        TRACK_INSTRUMENTS[trackIndex % TRACK_INSTRUMENTS.length] || "square";
 
-    synth.volume.value = Tone.gainToDb(track.volume);
-    return synth;
-  }, []);
+      const synth = new Tone.PolySynth(Tone.Synth, {
+        oscillator: {
+          type: oscType,
+        },
+        envelope: {
+          attack: 0.02,
+          decay: 0.1,
+          sustain: 0.3,
+          release: 0.2,
+        },
+      }).toDestination();
 
-  const scheduleTrack = useCallback(
-    (track: Track, synth: Tone.Synth): Tone.Part => {
-      const events: { time: number; note: string; duration: string }[] = [];
-      let currentTime = 0;
-
-      const durationToSeconds = (duration: string, bpm: number): number => {
-        const quarterNote = 60 / bpm;
-        const durationMap: Record<string, number> = {
-          "1n": 4,
-          "2n": 2,
-          "4n": 1,
-          "8n": 0.5,
-          "16n": 0.25,
-          "32n": 0.125,
-        };
-        return (durationMap[duration] || 1) * quarterNote;
-      };
-
-      const bpm = scoreRef.current?.bpm || 120;
-
-      for (const note of track.notes) {
-        const durationInSeconds = durationToSeconds(note.duration, bpm);
-
-        if (note.pitch !== "-") {
-          events.push({
-            time: currentTime,
-            note: note.pitch,
-            duration: note.duration,
-          });
-        }
-
-        currentTime += durationInSeconds;
-      }
-
-      const part = new Tone.Part((time, event) => {
-        synth.triggerAttackRelease(event.note, event.duration, time);
-      }, events);
-
-      part.loop = true;
-      part.loopEnd = currentTime;
-
-      return part;
+      synth.volume.value = Tone.gainToDb(volume);
+      return synth;
     },
     []
   );
 
   const cleanup = useCallback(() => {
     Tone.getTransport().stop();
+    Tone.getTransport().cancel();
     Tone.getTransport().position = 0;
-    sequencesRef.current.forEach(seq => {
-      seq.stop();
-      seq.dispose();
+
+    partsRef.current.forEach(part => {
+      part.stop();
+      part.dispose();
     });
     synthsRef.current.forEach(synth => synth.dispose());
-    sequencesRef.current = [];
+
+    partsRef.current = [];
     synthsRef.current = [];
   }, []);
 
-  const loadScore = useCallback(
+  const loadMidi = useCallback(
     async (url: string) => {
       cleanup();
       setIsLoaded(false);
+      setIsPlaying(false);
 
       try {
-        const response = await fetch(url);
-        if (!response.ok) {
-          console.warn("Music score not found:", url);
-          return;
-        }
-        const content = await response.text();
-        const score = parseMusicScore(content);
-        scoreRef.current = score;
+        const midi = await Midi.fromUrl(url);
+        midiRef.current = midi;
         setIsLoaded(true);
       } catch (error) {
-        console.warn("Failed to load music score:", error);
+        console.warn("Failed to load MIDI file:", error);
       }
     },
     [cleanup]
   );
 
   const startPlayback = useCallback(async () => {
-    if (!scoreRef.current) return;
+    const midi = midiRef.current;
+    if (!midi) return;
 
     if (Tone.getContext().state !== "running") {
       await Tone.start();
@@ -142,20 +110,54 @@ export default function MusicPlayer() {
 
     cleanup();
 
-    Tone.getTransport().bpm.value = scoreRef.current.bpm;
+    Tone.getTransport().bpm.value = midi.header.tempos[0]?.bpm || 120;
 
-    for (const track of scoreRef.current.tracks) {
-      const synth = createSynth(track);
+    // Calculate total duration for looping
+    let maxEndTime = 0;
+    midi.tracks.forEach(track => {
+      track.notes.forEach(note => {
+        const endTime = note.time + note.duration;
+        if (endTime > maxEndTime) {
+          maxEndTime = endTime;
+        }
+      });
+    });
+
+    // Create synths and parts for each track
+    midi.tracks.forEach((track, trackIndex) => {
+      if (track.notes.length === 0) return;
+
+      // Calculate volume based on track (melody louder, bass medium, etc.)
+      const baseVolume = trackIndex === 0 ? 0.7 : trackIndex === 2 ? 0.5 : 0.35;
+      const synth = createSynth(trackIndex, baseVolume);
       synthsRef.current.push(synth);
 
-      const sequence = scheduleTrack(track, synth);
-      sequence.start(0);
-      sequencesRef.current.push(sequence);
-    }
+      const events = track.notes.map(note => ({
+        time: note.time,
+        note: note.name,
+        duration: note.duration,
+        velocity: note.velocity,
+      }));
+
+      const part = new Tone.Part((time, event) => {
+        synth.triggerAttackRelease(
+          event.note,
+          event.duration,
+          time,
+          event.velocity
+        );
+      }, events);
+
+      part.loop = true;
+      part.loopEnd = maxEndTime;
+      part.start(0);
+
+      partsRef.current.push(part);
+    });
 
     Tone.getTransport().start();
     setIsPlaying(true);
-  }, [cleanup, createSynth, scheduleTrack]);
+  }, [cleanup, createSynth]);
 
   const stopPlayback = useCallback(() => {
     Tone.getTransport().pause();
@@ -166,7 +168,10 @@ export default function MusicPlayer() {
     if (isPlaying) {
       stopPlayback();
     } else {
-      if (Tone.getTransport().state === "paused") {
+      if (
+        Tone.getTransport().state === "paused" &&
+        partsRef.current.length > 0
+      ) {
         Tone.getTransport().start();
         setIsPlaying(true);
       } else {
@@ -191,9 +196,9 @@ export default function MusicPlayer() {
     setShowPlaylist(false);
   }, []);
 
-  // Load score when song changes
+  // Load MIDI when song changes
   useEffect(() => {
-    loadScore(currentSong.url);
+    loadMidi(currentSong.url);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentSong.url]);
 
