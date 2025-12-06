@@ -12,7 +12,6 @@ pub struct BlogPost {
     pub title: String,
     pub content: String, // Markdown
     pub excerpt: Option<String>,
-    pub cover_image_url: Option<String>,
     pub tags: Vec<String>,
     pub published: bool,
     pub view_count: i64,
@@ -36,7 +35,6 @@ pub struct CreateBlogPost {
     #[validate(length(max = 1000))]
     pub excerpt: Option<String>,
 
-    pub cover_image_url: Option<String>,
     pub tags: Option<Vec<String>>,
     pub published: Option<bool>,
     pub published_at: Option<DateTime<Utc>>,
@@ -54,7 +52,6 @@ pub struct UpdateBlogPost {
     #[validate(length(max = 1000))]
     pub excerpt: Option<String>,
 
-    pub cover_image_url: Option<String>,
     pub tags: Option<Vec<String>>,
     pub published: Option<bool>,
     pub published_at: Option<DateTime<Utc>>,
@@ -67,7 +64,6 @@ pub struct BlogPostPreview {
     pub slug: String,
     pub title: String,
     pub excerpt: Option<String>,
-    pub cover_image_url: Option<String>,
     pub tags: Vec<String>,
     pub published: bool,
     pub view_count: i64,

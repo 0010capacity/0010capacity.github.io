@@ -47,7 +47,7 @@ async fn list_posts(
     }
 
     let sql = format!(
-        "SELECT id, slug, title, content, excerpt, cover_image_url, tags, published, view_count, published_at, created_at, updated_at FROM blog_posts{} ORDER BY published_at DESC NULLS LAST LIMIT $1 OFFSET $2",
+        "SELECT id, slug, title, content, excerpt, tags, published, view_count, published_at, created_at, updated_at FROM blog_posts{} ORDER BY published_at DESC NULLS LAST LIMIT $1 OFFSET $2",
         where_clause
     );
 
@@ -66,7 +66,7 @@ async fn get_post(
     Path(slug): Path<String>,
 ) -> Result<impl IntoResponse, AppError> {
     let post = sqlx::query_as::<_, BlogPost>(
-        "SELECT id, slug, title, content, excerpt, cover_image_url, tags, published, view_count, published_at, created_at, updated_at FROM blog_posts WHERE slug = $1"
+        "SELECT id, slug, title, content, excerpt, tags, published, view_count, published_at, created_at, updated_at FROM blog_posts WHERE slug = $1"
     )
     .bind(&slug)
     .fetch_one(&state.pool)
@@ -115,15 +115,14 @@ async fn create_post(
     };
 
     let post = sqlx::query_as::<_, BlogPost>(
-        "INSERT INTO blog_posts (slug, title, content, excerpt, cover_image_url, tags, published, published_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-         RETURNING id, slug, title, content, excerpt, cover_image_url, tags, published, view_count, published_at, created_at, updated_at"
+        "INSERT INTO blog_posts (slug, title, content, excerpt, tags, published, published_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)
+         RETURNING id, slug, title, content, excerpt, tags, published, view_count, published_at, created_at, updated_at"
     )
     .bind(&final_slug)
     .bind(&payload.title)
     .bind(&payload.content)
     .bind(&payload.excerpt)
-    .bind(&payload.cover_image_url)
     .bind(&tags)
     .bind(payload.published.unwrap_or(false))
     .bind(payload.published_at)
@@ -155,10 +154,6 @@ async fn update_post(
         updates.push(format!("excerpt = ${}", updates.len() + 1));
         bindings.push(excerpt.clone());
     }
-    if let Some(cover) = &payload.cover_image_url {
-        updates.push(format!("cover_image_url = ${}", updates.len() + 1));
-        bindings.push(cover.clone());
-    }
     if let Some(published) = payload.published {
         updates.push(format!("published = ${}", updates.len() + 1));
         bindings.push(published.to_string());
@@ -176,7 +171,7 @@ async fn update_post(
     let param_idx = updates.len();
 
     let sql = format!(
-        "UPDATE blog_posts SET {} WHERE slug = ${} RETURNING id, slug, title, content, excerpt, cover_image_url, tags, published, view_count, published_at, created_at, updated_at",
+        "UPDATE blog_posts SET {} WHERE slug = ${} RETURNING id, slug, title, content, excerpt, tags, published, view_count, published_at, created_at, updated_at",
         updates.join(", "),
         param_idx
     );
