@@ -1,10 +1,8 @@
 import Link from "next/link";
-import Snowfall from "@/components/Snowfall";
 
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-100 flex flex-col relative">
-      <Snowfall />
       {/* Main Content */}
       <main className="flex-1 flex flex-col items-center justify-center px-6">
         {/* 인사 */}
