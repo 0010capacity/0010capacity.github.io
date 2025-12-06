@@ -20,6 +20,7 @@ export default function SPARedirectHandler() {
         try {
           const { path, search, hash } = JSON.parse(redirectData);
           sessionStorage.removeItem("spa-redirect");
+          sessionStorage.removeItem("spa-redirect-attempted");
 
           // Ensure trailing slash for consistency with Next.js config
           let cleanPath = path;
@@ -33,11 +34,13 @@ export default function SPARedirectHandler() {
         } catch (e) {
           console.error("Failed to parse redirect data:", e);
           sessionStorage.removeItem("spa-redirect");
+          sessionStorage.removeItem("spa-redirect-attempted");
           // Remove the query param from current URL
           window.history.replaceState({}, "", "/");
         }
       } else {
         // No redirect data, just clean up the URL
+        sessionStorage.removeItem("spa-redirect-attempted");
         window.history.replaceState({}, "", "/");
       }
     }
