@@ -6,6 +6,7 @@ import {
   useMusicPlayerStore,
   PLAYLIST,
 } from "./MusicPlayerProvider";
+import SnowfallToggle from "./SnowfallToggle";
 
 export default function MusicPlayer() {
   const [showPlaylist, setShowPlaylist] = useState(false);
@@ -201,6 +202,9 @@ export default function MusicPlayer() {
 
         {/* Divider */}
         <div className="w-px h-5 bg-neutral-700 mx-1" />
+
+        {/* Snowfall Toggle */}
+        <SnowfallToggle />
 
         {/* Playlist Toggle */}
         <button

@@ -4,6 +4,8 @@ import "./globals.css";
 import SPARedirectHandler from "@/components/SPARedirectHandler";
 import { MusicPlayerProvider } from "@/components/MusicPlayerProvider";
 import MusicPlayer from "@/components/MusicPlayer";
+import { SnowfallProvider } from "@/components/SnowfallProvider";
+import SnowfallContainer from "@/components/SnowfallContainer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -102,10 +104,13 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-neutral-950 text-neutral-100`}
       >
         <SPARedirectHandler />
-        <MusicPlayerProvider>
-          {children}
-          <MusicPlayer />
-        </MusicPlayerProvider>
+        <SnowfallProvider>
+          <SnowfallContainer />
+          <MusicPlayerProvider>
+            {children}
+            <MusicPlayer />
+          </MusicPlayerProvider>
+        </SnowfallProvider>
       </body>
     </html>
   );
