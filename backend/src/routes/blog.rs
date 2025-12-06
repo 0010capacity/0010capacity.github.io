@@ -139,50 +139,36 @@ async fn update_post(
     Path(slug): Path<String>,
     Json(payload): Json<UpdateBlogPost>,
 ) -> Result<impl IntoResponse, AppError> {
-    let mut updates = Vec::<String>::new();
-    let mut bindings: Vec<String> = Vec::new();
+    // First, get the existing post
+    let existing = sqlx::query_as::<_, BlogPost>(
+        "SELECT id, slug, title, content, excerpt, tags, published, view_count, published_at, created_at, updated_at FROM blog_posts WHERE slug = $1"
+    )
+    .bind(&slug)
+    .fetch_optional(&state.pool)
+    .await?
+    .ok_or_else(|| AppError::NotFound("Blog post not found".to_string()))?;
 
-    if let Some(title) = &payload.title {
-        updates.push(format!("title = ${}", updates.len() + 1));
-        bindings.push(title.clone());
-    }
-    if let Some(content) = &payload.content {
-        updates.push(format!("content = ${}", updates.len() + 1));
-        bindings.push(content.clone());
-    }
-    if let Some(excerpt) = &payload.excerpt {
-        updates.push(format!("excerpt = ${}", updates.len() + 1));
-        bindings.push(excerpt.clone());
-    }
-    if let Some(published) = payload.published {
-        updates.push(format!("published = ${}", updates.len() + 1));
-        bindings.push(published.to_string());
-    }
-    if let Some(published_at) = payload.published_at {
-        updates.push(format!("published_at = ${}", updates.len() + 1));
-        bindings.push(published_at.to_rfc3339());
-    }
+    // Merge with existing values
+    let title = payload.title.unwrap_or(existing.title);
+    let content = payload.content.unwrap_or(existing.content);
+    let excerpt = payload.excerpt.or(existing.excerpt);
+    let tags = payload.tags.unwrap_or(existing.tags);
+    let published = payload.published.unwrap_or(existing.published);
+    let published_at = payload.published_at.or(existing.published_at);
 
-    if updates.is_empty() {
-        return Err(AppError::BadRequest("No fields to update".to_string()));
-    }
-
-    updates.push("updated_at = NOW()".to_string());
-    let param_idx = updates.len();
-
-    let sql = format!(
-        "UPDATE blog_posts SET {} WHERE slug = ${} RETURNING id, slug, title, content, excerpt, tags, published, view_count, published_at, created_at, updated_at",
-        updates.join(", "),
-        param_idx
-    );
-
-    let mut query = sqlx::query_as::<_, BlogPost>(&sql);
-    for binding in bindings {
-        query = query.bind(binding);
-    }
-    query = query.bind(&slug);
-
-    let post = query.fetch_one(&state.pool).await?;
+    // Update with proper typed bindings
+    let post = sqlx::query_as::<_, BlogPost>(
+        "UPDATE blog_posts SET title = $1, content = $2, excerpt = $3, tags = $4, published = $5, published_at = $6, updated_at = NOW() WHERE slug = $7 RETURNING id, slug, title, content, excerpt, tags, published, view_count, published_at, created_at, updated_at"
+    )
+    .bind(&title)
+    .bind(&content)
+    .bind(&excerpt)
+    .bind(&tags)
+    .bind(published)
+    .bind(published_at)
+    .bind(&slug)
+    .fetch_one(&state.pool)
+    .await?;
 
     Ok(Json(post))
 }
