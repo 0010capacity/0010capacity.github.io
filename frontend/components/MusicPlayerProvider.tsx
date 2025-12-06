@@ -16,7 +16,6 @@ import { create } from "zustand";
 const FILTER_FREQUENCY = 2000;
 const VOLUME_STORAGE_KEY = "music-player-volume";
 const REPEAT_MODE_STORAGE_KEY = "music-player-repeat-mode";
-const PLAYBACK_STATE_STORAGE_KEY = "music-player-state";
 const DEFAULT_VOLUME = 0.5;
 
 type RepeatMode = "one" | "all";
@@ -28,7 +27,11 @@ interface Song {
 }
 
 export const PLAYLIST: Song[] = [
-  { id: "mast-in-mist", title: "Mast in Mist", url: "/music/mast-in-mist.mid" },
+  {
+    id: "mast-in-the-mist",
+    title: "Mast in the Mist",
+    url: "/music/mast-in-the-mist.mid",
+  },
   { id: "wind-ahead", title: "Wind Ahead", url: "/music/wind-ahead.mid" },
 ];
 
@@ -47,47 +50,12 @@ interface MusicPlayerState {
   currentSongIndex: number;
   volume: number;
   repeatMode: RepeatMode;
-  showResumePrompt: boolean;
   setIsPlaying: (playing: boolean) => void;
   setIsLoaded: (loaded: boolean) => void;
   setCurrentSongIndex: (index: number) => void;
   setVolume: (volume: number) => void;
   setRepeatMode: (mode: RepeatMode) => void;
-  setShowResumePrompt: (show: boolean) => void;
 }
-
-interface PlaybackState {
-  currentSongIndex: number;
-  isPlaying: boolean;
-  timestamp: number;
-}
-
-const getStoredPlaybackState = (): PlaybackState | null => {
-  if (typeof window === "undefined") return null;
-  try {
-    const stored = localStorage.getItem(PLAYBACK_STATE_STORAGE_KEY);
-    if (stored) {
-      const state = JSON.parse(stored) as PlaybackState;
-      // Only restore if saved within last 5 minutes
-      if (Date.now() - state.timestamp < 5 * 60 * 1000) {
-        return state;
-      }
-    }
-  } catch {
-    // Ignore parse errors
-  }
-  return null;
-};
-
-const savePlaybackState = (currentSongIndex: number, isPlaying: boolean) => {
-  if (typeof window === "undefined") return;
-  const state: PlaybackState = {
-    currentSongIndex,
-    isPlaying,
-    timestamp: Date.now(),
-  };
-  localStorage.setItem(PLAYBACK_STATE_STORAGE_KEY, JSON.stringify(state));
-};
 
 export const useMusicPlayerStore = create<MusicPlayerState>(set => ({
   isPlaying: false,
@@ -95,13 +63,11 @@ export const useMusicPlayerStore = create<MusicPlayerState>(set => ({
   currentSongIndex: 0,
   volume: DEFAULT_VOLUME,
   repeatMode: "all",
-  showResumePrompt: false,
   setIsPlaying: playing => set({ isPlaying: playing }),
   setIsLoaded: loaded => set({ isLoaded: loaded }),
   setCurrentSongIndex: index => set({ currentSongIndex: index }),
   setVolume: volume => set({ volume }),
   setRepeatMode: mode => set({ repeatMode: mode }),
-  setShowResumePrompt: show => set({ showResumePrompt: show }),
 }));
 
 interface MusicPlayerContextValue {
@@ -111,8 +77,6 @@ interface MusicPlayerContextValue {
   selectSong: (index: number) => void;
   toggleRepeatMode: () => void;
   setVolume: (volume: number) => void;
-  resumePlayback: () => Promise<void>;
-  dismissResumePrompt: () => void;
 }
 
 const MusicPlayerContext = createContext<MusicPlayerContextValue | null>(null);
@@ -134,9 +98,6 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   const wasPlayingRef = useRef(false);
   const isInitializedRef = useRef(false);
   const shouldAutoPlayRef = useRef(false);
-  const initialLoadDoneRef = useRef(false);
-  const pendingAutoPlayRef = useRef(false);
-  const pendingSongIndexRef = useRef<number | null>(null);
 
   const {
     isPlaying,
@@ -147,7 +108,6 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     setCurrentSongIndex,
     setVolume: setStoreVolume,
     setRepeatMode,
-    setShowResumePrompt,
   } = useMusicPlayerStore();
 
   // Load from localStorage on mount
@@ -167,19 +127,7 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     if (storedRepeatMode === "one" || storedRepeatMode === "all") {
       setRepeatMode(storedRepeatMode);
     }
-
-    // Restore playback state from previous page
-    const playbackState = getStoredPlaybackState();
-    if (playbackState) {
-      pendingSongIndexRef.current = playbackState.currentSongIndex;
-      if (playbackState.isPlaying) {
-        pendingAutoPlayRef.current = true;
-        // Show resume prompt instead of auto-playing (browser autoplay policy)
-        setShowResumePrompt(true);
-      }
-      setCurrentSongIndex(playbackState.currentSongIndex);
-    }
-  }, [setStoreVolume, setRepeatMode, setCurrentSongIndex, setShowResumePrompt]);
+  }, [setStoreVolume, setRepeatMode]);
 
   const getCurrentSong = useCallback((): Song => {
     const song = PLAYLIST[currentSongIndex];
@@ -270,9 +218,6 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
 
     Tone.getTransport().bpm.value = midi.header.tempos[0]?.bpm || 120;
 
-    // Save playback state
-    savePlaybackState(useMusicPlayerStore.getState().currentSongIndex, true);
-
     let maxEndTime = 0;
     midi.tracks.forEach(track => {
       track.notes.forEach(note => {
@@ -321,8 +266,6 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   const stopPlayback = useCallback(() => {
     Tone.getTransport().pause();
     setIsPlaying(false);
-    // Save paused state
-    savePlaybackState(useMusicPlayerStore.getState().currentSongIndex, false);
   }, [setIsPlaying]);
 
   const togglePlay = useCallback(async () => {
@@ -345,7 +288,6 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     wasPlayingRef.current = isPlaying;
     const nextIndex = (currentSongIndex + 1) % PLAYLIST.length;
     setCurrentSongIndex(nextIndex);
-    savePlaybackState(nextIndex, isPlaying);
   }, [currentSongIndex, isPlaying, setCurrentSongIndex]);
 
   const playPrev = useCallback(() => {
@@ -353,14 +295,12 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     const prevIndex =
       (currentSongIndex - 1 + PLAYLIST.length) % PLAYLIST.length;
     setCurrentSongIndex(prevIndex);
-    savePlaybackState(prevIndex, isPlaying);
   }, [currentSongIndex, isPlaying, setCurrentSongIndex]);
 
   const selectSong = useCallback(
     (index: number) => {
       wasPlayingRef.current = isPlaying;
       setCurrentSongIndex(index);
-      savePlaybackState(index, isPlaying);
     },
     [isPlaying, setCurrentSongIndex]
   );
@@ -388,17 +328,6 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     [setStoreVolume]
   );
 
-  const resumePlayback = useCallback(async () => {
-    setShowResumePrompt(false);
-    pendingAutoPlayRef.current = false;
-    await startPlayback();
-  }, [setShowResumePrompt, startPlayback]);
-
-  const dismissResumePrompt = useCallback(() => {
-    setShowResumePrompt(false);
-    pendingAutoPlayRef.current = false;
-  }, [setShowResumePrompt]);
-
   // Load MIDI when song changes or on initial load
   useEffect(() => {
     const currentSong = getCurrentSong();
@@ -406,7 +335,6 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
       const loaded = await loadMidi(currentSong.url);
       if (loaded) {
         // Only auto-play if user already interacted (wasPlayingRef or shouldAutoPlayRef)
-        // Don't auto-play for pendingAutoPlayRef - show prompt instead
         const shouldPlay = wasPlayingRef.current || shouldAutoPlayRef.current;
 
         if (shouldPlay) {
@@ -414,7 +342,6 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
           await startPlayback();
         }
       }
-      initialLoadDoneRef.current = true;
     };
     loadAndPlay();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -446,8 +373,6 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     selectSong,
     toggleRepeatMode,
     setVolume,
-    resumePlayback,
-    dismissResumePrompt,
   };
 
   return (
