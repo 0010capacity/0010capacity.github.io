@@ -1,10 +1,35 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
-import Link from "next/link";
+import {
+  useEffect,
+  useState,
+  useCallback,
+  createContext,
+  useContext,
+} from "react";
+import { usePathname } from "next/navigation";
 import AdminLayout from "@/components/AdminLayout";
 import { appsApi } from "@/lib/api";
+
+// Navigation Context for SPA-style routing
+interface NavState {
+  view: "list" | "new" | "edit";
+  slug?: string;
+}
+
+interface NavContextType {
+  navState: NavState;
+  navigate: (state: NavState) => void;
+  goBack: () => void;
+}
+
+const NavContext = createContext<NavContextType | null>(null);
+
+function useNav() {
+  const ctx = useContext(NavContext);
+  if (!ctx) throw new Error("useNav must be used within NavProvider");
+  return ctx;
+}
 
 // Types
 interface DistributionChannel {
@@ -106,6 +131,7 @@ function PlatformBadge({ platform }: { platform: string }) {
 
 // Apps List Component
 function AppsList() {
+  const { navigate } = useNav();
   const [apps, setApps] = useState<App[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -170,22 +196,22 @@ function AppsList() {
     <AdminLayout title="앱 관리">
       <div className="flex justify-between items-center mb-8">
         <p className="text-neutral-500 text-sm">총 {apps.length}개의 앱</p>
-        <Link
-          href="/admin/apps/new"
-          className="px-4 py-2 bg-neutral-100 hover:bg-white text-neutral-900 rounded transition-colors text-sm"
+        <button
+          onClick={() => navigate({ view: "new" })}
+          className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 transition-colors rounded text-sm"
         >
           + 새 앱 등록
-        </Link>
+        </button>
       </div>
       {apps.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-neutral-600 text-sm mb-4">등록된 앱이 없습니다</p>
-          <Link
-            href="/admin/apps/new"
+          <button
+            onClick={() => navigate({ view: "new" })}
             className="text-neutral-400 hover:text-white transition-colors text-sm"
           >
             첫 번째 앱을 등록해보세요 →
-          </Link>
+          </button>
         </div>
       ) : (
         <div className="space-y-4">
@@ -248,12 +274,12 @@ function AppsList() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Link
-                    href={`/admin/apps/${app.slug}/edit`}
+                  <button
+                    onClick={() => navigate({ view: "edit", slug: app.slug })}
                     className="px-3 py-1.5 text-sm text-neutral-400 hover:text-white transition-colors"
                   >
                     수정
-                  </Link>
+                  </button>
                   {deleteConfirm === app.slug ? (
                     <div className="flex items-center gap-2">
                       <button
@@ -476,7 +502,7 @@ interface AppFormProps {
 }
 
 function AppForm({ initialData, onSubmit, isEdit = false }: AppFormProps) {
-  const router = useRouter();
+  const { navigate } = useNav();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -742,7 +768,7 @@ function AppForm({ initialData, onSubmit, isEdit = false }: AppFormProps) {
         </button>
         <button
           type="button"
-          onClick={() => router.back()}
+          onClick={() => navigate({ view: "list" })}
           disabled={loading}
           className="px-6 py-3 text-neutral-400 hover:text-white transition-colors"
         >
@@ -755,7 +781,7 @@ function AppForm({ initialData, onSubmit, isEdit = false }: AppFormProps) {
 
 // New App Component
 function NewApp() {
-  const router = useRouter();
+  const { navigate } = useNav();
 
   const handleSubmit = async (data: AppFormData) => {
     const token = localStorage.getItem("admin_token");
@@ -764,7 +790,7 @@ function NewApp() {
     }
 
     await appsApi.create(data, token);
-    router.push("/admin/apps/");
+    navigate({ view: "list" });
   };
 
   return (
@@ -772,6 +798,7 @@ function NewApp() {
       title="새 앱 등록"
       backHref="/admin/apps"
       backLabel="← 앱 목록"
+      onBack={() => navigate({ view: "list" })}
     >
       <AppForm onSubmit={handleSubmit} />
     </AdminLayout>
@@ -780,7 +807,7 @@ function NewApp() {
 
 // Edit App Component
 function EditApp({ slug }: { slug: string }) {
-  const router = useRouter();
+  const { navigate } = useNav();
   const [app, setApp] = useState<App | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -809,12 +836,17 @@ function EditApp({ slug }: { slug: string }) {
     }
 
     await appsApi.update(slug, data, token);
-    router.push("/admin/apps/");
+    navigate({ view: "list" });
   };
 
   if (loading) {
     return (
-      <AdminLayout title="앱 수정" backHref="/admin/apps" backLabel="← 앱 목록">
+      <AdminLayout
+        title="새 앱 등록"
+        backHref="/admin/apps"
+        backLabel="← 앱 목록"
+        onBack={() => navigate({ view: "list" })}
+      >
         <div className="text-center py-12">
           <p className="text-neutral-600 text-sm">로딩 중...</p>
         </div>
@@ -824,7 +856,12 @@ function EditApp({ slug }: { slug: string }) {
 
   if (error) {
     return (
-      <AdminLayout title="앱 수정" backHref="/admin/apps" backLabel="← 앱 목록">
+      <AdminLayout
+        title="앱 수정"
+        backHref="/admin/apps"
+        backLabel="← 앱 목록"
+        onBack={() => navigate({ view: "list" })}
+      >
         <div className="p-4 border border-red-900/50 text-red-400 text-sm rounded">
           {error}
         </div>
@@ -833,40 +870,70 @@ function EditApp({ slug }: { slug: string }) {
   }
 
   return (
-    <AdminLayout title="앱 수정" backHref="/admin/apps" backLabel="← 앱 목록">
+    <AdminLayout
+      title="앱 수정"
+      backHref="/admin/apps"
+      backLabel="← 앱 목록"
+      onBack={() => navigate({ view: "list" })}
+    >
       <AppForm initialData={app || undefined} onSubmit={handleSubmit} isEdit />
     </AdminLayout>
   );
 }
 
-// Main Client Component with Router
+// Main Client Component with SPA-style Routing
 export default function AppsAdminClient() {
   const pathname = usePathname();
+  const [navState, setNavState] = useState<NavState>({ view: "list" });
+  const [history, setHistory] = useState<NavState[]>([]);
 
-  // Parse the pathname to determine which view to show
-  // /admin/apps -> list
-  // /admin/apps/new -> new
-  // /admin/apps/[slug]/edit -> edit
+  // Parse URL params on mount to determine initial state
+  useEffect(() => {
+    const pathParts = pathname.split("/").filter(Boolean);
 
-  const pathParts = pathname.split("/").filter(Boolean);
-  // pathParts = ["admin", "apps", ...rest]
+    if (pathParts.length === 3 && pathParts[2] === "new") {
+      setNavState({ view: "new" });
+    } else if (pathParts.length === 4 && pathParts[3] === "edit") {
+      setNavState({ view: "edit", slug: pathParts[2] });
+    } else {
+      setNavState({ view: "list" });
+    }
+  }, [pathname]);
 
-  if (pathParts.length === 2) {
-    // /admin/apps
-    return <AppsList />;
-  }
+  const navigate = useCallback(
+    (state: NavState) => {
+      setHistory(prev => [...prev, navState]);
+      setNavState(state);
+    },
+    [navState]
+  );
 
-  if (pathParts.length === 3 && pathParts[2] === "new") {
-    // /admin/apps/new
-    return <NewApp />;
-  }
+  const goBack = useCallback(() => {
+    if (history.length > 0) {
+      const newHistory = [...history];
+      const prevState = newHistory.pop();
+      setHistory(newHistory);
+      setNavState(prevState || { view: "list" });
+    } else {
+      setNavState({ view: "list" });
+    }
+  }, [history]);
 
-  if (pathParts.length === 4 && pathParts[3] === "edit") {
-    // /admin/apps/[slug]/edit
-    const slug = pathParts[2] as string;
-    return <EditApp slug={slug} />;
-  }
+  const renderView = () => {
+    switch (navState.view) {
+      case "new":
+        return <NewApp />;
+      case "edit":
+        return navState.slug ? <EditApp slug={navState.slug} /> : <AppsList />;
+      case "list":
+      default:
+        return <AppsList />;
+    }
+  };
 
-  // Default to list
-  return <AppsList />;
+  return (
+    <NavContext.Provider value={{ navState, navigate, goBack }}>
+      {renderView()}
+    </NavContext.Provider>
+  );
 }
