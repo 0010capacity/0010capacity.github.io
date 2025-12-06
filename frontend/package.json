@@ -26,7 +26,8 @@
     "react-dom": "19.1.0",
     "react-github-calendar": "^4.5.10",
     "react-markdown": "^10.1.0",
-    "remark-gfm": "^4.0.1"
+    "remark-gfm": "^4.0.1",
+    "tone": "^15.1.22"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
