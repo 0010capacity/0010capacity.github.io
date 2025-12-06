@@ -60,7 +60,7 @@ impl IntoResponse for AppError {
                 tracing::error!("Database error: {:?}", e);
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
-                    "An internal database error occurred".to_string(),
+                    format!("Database error: {}", e),
                 )
             }
             AppError::Unauthorized => (StatusCode::UNAUTHORIZED, "Unauthorized".to_string()),
@@ -96,6 +96,13 @@ impl IntoResponse for AppError {
 // Implement From traits for common error types
 impl From<sqlx::Error> for AppError {
     fn from(err: sqlx::Error) -> Self {
+        // Check for unique constraint violation (Postgres code 23505)
+        if let sqlx::Error::Database(ref db_err) = err {
+            if db_err.code().as_deref() == Some("23505") {
+                return AppError::Conflict("Unique constraint violation".to_string());
+            }
+        }
+
         match err {
             sqlx::Error::RowNotFound => AppError::NotFound("Resource".to_string()),
             _ => AppError::DatabaseError(err),

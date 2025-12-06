@@ -481,9 +481,12 @@ async fn create_chapter(
     State(state): State<AppState>,
     _auth: AuthUser,
     Path(slug): Path<String>,
-    Json(payload): Json<CreateChapter>,
+    Json(mut payload): Json<CreateChapter>,
 ) -> Result<impl IntoResponse, AppError> {
     payload.validate()?;
+
+    // Sanitize content to remove null bytes
+    payload.content = payload.content.replace('\0', "");
 
     // Get novel by slug
     let novel_id: (Uuid,) = sqlx::query_as("SELECT id FROM novels WHERE slug = $1")
@@ -491,18 +494,27 @@ async fn create_chapter(
         .fetch_one(&state.pool)
         .await?;
 
+    let chapter_number = payload.chapter_number;
     let chapter = sqlx::query_as::<_, NovelChapter>(
         "INSERT INTO novel_chapters (novel_id, chapter_number, title, content, published_at)
          VALUES ($1, $2, $3, $4, $5)
          RETURNING id, novel_id, chapter_number, title, content, view_count, published_at, created_at, updated_at",
     )
     .bind(novel_id.0)
-    .bind(payload.chapter_number)
+    .bind(chapter_number)
     .bind(&payload.title)
     .bind(&payload.content)
     .bind(payload.published_at)
     .fetch_one(&state.pool)
-    .await?;
+    .await
+    .map_err(|e| {
+        if let sqlx::Error::Database(ref db_err) = e {
+            if db_err.code().as_deref() == Some("23505") {
+                return AppError::Conflict(format!("Chapter {} already exists", chapter_number));
+            }
+        }
+        e.into()
+    })?;
 
     Ok((StatusCode::CREATED, Json(chapter)))
 }
@@ -512,8 +524,13 @@ async fn update_chapter(
     State(state): State<AppState>,
     _auth: AuthUser,
     Path((slug, chapter_number)): Path<(String, i32)>,
-    Json(payload): Json<UpdateChapter>,
+    Json(mut payload): Json<UpdateChapter>,
 ) -> Result<impl IntoResponse, AppError> {
+    // Sanitize content to remove null bytes if present
+    if let Some(ref mut content) = payload.content {
+        *content = content.replace('\0', "");
+    }
+
     let mut updates = Vec::<String>::new();
     let mut param_idx = 0;
 

@@ -1367,7 +1367,7 @@ function NewChapter({ slug }: { slug: string }) {
           <div className="flex gap-4">
             <button
               type="submit"
-              disabled={loading || !formData.content}
+              disabled={loading || !formData.content || isSubmitting}
               className="px-6 py-3 bg-neutral-100 hover:bg-white disabled:bg-neutral-800 disabled:text-neutral-600 text-neutral-900 rounded transition-colors"
             >
               {loading ? "생성 중..." : `저장 후 ${nextText} →`}
