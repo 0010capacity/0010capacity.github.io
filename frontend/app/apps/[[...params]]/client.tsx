@@ -1,10 +1,35 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
+import {
+  useEffect,
+  useState,
+  useCallback,
+  createContext,
+  useContext,
+} from "react";
 import { useParams } from "next/navigation";
 import { appsApi } from "@/lib/api";
 import { App, DistributionChannel, Platform } from "@/lib/types";
+
+// Navigation Context for SPA-style routing
+interface NavState {
+  view: "list" | "detail";
+  slug?: string;
+}
+
+interface NavContextType {
+  navState: NavState;
+  navigate: (state: NavState) => void;
+  goBack: () => void;
+}
+
+const NavContext = createContext<NavContextType | null>(null);
+
+function useNav() {
+  const ctx = useContext(NavContext);
+  if (!ctx) throw new Error("useNav must be used within NavProvider");
+  return ctx;
+}
 
 // Platform display info
 const PLATFORM_INFO: Record<Platform, { name: string; color: string }> = {
@@ -52,6 +77,7 @@ function getChannelName(channel: DistributionChannel): string {
 
 // App List Component
 function AppList() {
+  const { navigate } = useNav();
   const [apps, setApps] = useState<App[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -82,12 +108,12 @@ function AppList() {
     <div className="min-h-screen bg-neutral-950 text-neutral-100">
       <div className="max-w-2xl mx-auto px-6 py-16">
         <header className="mb-16">
-          <Link
-            href="/"
+          <button
+            onClick={() => (window.location.href = "/")}
             className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
           >
             ← 돌아가기
-          </Link>
+          </button>
           <h1 className="text-2xl font-light mt-8 mb-2">앱</h1>
           <p className="text-neutral-500 text-sm">제가 만든 앱들입니다</p>
         </header>
@@ -108,9 +134,9 @@ function AppList() {
           <ul className="space-y-6">
             {apps.map(app => (
               <li key={app.id}>
-                <Link
-                  href={`/apps/${app.slug}`}
-                  className="block group py-6 border-b border-neutral-800 hover:border-neutral-600 transition-colors"
+                <button
+                  onClick={() => navigate({ view: "detail", slug: app.slug })}
+                  className="block w-full text-left group py-6 border-b border-neutral-800 hover:border-neutral-600 transition-colors"
                 >
                   <div className="flex items-start gap-4">
                     {app.icon_url && (
@@ -145,7 +171,7 @@ function AppList() {
                       )}
                     </div>
                   </div>
-                </Link>
+                </button>
               </li>
             ))}
           </ul>
@@ -164,6 +190,7 @@ function AppList() {
 
 // App Detail Component
 function AppDetail({ slug }: { slug: string }) {
+  const { navigate } = useNav();
   const [app, setApp] = useState<App | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -205,12 +232,12 @@ function AppDetail({ slug }: { slug: string }) {
           <p className="text-neutral-500 mb-6">
             {error || "앱을 찾을 수 없습니다"}
           </p>
-          <Link
-            href="/apps"
+          <button
+            onClick={() => navigate({ view: "list" })}
             className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
           >
             ← 앱 목록으로
-          </Link>
+          </button>
         </div>
       </div>
     );
@@ -219,12 +246,12 @@ function AppDetail({ slug }: { slug: string }) {
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-100">
       <div className="max-w-2xl mx-auto px-6 py-16">
-        <Link
-          href="/apps"
+        <button
+          onClick={() => navigate({ view: "list" })}
           className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
         >
           ← 돌아가기
-        </Link>
+        </button>
 
         <header className="mt-12 mb-16">
           <div className="flex items-center gap-4 mb-6">
@@ -332,35 +359,65 @@ function AppDetail({ slug }: { slug: string }) {
         )}
 
         <footer className="pt-8 border-t border-neutral-900">
-          <Link
-            href="/apps"
+          <button
+            onClick={() => navigate({ view: "list" })}
             className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
           >
             ← 앱 목록으로
-          </Link>
+          </button>
         </footer>
       </div>
     </div>
   );
 }
 
-// Main Page Component with Client-Side Routing
+// Main Page Component with SPA-style Routing
 export default function AppsPageClient() {
   const params = useParams();
   const paramsArray = params?.params as string[] | undefined;
 
-  // Route parsing:
-  // /apps -> []
-  // /apps/[slug] -> [slug]
+  const [navState, setNavState] = useState<NavState>({ view: "list" });
+  const [history, setHistory] = useState<NavState[]>([]);
 
-  if (!paramsArray || paramsArray.length === 0) {
-    return <AppList />;
-  }
+  // Parse URL params on mount to determine initial state
+  useEffect(() => {
+    if (paramsArray && paramsArray.length === 1 && paramsArray[0]) {
+      setNavState({ view: "detail", slug: paramsArray[0] });
+    }
+  }, [paramsArray]);
 
-  const slug = paramsArray[0];
-  if (!slug) {
-    return <AppList />;
-  }
+  const navigate = useCallback(
+    (state: NavState) => {
+      setHistory(prev => [...prev, navState]);
+      setNavState(state);
+    },
+    [navState]
+  );
 
-  return <AppDetail slug={slug} />;
+  const goBack = useCallback(() => {
+    if (history.length > 0) {
+      const newHistory = [...history];
+      const prevState = newHistory.pop();
+      setHistory(newHistory);
+      setNavState(prevState || { view: "list" });
+    } else {
+      setNavState({ view: "list" });
+    }
+  }, [history]);
+
+  const renderView = () => {
+    switch (navState.view) {
+      case "detail":
+        return navState.slug ? <AppDetail slug={navState.slug} /> : <AppList />;
+      case "list":
+      default:
+        return <AppList />;
+    }
+  };
+
+  return (
+    <NavContext.Provider value={{ navState, navigate, goBack }}>
+      {renderView()}
+    </NavContext.Provider>
+  );
 }
