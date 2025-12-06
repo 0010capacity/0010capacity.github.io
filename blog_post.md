@@ -2,7 +2,7 @@
 
 ## 들어가며
 
-개인 브랜드를 구축하고 싶었다. 소설도 쓰고, 기술 블로그도 운영하고, 만든 앱도 소개하는 하나의 통합된 플랫폼이 필요했다. 기존의 여러 서비스를 사용할 수도 있었지만, 직접 만들기로 결심했다. 그렇게 시작된 **0010capacity** 플랫폼 개발 이야기를 공유한다.
+개인 브랜드를 구축하고 싶었다. 소설도 쓰고, 기술 블로그도 운영하고, 만든 앱도 소개하는 하나의 통합된 플랫폼이 필요했다. 기존의 여러 서비스를 사용할 수도 있었지만, 직접 만들기로 결심했다.
 
 ## 프로젝트 개요
 
@@ -10,9 +10,9 @@
 
 3가지 핵심 기능을 가진 웹 플랫폼이다:
 
-1. **소설 플랫폼** - 연재 소설을 챕터별로 관리하고 독자에게 제공한다
-2. **기술 블로그** - 개발 경험과 지식을 공유하는 블로그이다
-3. **앱 마켓플레이스** - 제가 만든 앱들을 소개하고 배포하는 공간이다
+1. 소설 플랫폼 - 연재 소설을 챕터별로 관리하고 독자에게 제공한다
+2. 기술 블로그 - 개발 경험과 지식을 공유하는 블로그이다
+3. 앱 마켓플레이스 - 제가 만든 앱들을 소개하고 배포하는 공간이다
 
 각 기능은 독립적으로 동작하지만, 하나의 통합된 브랜드 경험을 제공한다.
 
@@ -20,7 +20,7 @@
 
 ### Frontend: Next.js 15
 
-처음에는 단순한 정적 사이트를 고려했지만, 동적 콘텐츠 관리와 SEO를 고려해 **Next.js 15**를 선택했다.
+처음에는 단순한 정적 사이트를 고려했지만, 동적 콘텐츠 관리와 SEO를 고려해 Next.js 15를 선택했다.
 
 ```typescript
 // App Router 기반 구조
@@ -47,6 +47,78 @@ app/
 - TypeScript 지원으로 안정적인 코드베이스 구축
 - GitHub Pages에 정적 배포 가능
 
+### SPA 라우팅: 정적 호스팅의 한계 극복
+
+GitHub Pages는 정적 파일만 서빙할 수 있다. 즉, `/blog/my-post`로 직접 접근하면 해당 경로에 `index.html` 파일이 없으면 404가 발생한다. Next.js의 `output: "export"` 모드를 사용하면 빌드 시점에 알려진 경로만 HTML 파일로 생성되기 때문에, 동적으로 추가되는 블로그 포스트나 소설 챕터는 직접 URL 접근이 불가능하다.
+
+이 문제를 해결하기 위해 **SPA(Single Page Application) 방식의 클라이언트 사이드 라우팅**을 구현했다.
+
+```typescript
+// 내부 상태 기반 네비게이션
+interface NavState {
+  view: "list" | "detail";
+  slug?: string;
+}
+
+const NavContext = createContext<NavContextType | null>(null);
+
+// URL을 변경하지 않고 상태만 변경
+const navigate = (state: NavState) => {
+  setHistory(prev => [...prev, navState]);
+  setNavState(state);
+};
+
+// 렌더링은 상태에 따라 결정
+const renderView = () => {
+  switch (navState.view) {
+    case "detail":
+      return <BlogDetail slug={navState.slug} />;
+    case "list":
+    default:
+      return <BlogList />;
+  }
+};
+```
+
+**작동 방식:**
+1. `/blog`, `/novels`, `/apps` 페이지만 정적으로 빌드된다
+2. 목록에서 항목 클릭 시 URL 변경 없이 내부 상태로 상세 페이지를 표시한다
+3. 서버에서 데이터를 동적으로 불러와 렌더링한다
+
+**404 리디렉션 처리:**
+
+만약 사용자가 `/blog/my-post` URL을 직접 입력하거나 공유받은 링크로 접근하면, GitHub Pages의 `404.html`이 반환된다. 이를 처리하기 위한 리디렉션 로직도 구현했다:
+
+```javascript
+// 404.html - 경로를 저장하고 루트로 리디렉션
+sessionStorage.setItem("spa-redirect", JSON.stringify({
+  path: "/" + path,
+  search: search,
+  hash: hash,
+}));
+location.replace("/?spa-redirect=true");
+```
+
+```typescript
+// SPARedirectHandler.tsx - 저장된 경로로 복원
+useEffect(() => {
+  const isRedirect = searchParams.get("spa-redirect");
+  if (isRedirect) {
+    const redirectData = sessionStorage.getItem("spa-redirect");
+    if (redirectData) {
+      const { path } = JSON.parse(redirectData);
+      sessionStorage.removeItem("spa-redirect");
+      router.replace(path);
+    }
+  }
+}, [router]);
+```
+
+이 방식의 장점:
+- **서버 없이도 동적 콘텐츠 지원**: 정적 호스팅의 한계를 클라이언트에서 극복한다
+- **무료 호스팅 유지**: GitHub Pages의 무료 정적 호스팅을 그대로 활용할 수 있다
+- **SEO 트레이드오프**: 검색 엔진 크롤링에는 불리하지만, API 서버의 데이터를 실시간으로 표시할 수 있다
+
 ### Backend: Rust + Axum
 
 가장 고민이 많았던 부분이다. Node.js나 Python이 더 빠르게 개발할 수 있었겠지만, **Rust**를 선택했다.
@@ -66,7 +138,6 @@ let app = Router::new()
 **선택 이유:**
 - 메모리 안전성과 높은 성능을 보장한다
 - 타입 시스템으로 런타임 에러를 최소화한다
-- Axum의 ergonomic한 API 설계가 돋보인다
 - 낮은 운영 비용으로 Fly.io 무료 티어로도 충분하다
 
 ### Database: PostgreSQL
@@ -121,7 +192,7 @@ CREATE TABLE novel_chapters (
     └── workflows/     # CI/CD
 ```
 
-**장점:**
+장점:
 - 타입 정의를 공유할 수 있다
 - 버전 관리가 단순하다
 - 모든 문서가 한곳에 모인다
@@ -155,9 +226,7 @@ jobs:
 
 ### 1. 소설 플랫폼
 
-가장 공들인 부분이다. 챕터별 관리와 독자 경험을 중심으로 설계했다.
-
-**주요 기능:**
+주요 기능:
 - 소설 메타데이터 관리 (제목, 설명, 장르, 표지)
 - 챕터별 콘텐츠 관리
 - 상태 관리 (임시저장, 연재중, 완료)
@@ -212,7 +281,7 @@ pub async fn login(
 }
 ```
 
-**보안 고려사항:**
+보안 고려사항:
 - Argon2로 비밀번호 해싱을 처리한다
 - JWT 토큰에 만료 시간을 설정한다
 - HTTPS를 강제한다 (프로덕션)
@@ -252,77 +321,6 @@ export const novelsApi = {
     return res.json();
   },
 };
-```
-
-## 개발 과정에서 배운 점
-
-### 1. Rust의 러닝 커브
-
-처음에는 소유권(Ownership) 개념이 어려웠다. 특히 비동기 프로그래밍에서 문제가 많았다.
-
-```rust
-// 처음 작성한 코드 (컴파일 에러)
-let novel = get_novel_from_db().await?;
-let chapters = get_chapters(&novel).await?; // novel이 이동됨
-println!("{}", novel.title); // 에러!
-
-// 수정한 코드
-let novel = get_novel_from_db().await?;
-let chapters = get_chapters(&novel).await?; // 참조로 전달
-println!("{}", novel.title); // OK!
-```
-
-하지만 이 과정에서 메모리 안전성에 대해 깊이 이해하게 되었다.
-
-### 2. Next.js App Router의 패러다임
-
-Server Components와 Client Components의 구분이 처음에는 혼란스러웠다.
-
-```typescript
-// Server Component에서 useState 사용 불가
-export default function Page() {
-  const [count, setCount] = useState(0); // 에러!
-  return <div>{count}</div>;
-}
-
-// 'use client' 디렉티브 추가 필요
-'use client';
-export default function Page() {
-  const [count, setCount] = useState(0); // OK!
-  return <div>{count}</div>;
-}
-```
-
-하지만 이를 제대로 활용하면 초기 로딩 성능이 크게 향상된다.
-
-### 3. 데이터베이스 설계의 중요성
-
-초기에는 간단한 구조로 시작했지만, 나중에 기능을 추가하면서 마이그레이션이 필요했다.
-
-**교훈:**
-- 처음부터 확장 가능한 스키마를 설계해야 한다
-- Foreign Key 제약 조건을 적극 활용해야 한다
-- Index를 통한 쿼리 최적화가 필수다
-- 마이그레이션 스크립트를 버전 관리해야 한다
-
-### 4. CI/CD의 가치
-
-수동 배포에서 자동 배포로 전환하면서 개발 속도가 크게 향상되었다.
-
-```yaml
-# GitHub Actions로 자동 배포
-- name: Deploy Frontend
-  if: contains(github.event.head_commit.modified, 'frontend/')
-  run: |
-    cd frontend
-    npm run export
-    # GitHub Pages로 배포
-
-- name: Deploy Backend
-  if: contains(github.event.head_commit.modified, 'backend/')
-  run: |
-    cd backend
-    flyctl deploy --remote-only
 ```
 
 ## 성능 최적화
@@ -386,77 +384,30 @@ export default function Page() {
 
 개인 프로젝트로는 충분히 감당 가능한 수준이다.
 
-## 앞으로의 계획
-
-### Phase 2: 이미지 업로드 및 관리
-
-현재는 이미지 URL을 직접 입력하지만, 파일 업로드 기능을 추가할 예정이다.
-
-```rust
-// 예정된 이미지 업로드 API
-POST /api/upload/image
-Content-Type: multipart/form-data
-
-// Fly Volumes에 저장
-// 카테고리별 폴더 구조
-/data/images/
-├── novels/
-├── blog/
-└── apps/
-```
-
-### Phase 3: 고급 기능
-
-- 전체 텍스트 검색 (PostgreSQL Full-Text Search)
-- 북마크 및 찜하기 기능
-- 댓글 시스템
-- RSS 피드 생성
-- 다크/라이트 모드 토글
-- PWA 지원
-
-### Phase 4: 분석 및 모니터링
-
-- Google Analytics 통합
-- 에러 트래킹 (Sentry)
-- 성능 모니터링
-- 사용자 행동 분석
-
 ## 결론
 
 ### 프로젝트를 통해 얻은 것
 
-1. **기술적 성장**
-   - Rust에 대한 깊은 이해를 얻었다
+1. 기술적 성장
+   - Rust에 대한 이해를 얻었다
    - Next.js 15의 최신 기능을 활용할 수 있게 되었다
    - 전체 스택 개발 경험을 쌓았다
 
-2. **아키텍처 설계 능력**
+2. 아키텍처 설계 능력
    - 확장 가능한 시스템을 설계할 수 있게 되었다
    - 마이크로서비스 간 통신을 구현했다
    - 데이터베이스 스키마 설계 능력이 향상되었다
 
-3. **DevOps 경험**
+3. DevOps 경험
    - CI/CD 파이프라인을 구축했다
    - 컨테이너화 (Docker)를 경험했다
    - 클라우드 배포 (Fly.io)를 실습했다
-
-### 이런 분들께 추천한다
-
-- 개인 브랜드를 구축하고 싶은 개발자
-- 최신 웹 기술을 학습하고 싶은 분
-- 포트폴리오 프로젝트가 필요한 분
-- 무료 또는 저비용으로 서비스를 운영하고 싶은 분
 
 ### 마치며
 
 처음에는 간단한 포트폴리오 사이트를 만들려고 했지만, 지금은 제대로 된 플랫폼이 되었다. 완벽하지는 않지만, 계속 개선해 나갈 것이다.
 
-코드는 GitHub에 공개되어 있으니 참고하시거나 피드백 주시면 감사하겠다.
-
-**링크:**
 - GitHub: [github.com/0010capacity/0010capacity.github.io](https://github.com/0010capacity/0010capacity.github.io)
-- 웹사이트: [0010capacity.github.io](https://0010capacity.github.io)
-- API: [0010capacity-backend.fly.dev](https://0010capacity-backend.fly.dev)
 
 ---
 
