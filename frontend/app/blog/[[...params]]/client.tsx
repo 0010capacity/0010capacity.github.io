@@ -1,13 +1,39 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
+import {
+  useEffect,
+  useState,
+  useCallback,
+  createContext,
+  useContext,
+} from "react";
 import { useParams } from "next/navigation";
 import { blogApi } from "@/lib/api";
 import { BlogPost } from "@/lib/types";
 
+// Navigation Context for SPA-style routing
+interface NavState {
+  view: "list" | "detail";
+  slug?: string;
+}
+
+interface NavContextType {
+  navState: NavState;
+  navigate: (state: NavState) => void;
+  goBack: () => void;
+}
+
+const NavContext = createContext<NavContextType | null>(null);
+
+function useNav() {
+  const ctx = useContext(NavContext);
+  if (!ctx) throw new Error("useNav must be used within NavProvider");
+  return ctx;
+}
+
 // Blog List Component
 function BlogList() {
+  const { navigate } = useNav();
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -40,12 +66,12 @@ function BlogList() {
     <div className="min-h-screen bg-neutral-950 text-neutral-100">
       <div className="max-w-2xl mx-auto px-6 py-16">
         <header className="mb-16">
-          <Link
-            href="/"
+          <button
+            onClick={() => (window.location.href = "/")}
             className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
           >
             ← 돌아가기
-          </Link>
+          </button>
           <h1 className="text-2xl font-light mt-8 mb-2">블로그</h1>
           <p className="text-neutral-500 text-sm">기술, 경험, 그리고 생각들</p>
         </header>
@@ -65,10 +91,10 @@ function BlogList() {
         {!loading && posts.length > 0 && (
           <div className="space-y-1">
             {posts.map(post => (
-              <Link
+              <button
                 key={post.id}
-                href={`/blog/${post.slug}`}
-                className="group flex items-baseline justify-between py-4 border-b border-neutral-900 hover:border-neutral-700 transition-colors"
+                onClick={() => navigate({ view: "detail", slug: post.slug })}
+                className="group flex items-baseline justify-between w-full text-left py-4 border-b border-neutral-900 hover:border-neutral-700 transition-colors"
               >
                 <div className="flex-1 min-w-0 pr-4">
                   <h2 className="text-neutral-300 group-hover:text-white transition-colors truncate">
@@ -93,7 +119,7 @@ function BlogList() {
                     day: "numeric",
                   })}
                 </time>
-              </Link>
+              </button>
             ))}
           </div>
         )}
@@ -101,12 +127,12 @@ function BlogList() {
         {!loading && posts.length === 0 && !error && (
           <div className="text-center py-16">
             <p className="text-neutral-500 mb-6">아직 작성된 글이 없습니다</p>
-            <Link
-              href="/"
+            <button
+              onClick={() => (window.location.href = "/")}
               className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
             >
               ← 돌아가기
-            </Link>
+            </button>
           </div>
         )}
       </div>
@@ -116,6 +142,7 @@ function BlogList() {
 
 // Blog Detail Component
 function BlogDetail({ slug }: { slug: string }) {
+  const { navigate } = useNav();
   const [post, setPost] = useState<BlogPost | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -157,12 +184,12 @@ function BlogDetail({ slug }: { slug: string }) {
           <p className="text-neutral-500 mb-6">
             {error || "글을 찾을 수 없습니다"}
           </p>
-          <Link
-            href="/blog"
+          <button
+            onClick={() => navigate({ view: "list" })}
             className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
           >
             ← 블로그로 돌아가기
-          </Link>
+          </button>
         </div>
       </div>
     );
@@ -179,12 +206,12 @@ function BlogDetail({ slug }: { slug: string }) {
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-100">
       <div className="max-w-2xl mx-auto px-6 py-16">
-        <Link
-          href="/blog"
+        <button
+          onClick={() => navigate({ view: "list" })}
           className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
         >
           ← 블로그
-        </Link>
+        </button>
 
         <header className="mt-12 mb-12">
           <time className="text-sm text-neutral-600 block mb-4">
@@ -228,50 +255,69 @@ function BlogDetail({ slug }: { slug: string }) {
         </article>
 
         <footer className="pt-8 border-t border-neutral-900">
-          <Link
-            href="/blog"
+          <button
+            onClick={() => navigate({ view: "list" })}
             className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
           >
             ← 블로그로 돌아가기
-          </Link>
+          </button>
         </footer>
       </div>
     </div>
   );
 }
 
-// Main Page Component with Client-Side Routing
+// Main Page Component with SPA-style Routing
 export default function BlogPageClient() {
   const params = useParams();
   const paramsArray = params?.params as string[] | undefined;
 
-  // Route parsing:
-  // /blog -> []
-  // /blog/[slug] -> [slug]
+  const [navState, setNavState] = useState<NavState>({ view: "list" });
+  const [history, setHistory] = useState<NavState[]>([]);
 
-  if (!paramsArray || paramsArray.length === 0) {
-    return <BlogList />;
-  }
-
-  if (paramsArray.length === 1) {
-    const slug = paramsArray[0];
-    if (slug) {
-      return <BlogDetail slug={slug} />;
+  // Parse URL params on mount to determine initial state
+  useEffect(() => {
+    if (paramsArray && paramsArray.length === 1 && paramsArray[0]) {
+      setNavState({ view: "detail", slug: paramsArray[0] });
     }
-  }
+  }, [paramsArray]);
 
-  // Invalid route - show 404-like message
+  const navigate = useCallback(
+    (state: NavState) => {
+      setHistory(prev => [...prev, navState]);
+      setNavState(state);
+    },
+    [navState]
+  );
+
+  const goBack = useCallback(() => {
+    if (history.length > 0) {
+      const newHistory = [...history];
+      const prevState = newHistory.pop();
+      setHistory(newHistory);
+      setNavState(prevState || { view: "list" });
+    } else {
+      setNavState({ view: "list" });
+    }
+  }, [history]);
+
+  const renderView = () => {
+    switch (navState.view) {
+      case "detail":
+        return navState.slug ? (
+          <BlogDetail slug={navState.slug} />
+        ) : (
+          <BlogList />
+        );
+      case "list":
+      default:
+        return <BlogList />;
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100">
-      <div className="max-w-2xl mx-auto px-6 py-16">
-        <p className="text-neutral-500 mb-6">페이지를 찾을 수 없습니다</p>
-        <Link
-          href="/blog"
-          className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
-        >
-          ← 블로그로 돌아가기
-        </Link>
-      </div>
-    </div>
+    <NavContext.Provider value={{ navState, navigate, goBack }}>
+      {renderView()}
+    </NavContext.Provider>
   );
 }
