@@ -30,14 +30,14 @@ export default function AdminDashboardPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-neutral-950 text-neutral-100 flex items-center justify-center">
+      <div className="min-h-screen text-neutral-100 flex items-center justify-center">
         <p className="text-neutral-600 text-sm">로딩 중...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100">
+    <div className="min-h-screen text-neutral-100">
       <div className="max-w-2xl mx-auto px-6 py-16">
         {/* Header */}
         <header className="mb-16">

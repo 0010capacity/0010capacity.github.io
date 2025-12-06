@@ -80,7 +80,7 @@ function NovelList() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100">
+    <div className="min-h-screen text-neutral-100">
       <div className="max-w-2xl mx-auto px-6 py-16">
         <header className="mb-16">
           <Link
@@ -215,7 +215,7 @@ function NovelDetail({ slug }: { slug: string }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-neutral-950 text-neutral-100 flex items-center justify-center">
+      <div className="min-h-screen text-neutral-100 flex items-center justify-center">
         <p className="text-neutral-600 text-sm">불러오는 중...</p>
       </div>
     );
@@ -223,7 +223,7 @@ function NovelDetail({ slug }: { slug: string }) {
 
   if (error || !novel) {
     return (
-      <div className="min-h-screen bg-neutral-950 text-neutral-100">
+      <div className="min-h-screen text-neutral-100">
         <div className="max-w-2xl mx-auto px-6 py-16">
           <p className="text-neutral-500 mb-6">
             {error || "소설을 찾을 수 없습니다"}
@@ -242,7 +242,7 @@ function NovelDetail({ slug }: { slug: string }) {
   const unit = getUnit(novel.novel_type);
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100">
+    <div className="min-h-screen text-neutral-100">
       <div className="max-w-2xl mx-auto px-6 py-16">
         <button
           onClick={() => navigate({ view: "list" })}
@@ -398,7 +398,7 @@ function ChapterRead({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-neutral-950 text-neutral-100 flex items-center justify-center">
+      <div className="min-h-screen text-neutral-100 flex items-center justify-center">
         <p className="text-neutral-600 text-sm">불러오는 중...</p>
       </div>
     );
@@ -406,7 +406,7 @@ function ChapterRead({
 
   if (error || !chapter || !novel) {
     return (
-      <div className="min-h-screen bg-neutral-950 text-neutral-100">
+      <div className="min-h-screen text-neutral-100">
         <div className="max-w-2xl mx-auto px-6 py-16">
           <p className="text-neutral-500 mb-6">
             {error || "챕터를 찾을 수 없습니다"}
@@ -431,7 +431,7 @@ function ChapterRead({
     currentIndex < chapters.length - 1 ? chapters[currentIndex + 1] : null;
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100">
+    <div className="min-h-screen text-neutral-100">
       <div className="max-w-2xl mx-auto px-6 py-16">
         <div className="flex items-center justify-between mb-12">
           <button

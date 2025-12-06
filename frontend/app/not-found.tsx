@@ -44,7 +44,7 @@ export default function NotFound() {
 
   // Show 404 page after a brief moment (if redirect didn't happen)
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100 flex items-center justify-center">
+    <div className="min-h-screen text-neutral-100 flex items-center justify-center">
       <div className="text-center">
         <h1 className="text-2xl font-light mb-4">404</h1>
         <p className="text-neutral-600 text-sm mb-8">

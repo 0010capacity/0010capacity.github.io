@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100 flex flex-col items-center justify-center px-6">
+    <div className="min-h-screen text-neutral-100 flex flex-col items-center justify-center px-6">
       {/* 명함 카드 */}
       <div className="w-full max-w-md">
         {/* 이름 */}
