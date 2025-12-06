@@ -33,7 +33,12 @@ async function apiCall<T>(
     throw new Error(error.error || "API request failed");
   }
 
-  return response.json();
+  // Handle empty response (e.g., DELETE requests)
+  const text = await response.text();
+  if (!text) {
+    return undefined as T;
+  }
+  return JSON.parse(text);
 }
 
 // Auth API
