@@ -47,11 +47,13 @@ interface MusicPlayerState {
   currentSongIndex: number;
   volume: number;
   repeatMode: RepeatMode;
+  showResumePrompt: boolean;
   setIsPlaying: (playing: boolean) => void;
   setIsLoaded: (loaded: boolean) => void;
   setCurrentSongIndex: (index: number) => void;
   setVolume: (volume: number) => void;
   setRepeatMode: (mode: RepeatMode) => void;
+  setShowResumePrompt: (show: boolean) => void;
 }
 
 interface PlaybackState {
@@ -93,11 +95,13 @@ export const useMusicPlayerStore = create<MusicPlayerState>(set => ({
   currentSongIndex: 0,
   volume: DEFAULT_VOLUME,
   repeatMode: "all",
+  showResumePrompt: false,
   setIsPlaying: playing => set({ isPlaying: playing }),
   setIsLoaded: loaded => set({ isLoaded: loaded }),
   setCurrentSongIndex: index => set({ currentSongIndex: index }),
   setVolume: volume => set({ volume }),
   setRepeatMode: mode => set({ repeatMode: mode }),
+  setShowResumePrompt: show => set({ showResumePrompt: show }),
 }));
 
 interface MusicPlayerContextValue {
@@ -107,6 +111,8 @@ interface MusicPlayerContextValue {
   selectSong: (index: number) => void;
   toggleRepeatMode: () => void;
   setVolume: (volume: number) => void;
+  resumePlayback: () => Promise<void>;
+  dismissResumePrompt: () => void;
 }
 
 const MusicPlayerContext = createContext<MusicPlayerContextValue | null>(null);
@@ -128,6 +134,9 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   const wasPlayingRef = useRef(false);
   const isInitializedRef = useRef(false);
   const shouldAutoPlayRef = useRef(false);
+  const initialLoadDoneRef = useRef(false);
+  const pendingAutoPlayRef = useRef(false);
+  const pendingSongIndexRef = useRef<number | null>(null);
 
   const {
     isPlaying,
@@ -138,6 +147,7 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     setCurrentSongIndex,
     setVolume: setStoreVolume,
     setRepeatMode,
+    setShowResumePrompt,
   } = useMusicPlayerStore();
 
   // Load from localStorage on mount
@@ -161,12 +171,15 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     // Restore playback state from previous page
     const playbackState = getStoredPlaybackState();
     if (playbackState) {
-      setCurrentSongIndex(playbackState.currentSongIndex);
+      pendingSongIndexRef.current = playbackState.currentSongIndex;
       if (playbackState.isPlaying) {
-        shouldAutoPlayRef.current = true;
+        pendingAutoPlayRef.current = true;
+        // Show resume prompt instead of auto-playing (browser autoplay policy)
+        setShowResumePrompt(true);
       }
+      setCurrentSongIndex(playbackState.currentSongIndex);
     }
-  }, [setStoreVolume, setRepeatMode, setCurrentSongIndex]);
+  }, [setStoreVolume, setRepeatMode, setCurrentSongIndex, setShowResumePrompt]);
 
   const getCurrentSong = useCallback((): Song => {
     const song = PLAYLIST[currentSongIndex];
@@ -375,15 +388,33 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     [setStoreVolume]
   );
 
-  // Load MIDI when song changes
+  const resumePlayback = useCallback(async () => {
+    setShowResumePrompt(false);
+    pendingAutoPlayRef.current = false;
+    await startPlayback();
+  }, [setShowResumePrompt, startPlayback]);
+
+  const dismissResumePrompt = useCallback(() => {
+    setShowResumePrompt(false);
+    pendingAutoPlayRef.current = false;
+  }, [setShowResumePrompt]);
+
+  // Load MIDI when song changes or on initial load
   useEffect(() => {
     const currentSong = getCurrentSong();
     const loadAndPlay = async () => {
       const loaded = await loadMidi(currentSong.url);
-      if (loaded && (wasPlayingRef.current || shouldAutoPlayRef.current)) {
-        shouldAutoPlayRef.current = false;
-        await startPlayback();
+      if (loaded) {
+        // Only auto-play if user already interacted (wasPlayingRef or shouldAutoPlayRef)
+        // Don't auto-play for pendingAutoPlayRef - show prompt instead
+        const shouldPlay = wasPlayingRef.current || shouldAutoPlayRef.current;
+
+        if (shouldPlay) {
+          shouldAutoPlayRef.current = false;
+          await startPlayback();
+        }
       }
+      initialLoadDoneRef.current = true;
     };
     loadAndPlay();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -415,6 +446,8 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     selectSong,
     toggleRepeatMode,
     setVolume,
+    resumePlayback,
+    dismissResumePrompt,
   };
 
   return (

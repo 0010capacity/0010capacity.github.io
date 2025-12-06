@@ -11,8 +11,14 @@ export default function MusicPlayer() {
   const [showPlaylist, setShowPlaylist] = useState(false);
   const [showVolume, setShowVolume] = useState(false);
 
-  const { isPlaying, isLoaded, currentSongIndex, volume, repeatMode } =
-    useMusicPlayerStore();
+  const {
+    isPlaying,
+    isLoaded,
+    currentSongIndex,
+    volume,
+    repeatMode,
+    showResumePrompt,
+  } = useMusicPlayerStore();
 
   const {
     togglePlay,
@@ -21,6 +27,8 @@ export default function MusicPlayer() {
     selectSong,
     toggleRepeatMode,
     setVolume,
+    resumePlayback,
+    dismissResumePrompt,
   } = useMusicPlayer();
 
   const currentSong = PLAYLIST[currentSongIndex] ?? PLAYLIST[0];
@@ -43,6 +51,29 @@ export default function MusicPlayer() {
 
   return (
     <div className="fixed bottom-4 right-4 z-50">
+      {/* Resume Playback Prompt */}
+      {showResumePrompt && (
+        <div className="absolute bottom-16 right-0 bg-neutral-900/95 border border-neutral-700 rounded-lg p-3 backdrop-blur-sm shadow-xl mb-2 w-48">
+          <p className="text-xs text-neutral-300 mb-2">
+            음악을 이어서 재생할까요?
+          </p>
+          <div className="flex gap-2">
+            <button
+              onClick={resumePlayback}
+              className="flex-1 px-2 py-1 text-xs bg-neutral-700 hover:bg-neutral-600 text-white rounded transition-colors"
+            >
+              재생
+            </button>
+            <button
+              onClick={dismissResumePrompt}
+              className="flex-1 px-2 py-1 text-xs bg-neutral-800 hover:bg-neutral-700 text-neutral-400 rounded transition-colors"
+            >
+              닫기
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Playlist Dropdown */}
       {showPlaylist && (
         <div className="absolute bottom-16 right-0 w-48 bg-neutral-900/95 border border-neutral-700 rounded-lg overflow-hidden backdrop-blur-sm shadow-xl">
