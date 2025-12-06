@@ -886,19 +886,23 @@ export default function AppsAdminClient() {
   const pathname = usePathname();
   const [navState, setNavState] = useState<NavState>({ view: "list" });
   const [history, setHistory] = useState<NavState[]>([]);
+  const [initialized, setInitialized] = useState(false);
 
-  // Parse URL params on mount to determine initial state
+  // Parse URL params on mount only (once)
   useEffect(() => {
+    if (initialized) return;
+
     const pathParts = pathname.split("/").filter(Boolean);
 
     if (pathParts.length === 3 && pathParts[2] === "new") {
       setNavState({ view: "new" });
     } else if (pathParts.length === 4 && pathParts[3] === "edit") {
       setNavState({ view: "edit", slug: pathParts[2] });
-    } else {
-      setNavState({ view: "list" });
     }
-  }, [pathname]);
+    // Default is already "list", no need to set it
+
+    setInitialized(true);
+  }, [pathname, initialized]);
 
   const navigate = useCallback(
     (state: NavState) => {
