@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { analyzeUserTechStack } from '../lib/github';
+import { useState, useEffect } from "react";
+import { analyzeUserTechStack } from "../lib/github";
 
 interface UseTechStackResult {
   techStack: string[];
@@ -22,12 +22,22 @@ export const useTechStack = (username: string): UseTechStackResult => {
         const result = await analyzeUserTechStack(username);
         setTechStack(result);
       } catch (err) {
-        console.error('Failed to analyze tech stack:', err);
-        setError(err instanceof Error ? err.message : 'Failed to analyze tech stack');
+        console.error("Failed to analyze tech stack:", err);
+        setError(
+          err instanceof Error ? err.message : "Failed to analyze tech stack"
+        );
         // Fallback to hardcoded tech stack on error
         setTechStack([
-          "TypeScript", "JavaScript", "Python", "React", "Next.js", 
-          "Unity", "PyTorch", "React Native", "Machine Learning", "Game Development"
+          "TypeScript",
+          "JavaScript",
+          "Python",
+          "React",
+          "Next.js",
+          "Unity",
+          "PyTorch",
+          "React Native",
+          "Machine Learning",
+          "Game Development",
         ]);
       } finally {
         setLoading(false);

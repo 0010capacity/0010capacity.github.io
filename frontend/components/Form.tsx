@@ -17,7 +17,7 @@ interface FormActionsProps {
   className?: string;
 }
 
-export function Form({ children, onSubmit, className = '' }: FormProps) {
+export function Form({ children, onSubmit, className = "" }: FormProps) {
   return (
     <form onSubmit={onSubmit} className={`space-y-6 ${className}`}>
       {children}
@@ -25,7 +25,13 @@ export function Form({ children, onSubmit, className = '' }: FormProps) {
   );
 }
 
-export function FormField({ label, children, error, required, className = '' }: FormFieldProps) {
+export function FormField({
+  label,
+  children,
+  error,
+  required,
+  className = "",
+}: FormFieldProps) {
   return (
     <div className={`space-y-2 ${className}`}>
       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -40,7 +46,7 @@ export function FormField({ label, children, error, required, className = '' }: 
   );
 }
 
-export function FormActions({ children, className = '' }: FormActionsProps) {
+export function FormActions({ children, className = "" }: FormActionsProps) {
   return (
     <div className={`flex justify-end space-x-3 pt-4 ${className}`}>
       {children}

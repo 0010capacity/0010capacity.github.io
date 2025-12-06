@@ -66,7 +66,7 @@ export default function MarkdownEditor({
       {/* Editor */}
       <MDEditor
         value={value}
-        onChange={(val) => onChange(val || "")}
+        onChange={val => onChange(val || "")}
         preview={mode}
         height={height}
         minHeight={minHeight}
@@ -86,7 +86,8 @@ export default function MarkdownEditor({
 
       {/* Helper Text */}
       <p className="text-neutral-600 text-xs mt-2">
-        마크다운 문법을 지원합니다. # 제목, **굵게**, *기울임*, `코드`, [링크](url) 등
+        마크다운 문법을 지원합니다. # 제목, **굵게**, *기울임*, `코드`,
+        [링크](url) 등
       </p>
     </div>
   );

@@ -1,31 +1,33 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Plus, Upload, ExternalLink, Trash2 } from 'lucide-react';
-import { createAppPR } from '../../lib/github';
-import { Button } from '../../components';
+import { useState, useEffect } from "react";
+import { Plus, Upload, ExternalLink, Trash2 } from "lucide-react";
+import { createAppPR } from "../../lib/github";
+import { Button } from "../../components";
 
 interface Deployment {
-  type: 'website' | 'appstore' | 'googleplay' | 'steam' | 'download' | 'other';
+  type: "website" | "appstore" | "googleplay" | "steam" | "download" | "other";
   url: string;
   label?: string;
 }
 
 export default function UploadAppPage() {
-  const [token, setToken] = useState('');
-  const [appName, setAppName] = useState('');
-  const [description, setDescription] = useState('');
-  const [deployments, setDeployments] = useState<Deployment[]>([{ type: 'website', url: '' }]);
-  const [githubRepo, setGithubRepo] = useState('');
+  const [token, setToken] = useState("");
+  const [appName, setAppName] = useState("");
+  const [description, setDescription] = useState("");
+  const [deployments, setDeployments] = useState<Deployment[]>([
+    { type: "website", url: "" },
+  ]);
+  const [githubRepo, setGithubRepo] = useState("");
   const [showGithubField, setShowGithubField] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [prUrl, setPrUrl] = useState('');
-  const [error, setError] = useState('');
+  const [prUrl, setPrUrl] = useState("");
+  const [error, setError] = useState("");
   const [rememberToken, setRememberToken] = useState(false);
 
   // Load saved token on component mount
   useEffect(() => {
-    const savedToken = localStorage.getItem('github_token');
+    const savedToken = localStorage.getItem("github_token");
     if (savedToken) {
       setToken(savedToken);
       setRememberToken(true);
@@ -35,14 +37,14 @@ export default function UploadAppPage() {
   // Save or remove token based on remember preference
   useEffect(() => {
     if (rememberToken && token) {
-      localStorage.setItem('github_token', token);
+      localStorage.setItem("github_token", token);
     } else if (!rememberToken) {
-      localStorage.removeItem('github_token');
+      localStorage.removeItem("github_token");
     }
   }, [token, rememberToken]);
 
   const addDeployment = () => {
-    setDeployments([...deployments, { type: 'website', url: '' }]);
+    setDeployments([...deployments, { type: "website", url: "" }]);
   };
 
   const removeDeployment = (index: number) => {
@@ -51,7 +53,11 @@ export default function UploadAppPage() {
     }
   };
 
-  const updateDeployment = (index: number, field: keyof Deployment, value: string) => {
+  const updateDeployment = (
+    index: number,
+    field: keyof Deployment,
+    value: string
+  ) => {
     const updated = deployments.map((deployment, i) =>
       i === index ? { ...deployment, [field]: value } : deployment
     );
@@ -61,19 +67,19 @@ export default function UploadAppPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError('');
-    setPrUrl('');
+    setError("");
+    setPrUrl("");
 
     // Validate deployments
-    const validDeployments = deployments.filter(d => d.url.trim() !== '');
+    const validDeployments = deployments.filter(d => d.url.trim() !== "");
     // Modified to allow app registration even without deployment information
-    if (appName.trim() === '') {
-      setError('Please enter the app name.');
+    if (appName.trim() === "") {
+      setError("Please enter the app name.");
       setIsLoading(false);
       return;
     }
-    if (description.trim() === '') {
-      setError('Please enter the app description.');
+    if (description.trim() === "") {
+      setError("Please enter the app description.");
       setIsLoading(false);
       return;
     }
@@ -88,7 +94,7 @@ export default function UploadAppPage() {
       );
       setPrUrl(url);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setIsLoading(false);
     }
@@ -108,7 +114,7 @@ export default function UploadAppPage() {
             type="password"
             id="token"
             value={token}
-            onChange={(e) => setToken(e.target.value)}
+            onChange={e => setToken(e.target.value)}
             className="w-full p-2 border rounded"
             required
             placeholder="ghp_..."
@@ -118,7 +124,7 @@ export default function UploadAppPage() {
               type="checkbox"
               id="rememberToken"
               checked={rememberToken}
-              onChange={(e) => setRememberToken(e.target.checked)}
+              onChange={e => setRememberToken(e.target.checked)}
               className="mr-2"
             />
             <label htmlFor="rememberToken" className="text-sm text-gray-600">
@@ -139,7 +145,7 @@ export default function UploadAppPage() {
             type="text"
             id="appName"
             value={appName}
-            onChange={(e) => setAppName(e.target.value)}
+            onChange={e => setAppName(e.target.value)}
             className="w-full p-2 border rounded"
             required
             placeholder="My Awesome App"
@@ -148,13 +154,16 @@ export default function UploadAppPage() {
 
         {/* 앱 설명 */}
         <div>
-          <label htmlFor="description" className="block text-sm font-medium mb-1">
+          <label
+            htmlFor="description"
+            className="block text-sm font-medium mb-1"
+          >
             App Description
           </label>
           <textarea
             id="description"
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={e => setDescription(e.target.value)}
             className="w-full p-2 border rounded h-24"
             required
             placeholder="Enter a detailed description of your app..."
@@ -176,9 +185,14 @@ export default function UploadAppPage() {
 
           <div className="space-y-3">
             {deployments.map((deployment, index) => (
-              <div key={index} className="border border-gray-200 rounded-lg p-4">
+              <div
+                key={index}
+                className="border border-gray-200 rounded-lg p-4"
+              >
                 <div className="flex justify-between items-start mb-3">
-                  <h4 className="text-sm font-medium text-gray-700">Deployment {index + 1}</h4>
+                  <h4 className="text-sm font-medium text-gray-700">
+                    Deployment {index + 1}
+                  </h4>
                   {deployments.length > 1 && (
                     <Button
                       type="button"
@@ -197,7 +211,9 @@ export default function UploadAppPage() {
                     </label>
                     <select
                       value={deployment.type}
-                      onChange={(e) => updateDeployment(index, 'type', e.target.value)}
+                      onChange={e =>
+                        updateDeployment(index, "type", e.target.value)
+                      }
                       className="w-full p-2 border rounded text-sm"
                     >
                       <option value="website">Website</option>
@@ -216,7 +232,9 @@ export default function UploadAppPage() {
                     <input
                       type="url"
                       value={deployment.url}
-                      onChange={(e) => updateDeployment(index, 'url', e.target.value)}
+                      onChange={e =>
+                        updateDeployment(index, "url", e.target.value)
+                      }
                       className="w-full p-2 border rounded text-sm"
                       placeholder="https://..."
                       required
@@ -224,15 +242,17 @@ export default function UploadAppPage() {
                   </div>
                 </div>
 
-                {deployment.type === 'other' && (
+                {deployment.type === "other" && (
                   <div className="mt-3">
                     <label className="block text-xs font-medium text-gray-600 mb-1">
                       Custom Label (Optional)
                     </label>
                     <input
                       type="text"
-                      value={deployment.label || ''}
-                      onChange={(e) => updateDeployment(index, 'label', e.target.value)}
+                      value={deployment.label || ""}
+                      onChange={e =>
+                        updateDeployment(index, "label", e.target.value)
+                      }
                       className="w-full p-2 border rounded text-sm"
                       placeholder="e.g., Microsoft Store, Itch.io, etc."
                     />
@@ -250,7 +270,7 @@ export default function UploadAppPage() {
               type="checkbox"
               id="showGithubField"
               checked={showGithubField}
-              onChange={(e) => setShowGithubField(e.target.checked)}
+              onChange={e => setShowGithubField(e.target.checked)}
               className="mr-2"
             />
             <label htmlFor="showGithubField" className="text-sm font-medium">
@@ -260,19 +280,23 @@ export default function UploadAppPage() {
 
           {showGithubField && (
             <div>
-              <label htmlFor="githubRepo" className="block text-sm font-medium mb-1">
+              <label
+                htmlFor="githubRepo"
+                className="block text-sm font-medium mb-1"
+              >
                 GitHub Repository URL
               </label>
               <input
                 type="url"
                 id="githubRepo"
                 value={githubRepo}
-                onChange={(e) => setGithubRepo(e.target.value)}
+                onChange={e => setGithubRepo(e.target.value)}
                 className="w-full p-2 border rounded"
                 placeholder="https://github.com/username/repo"
               />
               <p className="text-sm text-gray-600 mt-1">
-                Please enter the GitHub repository URL where the app&apos;s source code is located.
+                Please enter the GitHub repository URL where the app&apos;s
+                source code is located.
               </p>
             </div>
           )}
@@ -294,7 +318,7 @@ export default function UploadAppPage() {
             className="flex-1 bg-blue-500 text-white p-3 rounded hover:bg-blue-600 disabled:opacity-50 font-medium"
             icon={Upload}
           >
-            {isLoading ? 'Uploading...' : ''}
+            {isLoading ? "Uploading..." : ""}
           </Button>
         </div>
       </form>
@@ -307,7 +331,7 @@ export default function UploadAppPage() {
 
       {prUrl && (
         <div className="mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
-          App uploaded successfully!{' '}
+          App uploaded successfully!{" "}
           <Button
             as="a"
             href={prUrl}

@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { useState, useEffect, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
-import Link from 'next/link';
-import { Plus, Save, ArrowLeft, ExternalLink, Trash2 } from 'lucide-react';
-import { updateAppPR } from '../../lib/github';
-import { Button } from '../../components';
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { Plus, Save, ArrowLeft, ExternalLink, Trash2 } from "lucide-react";
+import { updateAppPR } from "../../lib/github";
+import { Button } from "../../components";
 
 interface Deployment {
-  type: 'website' | 'appstore' | 'googleplay' | 'steam' | 'download' | 'other';
+  type: "website" | "appstore" | "googleplay" | "steam" | "download" | "other";
   url: string;
   label?: string;
 }
@@ -24,23 +24,25 @@ interface AppData {
 
 function EditAppForm() {
   const searchParams = useSearchParams();
-  const [token, setToken] = useState('');
-  const [appName, setAppName] = useState('');
-  const [description, setDescription] = useState('');
-  const [deployments, setDeployments] = useState<Deployment[]>([{ type: 'website', url: '' }]);
-  const [githubRepo, setGithubRepo] = useState('');
+  const [token, setToken] = useState("");
+  const [appName, setAppName] = useState("");
+  const [description, setDescription] = useState("");
+  const [deployments, setDeployments] = useState<Deployment[]>([
+    { type: "website", url: "" },
+  ]);
+  const [githubRepo, setGithubRepo] = useState("");
   const [showGithubField, setShowGithubField] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingApp, setIsLoadingApp] = useState(true);
-  const [prUrl, setPrUrl] = useState('');
-  const [error, setError] = useState('');
+  const [prUrl, setPrUrl] = useState("");
+  const [error, setError] = useState("");
 
   // Load app data from URL parameter
   useEffect(() => {
     const loadAppData = async () => {
-      const appParam = searchParams.get('app');
+      const appParam = searchParams.get("app");
       if (!appParam) {
-        setError('App name is not specified.');
+        setError("App name is not specified.");
         setIsLoadingApp(false);
         return;
       }
@@ -50,21 +52,29 @@ function EditAppForm() {
 
       try {
         // Load actual app data from JSON file
-        const response = await fetch(`/data/apps/${encodeURIComponent(decodedAppName)}.json`);
+        const response = await fetch(
+          `/data/apps/${encodeURIComponent(decodedAppName)}.json`
+        );
         if (!response.ok) {
-          throw new Error('App data not found');
+          throw new Error("App data not found");
         }
         const appData: AppData = await response.json();
 
-        setDescription(appData.description || '');
-        setDeployments(appData.deployments && appData.deployments.length > 0 ? appData.deployments : [{ type: 'website', url: '' }]);
+        setDescription(appData.description || "");
+        setDeployments(
+          appData.deployments && appData.deployments.length > 0
+            ? appData.deployments
+            : [{ type: "website", url: "" }]
+        );
         if (appData.githubRepo) {
           setGithubRepo(appData.githubRepo);
           setShowGithubField(true);
         }
       } catch (err) {
-        console.error('Failed to load app data:', err);
-        setError('Failed to load app data. The app may not exist or there was a network error.');
+        console.error("Failed to load app data:", err);
+        setError(
+          "Failed to load app data. The app may not exist or there was a network error."
+        );
       } finally {
         setIsLoadingApp(false);
       }
@@ -74,7 +84,7 @@ function EditAppForm() {
   }, [searchParams]);
 
   const addDeployment = () => {
-    setDeployments([...deployments, { type: 'website', url: '' }]);
+    setDeployments([...deployments, { type: "website", url: "" }]);
   };
 
   const removeDeployment = (index: number) => {
@@ -83,7 +93,11 @@ function EditAppForm() {
     }
   };
 
-  const updateDeployment = (index: number, field: keyof Deployment, value: string) => {
+  const updateDeployment = (
+    index: number,
+    field: keyof Deployment,
+    value: string
+  ) => {
     const updated = deployments.map((deployment, i) =>
       i === index ? { ...deployment, [field]: value } : deployment
     );
@@ -93,13 +107,13 @@ function EditAppForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError('');
-    setPrUrl('');
+    setError("");
+    setPrUrl("");
 
     // Validate deployments
-    const validDeployments = deployments.filter(d => d.url.trim() !== '');
+    const validDeployments = deployments.filter(d => d.url.trim() !== "");
     if (validDeployments.length === 0) {
-      setError('Please enter at least one deployment URL.');
+      setError("Please enter at least one deployment URL.");
       setIsLoading(false);
       return;
     }
@@ -114,7 +128,7 @@ function EditAppForm() {
       );
       setPrUrl(url);
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'An error occurred');
+      setError(error instanceof Error ? error.message : "An error occurred");
     } finally {
       setIsLoading(false);
     }
@@ -125,7 +139,9 @@ function EditAppForm() {
       <div className="max-w-2xl mx-auto p-6">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">Loading app information...</p>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">
+            Loading app information...
+          </p>
         </div>
       </div>
     );
@@ -154,7 +170,7 @@ function EditAppForm() {
             type="password"
             id="token"
             value={token}
-            onChange={(e) => setToken(e.target.value)}
+            onChange={e => setToken(e.target.value)}
             className="w-full p-2 border rounded"
             required
             placeholder="ghp_..."
@@ -183,13 +199,16 @@ function EditAppForm() {
 
         {/* 앱 설명 */}
         <div>
-          <label htmlFor="description" className="block text-sm font-medium mb-1">
+          <label
+            htmlFor="description"
+            className="block text-sm font-medium mb-1"
+          >
             App Description
           </label>
           <textarea
             id="description"
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={e => setDescription(e.target.value)}
             className="w-full p-2 border rounded h-24"
             required
             placeholder="Enter a detailed description of the app..."
@@ -211,9 +230,14 @@ function EditAppForm() {
 
           <div className="space-y-3">
             {deployments.map((deployment, index) => (
-              <div key={index} className="border border-gray-200 rounded-lg p-4">
+              <div
+                key={index}
+                className="border border-gray-200 rounded-lg p-4"
+              >
                 <div className="flex justify-between items-start mb-3">
-                  <h4 className="text-sm font-medium text-gray-700">Deployment {index + 1}</h4>
+                  <h4 className="text-sm font-medium text-gray-700">
+                    Deployment {index + 1}
+                  </h4>
                   {deployments.length > 1 && (
                     <Button
                       type="button"
@@ -232,7 +256,9 @@ function EditAppForm() {
                     </label>
                     <select
                       value={deployment.type}
-                      onChange={(e) => updateDeployment(index, 'type', e.target.value)}
+                      onChange={e =>
+                        updateDeployment(index, "type", e.target.value)
+                      }
                       className="w-full p-2 border rounded text-sm"
                     >
                       <option value="website">Website</option>
@@ -251,7 +277,9 @@ function EditAppForm() {
                     <input
                       type="url"
                       value={deployment.url}
-                      onChange={(e) => updateDeployment(index, 'url', e.target.value)}
+                      onChange={e =>
+                        updateDeployment(index, "url", e.target.value)
+                      }
                       className="w-full p-2 border rounded text-sm"
                       placeholder="https://..."
                       required
@@ -259,15 +287,17 @@ function EditAppForm() {
                   </div>
                 </div>
 
-                {deployment.type === 'other' && (
+                {deployment.type === "other" && (
                   <div className="mt-3">
                     <label className="block text-xs font-medium text-gray-600 mb-1">
                       Custom Label (Optional)
                     </label>
                     <input
                       type="text"
-                      value={deployment.label || ''}
-                      onChange={(e) => updateDeployment(index, 'label', e.target.value)}
+                      value={deployment.label || ""}
+                      onChange={e =>
+                        updateDeployment(index, "label", e.target.value)
+                      }
                       className="w-full p-2 border rounded text-sm"
                       placeholder="e.g., Microsoft Store, Itch.io, etc."
                     />
@@ -285,7 +315,7 @@ function EditAppForm() {
               type="checkbox"
               id="showGithubField"
               checked={showGithubField}
-              onChange={(e) => setShowGithubField(e.target.checked)}
+              onChange={e => setShowGithubField(e.target.checked)}
               className="mr-2"
             />
             <label htmlFor="showGithubField" className="text-sm font-medium">
@@ -295,19 +325,23 @@ function EditAppForm() {
 
           {showGithubField && (
             <div>
-              <label htmlFor="githubRepo" className="block text-sm font-medium mb-1">
+              <label
+                htmlFor="githubRepo"
+                className="block text-sm font-medium mb-1"
+              >
                 GitHub Repository URL
               </label>
               <input
                 type="url"
                 id="githubRepo"
                 value={githubRepo}
-                onChange={(e) => setGithubRepo(e.target.value)}
+                onChange={e => setGithubRepo(e.target.value)}
                 className="w-full p-2 border rounded"
                 placeholder="https://github.com/username/repo"
               />
               <p className="text-sm text-gray-600 mt-1">
-                Please enter the GitHub repository URL where the app&apos;s source code is located.
+                Please enter the GitHub repository URL where the app&apos;s
+                source code is located.
               </p>
             </div>
           )}
@@ -329,7 +363,7 @@ function EditAppForm() {
             className="flex-1 bg-blue-500 text-white p-3 rounded hover:bg-blue-600 disabled:opacity-50 font-medium"
             icon={Save}
           >
-            {isLoading ? 'Updating...' : ''}
+            {isLoading ? "Updating..." : ""}
           </Button>
         </div>
       </form>
@@ -342,7 +376,7 @@ function EditAppForm() {
 
       {prUrl && (
         <div className="mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
-          App information updated successfully!{' '}
+          App information updated successfully!{" "}
           <Button
             as="a"
             href={prUrl}
@@ -360,7 +394,9 @@ function EditAppForm() {
 
 export default function EditAppPage() {
   return (
-    <Suspense fallback={<div className="max-w-2xl mx-auto p-6">Loading...</div>}>
+    <Suspense
+      fallback={<div className="max-w-2xl mx-auto p-6">Loading...</div>}
+    >
       <EditAppForm />
     </Suspense>
   );
