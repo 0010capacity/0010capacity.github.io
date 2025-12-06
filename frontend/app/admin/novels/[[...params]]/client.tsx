@@ -1186,6 +1186,7 @@ function NewChapter({ slug }: { slug: string }) {
     title: "",
     content: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchNovelData = useCallback(async () => {
     try {
@@ -1218,13 +1219,21 @@ function NewChapter({ slug }: { slug: string }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Prevent duplicate submissions
+    if (isSubmitting) {
+      return;
+    }
+
     setError("");
     setLoading(true);
+    setIsSubmitting(true);
 
     const token = localStorage.getItem("admin_token");
     if (!token) {
       setError("로그인이 필요합니다");
       setLoading(false);
+      setIsSubmitting(false);
       return;
     }
 
@@ -1255,6 +1264,7 @@ function NewChapter({ slug }: { slug: string }) {
       setError(err instanceof Error ? err.message : "챕터 생성에 실패했습니다");
     } finally {
       setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -1364,11 +1374,17 @@ function NewChapter({ slug }: { slug: string }) {
             </button>
             <button
               type="button"
-              disabled={loading || !formData.content}
+              disabled={loading || !formData.content || isSubmitting}
               onClick={async () => {
+                // Prevent duplicate submissions
+                if (isSubmitting) {
+                  return;
+                }
+
                 const token = localStorage.getItem("admin_token");
                 if (!token) return;
                 setLoading(true);
+                setIsSubmitting(true);
                 try {
                   await novelsApi.createChapter(
                     slug,
@@ -1387,6 +1403,7 @@ function NewChapter({ slug }: { slug: string }) {
                       : "챕터 생성에 실패했습니다"
                   );
                   setLoading(false);
+                  setIsSubmitting(false);
                 }
               }}
               className="px-6 py-3 bg-neutral-800 hover:bg-neutral-700 disabled:bg-neutral-900 disabled:text-neutral-600 text-neutral-100 rounded transition-colors"
