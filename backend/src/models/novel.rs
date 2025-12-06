@@ -202,8 +202,8 @@ pub struct AddRelatedNovel {
 pub struct CreateChapter {
     pub chapter_number: i32,
 
-    #[validate(length(min = 1, max = 500))]
-    pub title: String,
+    #[validate(length(min = 0, max = 500))]
+    pub title: Option<String>,
 
     #[validate(length(min = 1))]
     pub content: String,
@@ -214,7 +214,7 @@ pub struct CreateChapter {
 /// Update chapter request
 #[derive(Debug, Deserialize, Validate)]
 pub struct UpdateChapter {
-    #[validate(length(min = 1, max = 500))]
+    #[validate(length(min = 0, max = 500))]
     pub title: Option<String>,
 
     #[validate(length(min = 1))]

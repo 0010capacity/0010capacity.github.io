@@ -1233,16 +1233,15 @@ function NewChapter({ slug }: { slug: string }) {
         slug,
         {
           chapter_number: formData.number,
-          title: formData.title,
+          title: formData.title.trim() || null,
           content: formData.content,
         },
         token
       );
       // 성공 메시지 표시 (소설 유형에 따라 단위 변경)
       const unit = novel ? getNovelUnit(novel.novel_type) : "화";
-      setSuccessMessage(
-        `${formData.number}${unit} "${formData.title}" 저장 완료!`
-      );
+      const titleText = formData.title.trim() || `(제목 없음)`;
+      setSuccessMessage(`${formData.number}${unit} "${titleText}" 저장 완료!`);
       // 다음 챕터 작성을 위해 폼 초기화
       setFormData({
         number: formData.number + 1,
@@ -1375,7 +1374,7 @@ function NewChapter({ slug }: { slug: string }) {
                     slug,
                     {
                       chapter_number: formData.number,
-                      title: formData.title,
+                      title: formData.title.trim() || null,
                       content: formData.content,
                     },
                     token
@@ -1479,7 +1478,7 @@ function EditChapter({
         slug,
         chapterNumber,
         {
-          title: formData.title,
+          title: formData.title.trim() || null,
           content: formData.content,
         },
         token
