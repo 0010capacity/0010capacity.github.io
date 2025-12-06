@@ -8,6 +8,8 @@ import {
   useContext,
 } from "react";
 import { useParams } from "next/navigation";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { blogApi } from "@/lib/api";
 import { BlogPost } from "@/lib/types";
 
@@ -248,10 +250,10 @@ function BlogDetail({ slug }: { slug: string }) {
           </p>
         )}
 
-        <article className="mb-16">
-          <div className="text-neutral-300 leading-relaxed whitespace-pre-wrap">
+        <article className="mb-16 prose prose-invert prose-neutral max-w-none prose-headings:font-light prose-headings:text-neutral-200 prose-p:text-neutral-300 prose-a:text-neutral-400 prose-a:no-underline hover:prose-a:text-neutral-200 prose-strong:text-neutral-200 prose-code:text-neutral-300 prose-code:bg-neutral-800 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-pre:bg-neutral-900 prose-pre:border prose-pre:border-neutral-800 prose-blockquote:border-neutral-700 prose-blockquote:text-neutral-400 prose-li:text-neutral-300">
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>
             {post.content}
-          </div>
+          </ReactMarkdown>
         </article>
 
         <footer className="pt-8 border-t border-neutral-900">
