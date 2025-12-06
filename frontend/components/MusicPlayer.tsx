@@ -74,7 +74,7 @@ export default function MusicPlayer() {
   // Collapsed state - minimal floating button
   if (isCollapsed) {
     return (
-      <div className="fixed bottom-4 right-4 z-50">
+      <div className="fixed bottom-4 right-4 z-50" style={{ fontSize: "16px" }}>
         <button
           onClick={handleToggleCollapse}
           className="w-12 h-12 flex items-center justify-center rounded-full bg-neutral-900/90 border border-neutral-700 backdrop-blur-sm shadow-lg hover:bg-neutral-800 transition-colors"
@@ -100,7 +100,7 @@ export default function MusicPlayer() {
   }
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
+    <div className="fixed bottom-4 right-4 z-50" style={{ fontSize: "16px" }}>
       {/* Playlist Dropdown */}
       {showPlaylist && (
         <div className="absolute bottom-16 right-0 w-48 bg-neutral-900/95 border border-neutral-700 rounded-lg overflow-hidden backdrop-blur-sm shadow-xl mb-2">
