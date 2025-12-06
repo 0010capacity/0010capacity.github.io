@@ -58,6 +58,7 @@ export const novelsApi = {
     genre?: string;
     limit?: number;
     offset?: number;
+    include_drafts?: boolean;
   }) => {
     const query = new URLSearchParams();
     if (params?.status) query.append("status", params.status);
@@ -65,6 +66,7 @@ export const novelsApi = {
     if (params?.genre) query.append("genre", params.genre);
     if (params?.limit) query.append("limit", params.limit.toString());
     if (params?.offset) query.append("offset", params.offset.toString());
+    if (params?.include_drafts) query.append("include_drafts", "true");
     const queryString = query.toString();
     return apiCall("GET", `/api/novels${queryString ? `?${queryString}` : ""}`);
   },

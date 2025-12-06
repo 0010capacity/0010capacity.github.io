@@ -53,6 +53,9 @@ struct ListQuery {
     limit: i64,
     #[serde(default)]
     offset: i64,
+    /// If true, include draft novels (for admin use). Defaults to false.
+    #[serde(default)]
+    include_drafts: bool,
 }
 
 fn default_limit() -> i64 {
@@ -113,6 +116,12 @@ async fn list_novels(
 ) -> Result<impl IntoResponse, AppError> {
     let mut conditions = Vec::new();
     let mut param_count = 0;
+
+    // By default, exclude draft novels from public view
+    // Only include drafts if explicitly requested (e.g., by admin)
+    if !query.include_drafts && query.status.is_none() {
+        conditions.push("status != 'draft'".to_string());
+    }
 
     if query.status.is_some() {
         param_count += 1;

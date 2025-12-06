@@ -180,7 +180,9 @@ function NovelsList() {
   const fetchNovels = async () => {
     try {
       setLoading(true);
-      const response = (await novelsApi.list()) as NovelsResponse;
+      const response = (await novelsApi.list({
+        include_drafts: true,
+      })) as NovelsResponse;
       setNovels(response.novels || []);
     } catch (err) {
       setError(
@@ -428,7 +430,9 @@ function RelatedNovelsSelector({
   useEffect(() => {
     const fetchNovels = async () => {
       try {
-        const response = (await novelsApi.list()) as NovelsResponse;
+        const response = (await novelsApi.list({
+          include_drafts: true,
+        })) as NovelsResponse;
         setAllNovels(response.novels?.filter(n => n.slug !== novelSlug) || []);
       } catch (err) {
         console.error("Failed to fetch novels:", err);

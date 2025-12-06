@@ -47,7 +47,11 @@ function NovelList() {
           novels: Novel[];
           total: number;
         };
-        setNovels(response.novels || []);
+        // Filter out draft novels - they should be hidden from public view
+        const publishedNovels = (response.novels || []).filter(
+          novel => novel.status !== "draft"
+        );
+        setNovels(publishedNovels);
         setError("");
       } catch (err) {
         setError(
@@ -160,7 +164,17 @@ function NovelDetail({ slug }: { slug: string }) {
           novelsApi.getBySlug(slug),
           novelsApi.getChapters(slug),
         ]);
-        setNovel(novelData as Novel);
+        const fetchedNovel = novelData as Novel;
+
+        // Block access to draft novels - they should be hidden from public view
+        if (fetchedNovel.status === "draft") {
+          setError("이 소설은 아직 공개되지 않았습니다");
+          setNovel(null);
+          setChapters([]);
+          return;
+        }
+
+        setNovel(fetchedNovel);
         setChapters(
           Array.isArray(chaptersData) ? (chaptersData as NovelChapter[]) : []
         );
@@ -345,7 +359,18 @@ function ChapterRead({
           novelsApi.getChapter(slug, chapterNumber),
           novelsApi.getChapters(slug),
         ]);
-        setNovel(novelData as Novel);
+        const fetchedNovel = novelData as Novel;
+
+        // Block access to draft novel chapters - they should be hidden from public view
+        if (fetchedNovel.status === "draft") {
+          setError("이 소설은 아직 공개되지 않았습니다");
+          setNovel(null);
+          setChapter(null);
+          setChapters([]);
+          return;
+        }
+
+        setNovel(fetchedNovel);
         setChapter(chapterData as NovelChapter);
         setChapters(
           Array.isArray(chaptersData) ? (chaptersData as NovelChapter[]) : []
