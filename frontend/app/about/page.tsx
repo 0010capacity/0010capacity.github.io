@@ -51,7 +51,7 @@ export default function AboutPage() {
         {/* 한 줄 소개 */}
         <div className="text-center mb-12">
           <p className="text-neutral-400 text-sm italic">
-            &ldquo;I make anything.&rdquo;
+            &ldquo;뭐든 만듭니다.&rdquo;
           </p>
         </div>
 
