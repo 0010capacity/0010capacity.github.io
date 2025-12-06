@@ -65,7 +65,6 @@ pub struct App {
     pub slug: String,
     pub description: Option<String>,
     pub platforms: Vec<String>, // ["ios", "android", "web", "windows", "macos", "linux", "game"]
-    pub icon_url: Option<String>,
     pub screenshots: Vec<String>,
     pub distribution_channels: serde_json::Value, // JSON array: [{"type": "app_store", "url": "...", "label": "..."}]
     pub privacy_policy_url: Option<String>,
@@ -96,7 +95,6 @@ pub struct CreateApp {
     // Array of platforms: ["ios", "android", "web", etc.]
     pub platforms: Option<Vec<String>>,
 
-    pub icon_url: Option<String>,
     pub screenshots: Option<Vec<String>>,
 
     // Array of distribution channels
@@ -115,7 +113,6 @@ pub struct UpdateApp {
 
     pub platforms: Option<Vec<String>>,
 
-    pub icon_url: Option<String>,
     pub screenshots: Option<Vec<String>>,
     pub distribution_channels: Option<Vec<DistributionChannel>>,
     pub privacy_policy_url: Option<String>,

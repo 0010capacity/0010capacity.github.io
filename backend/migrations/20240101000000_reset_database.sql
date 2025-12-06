@@ -61,10 +61,8 @@ CREATE TABLE blog_posts (
     title VARCHAR(500) NOT NULL,
     content TEXT NOT NULL,
     excerpt TEXT,
-    tags TEXT[] DEFAULT '{}'::TEXT[],
     published BOOLEAN DEFAULT FALSE,
     view_count BIGINT DEFAULT 0,
-    published_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );

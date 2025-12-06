@@ -94,7 +94,7 @@ async fn list_apps(
     };
 
     let sql = format!(
-        "SELECT id, name, slug, description, platforms, icon_url, screenshots, distribution_channels, privacy_policy_url, created_at, updated_at FROM apps{} ORDER BY created_at DESC LIMIT $1 OFFSET $2",
+        "SELECT id, name, slug, description, platforms, screenshots, distribution_channels, privacy_policy_url, created_at, updated_at FROM apps{} ORDER BY created_at DESC LIMIT $1 OFFSET $2",
         where_clause
     );
 
@@ -113,7 +113,7 @@ async fn get_app(
     Path(slug): Path<String>,
 ) -> Result<impl IntoResponse, AppError> {
     let app = sqlx::query_as::<_, App>(
-        "SELECT id, name, slug, description, platforms, icon_url, screenshots, distribution_channels, privacy_policy_url, created_at, updated_at FROM apps WHERE slug = $1"
+        "SELECT id, name, slug, description, platforms, screenshots, distribution_channels, privacy_policy_url, created_at, updated_at FROM apps WHERE slug = $1"
     )
     .bind(&slug)
     .fetch_one(&state.pool)
@@ -142,15 +142,14 @@ async fn create_app(
     };
 
     let app = sqlx::query_as::<_, App>(
-        "INSERT INTO apps (name, slug, description, platforms, icon_url, screenshots, distribution_channels, privacy_policy_url)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-         RETURNING id, name, slug, description, platforms, icon_url, screenshots, distribution_channels, privacy_policy_url, created_at, updated_at"
+        "INSERT INTO apps (name, slug, description, platforms, screenshots, distribution_channels, privacy_policy_url)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)
+         RETURNING id, name, slug, description, platforms, screenshots, distribution_channels, privacy_policy_url, created_at, updated_at"
     )
     .bind(&payload.name)
     .bind(&slug)
     .bind(&payload.description)
     .bind(&platforms)
-    .bind(&payload.icon_url)
     .bind(&screenshots)
     .bind(&distribution_channels)
     .bind(&payload.privacy_policy_url)
@@ -176,7 +175,6 @@ async fn update_app(
     let has_name = payload.name.is_some();
     let has_description = payload.description.is_some();
     let has_platforms = payload.platforms.is_some();
-    let has_icon_url = payload.icon_url.is_some();
     let has_screenshots = payload.screenshots.is_some();
     let has_distribution_channels = payload.distribution_channels.is_some();
     let has_privacy_policy_url = payload.privacy_policy_url.is_some();
@@ -191,10 +189,6 @@ async fn update_app(
     }
     if has_platforms {
         set_clauses.push(format!("platforms = ${}", param_idx));
-        param_idx += 1;
-    }
-    if has_icon_url {
-        set_clauses.push(format!("icon_url = ${}", param_idx));
         param_idx += 1;
     }
     if has_screenshots {
@@ -217,7 +211,7 @@ async fn update_app(
     set_clauses.push("updated_at = NOW()".to_string());
 
     let sql = format!(
-        "UPDATE apps SET {} WHERE slug = ${} RETURNING id, name, slug, description, platforms, icon_url, screenshots, distribution_channels, privacy_policy_url, created_at, updated_at",
+        "UPDATE apps SET {} WHERE slug = ${} RETURNING id, name, slug, description, platforms, screenshots, distribution_channels, privacy_policy_url, created_at, updated_at",
         set_clauses.join(", "),
         param_idx
     );
@@ -233,9 +227,6 @@ async fn update_app(
     }
     if let Some(platforms) = &payload.platforms {
         query = query.bind(platforms);
-    }
-    if let Some(icon_url) = &payload.icon_url {
-        query = query.bind(icon_url);
     }
     if let Some(screenshots) = &payload.screenshots {
         query = query.bind(screenshots);
