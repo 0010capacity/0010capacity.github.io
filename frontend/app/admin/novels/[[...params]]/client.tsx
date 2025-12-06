@@ -1122,7 +1122,9 @@ function ChaptersList({ slug }: { slug: string }) {
                   {chapter.chapter_number}
                   {unit}
                 </span>
-                <span className="text-neutral-200">{chapter.title}</span>
+                <span className="text-neutral-200">
+                  {chapter.title || `(제목 없음)`}
+                </span>
               </div>
 
               <div className="flex items-center gap-2">
@@ -1326,7 +1328,7 @@ function NewChapter({ slug }: { slug: string }) {
               htmlFor="title"
               className="block text-sm text-neutral-500 mb-2"
             >
-              제목 *
+              제목
             </label>
             <input
               type="text"
@@ -1336,8 +1338,7 @@ function NewChapter({ slug }: { slug: string }) {
                 setFormData({ ...formData, title: e.target.value })
               }
               className="w-full px-4 py-3 bg-neutral-900 border border-neutral-800 rounded text-neutral-100 placeholder-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors"
-              placeholder="챕터 제목을 입력하세요"
-              required
+              placeholder="챕터 제목을 입력하세요 (선택사항)"
               disabled={loading}
             />
           </div>
@@ -1357,14 +1358,14 @@ function NewChapter({ slug }: { slug: string }) {
           <div className="flex gap-4">
             <button
               type="submit"
-              disabled={loading || !formData.title || !formData.content}
+              disabled={loading || !formData.content}
               className="px-6 py-3 bg-neutral-100 hover:bg-white disabled:bg-neutral-800 disabled:text-neutral-600 text-neutral-900 rounded transition-colors"
             >
               {loading ? "생성 중..." : `저장 후 ${nextText} →`}
             </button>
             <button
               type="button"
-              disabled={loading || !formData.title || !formData.content}
+              disabled={loading || !formData.content}
               onClick={async () => {
                 const token = localStorage.getItem("admin_token");
                 if (!token) return;
@@ -1542,7 +1543,7 @@ function EditChapter({
               htmlFor="title"
               className="block text-sm text-neutral-500 mb-2"
             >
-              제목 *
+              제목
             </label>
             <input
               type="text"
@@ -1552,8 +1553,7 @@ function EditChapter({
                 setFormData({ ...formData, title: e.target.value })
               }
               className="w-full px-4 py-3 bg-neutral-900 border border-neutral-800 rounded text-neutral-100 placeholder-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors"
-              placeholder="챕터 제목을 입력하세요"
-              required
+              placeholder="챕터 제목을 입력하세요 (선택사항)"
               disabled={loading}
             />
           </div>
@@ -1572,7 +1572,7 @@ function EditChapter({
         <div className="flex gap-4 pt-4 border-t border-neutral-800">
           <button
             type="submit"
-            disabled={loading || !formData.title || !formData.content}
+            disabled={loading || !formData.content}
             className="px-6 py-3 bg-neutral-100 hover:bg-white disabled:bg-neutral-800 disabled:text-neutral-600 text-neutral-900 rounded transition-colors"
           >
             {loading ? "저장 중..." : "저장"}
