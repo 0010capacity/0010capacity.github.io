@@ -15,8 +15,8 @@ interface Song {
 }
 
 const PLAYLIST: Song[] = [
-  { id: "mist", title: "Mist of the Sea", url: "/music/theme.txt" },
-  { id: "voyage", title: "Voyage Ahead", url: "/music/voyage.txt" },
+  { id: "mast-in-mist", title: "Mast in Mist", url: "/music/mast-in-mist.txt" },
+  { id: "wind-ahead", title: "Wind Ahead", url: "/music/wind-ahead.txt" },
 ];
 
 export default function MusicPlayer() {
