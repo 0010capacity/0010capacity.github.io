@@ -46,11 +46,6 @@ interface BlogPost {
   updated_at: string;
 }
 
-interface BlogResponse {
-  posts: BlogPost[];
-  total: number;
-}
-
 // Constants
 const STATUS_OPTIONS = [
   { id: "draft", name: "임시저장", description: "아직 발행되지 않은 글" },
@@ -73,8 +68,9 @@ function BlogList() {
   const fetchPosts = async () => {
     try {
       setLoading(true);
-      const response = (await blogApi.list()) as BlogResponse;
-      setPosts(response.posts || []);
+      const data = await blogApi.list();
+      const posts = Array.isArray(data) ? data : [];
+      setPosts(posts as BlogPost[]);
     } catch (err) {
       setError(
         err instanceof Error
