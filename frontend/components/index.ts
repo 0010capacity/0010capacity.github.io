@@ -9,3 +9,4 @@ export { default as Modal } from "./Modal";
 export { default as AdminLayout } from "./AdminLayout";
 export { default as MarkdownEditor } from "./MarkdownEditor";
 export { default as TagInput } from "./TagInput";
+export { default as Snowfall } from "./Snowfall";
