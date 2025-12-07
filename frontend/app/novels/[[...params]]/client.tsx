@@ -130,7 +130,6 @@ function NovelList() {
                 )}
                 <div className="flex items-center gap-4 text-xs text-neutral-600">
                   {novel.genre && <span>{novel.genre}</span>}
-                  <span>{novel.view_count?.toLocaleString() || 0} views</span>
                 </div>
               </button>
             ))}
@@ -281,7 +280,6 @@ function NovelDetail({ slug }: { slug: string }) {
           )}
 
           <div className="flex gap-6 mt-8 pt-8 border-t border-neutral-900 text-sm text-neutral-600">
-            <span>{novel.view_count?.toLocaleString() || 0} views</span>
             <span>
               {chapters.length} {unit}
             </span>

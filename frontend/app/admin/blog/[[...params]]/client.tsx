@@ -230,9 +230,6 @@ function BlogList() {
                       {new Date(post.updated_at).toLocaleDateString("ko-KR")}{" "}
                       수정
                     </span>
-                    {post.view_count !== undefined && (
-                      <span>{post.view_count.toLocaleString()} views</span>
-                    )}
                   </div>
                 </div>
 

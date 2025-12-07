@@ -40,7 +40,7 @@ export interface Novel {
   genre?: string;
   genres?: string[];
   status: "draft" | "ongoing" | "completed" | "hiatus";
-  view_count: number;
+  view_count?: number;
   created_at: string;
   updated_at: string;
 }
@@ -69,7 +69,7 @@ export interface NovelChapter {
   chapter_number: number;
   title: string;
   content: string;
-  view_count: number;
+  view_count?: number;
   published_at?: string;
   created_at: string;
   updated_at: string;
@@ -98,7 +98,7 @@ export interface BlogPost {
   cover_image_url?: string;
   tags: string[];
   published: boolean;
-  view_count: number;
+  view_count?: number;
   published_at?: string;
   created_at: string;
   updated_at: string;
