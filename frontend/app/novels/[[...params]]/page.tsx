@@ -3,19 +3,16 @@ import { Novel } from "@/lib/types";
 import NovelsPageClient from "./client";
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "https://backend-production-xyz.fly.dev";
+  process.env.NEXT_PUBLIC_API_URL || "https://0010capacity-backend.fly.dev";
 
 // Revalidate every hour
 export const revalidate = 3600;
 
 export async function generateStaticParams() {
   try {
-    const response = await fetch(
-      `${API_BASE_URL}/api/novels?status=ongoing&status=completed&limit=100`,
-      {
-        next: { revalidate: 3600 },
-      }
-    );
+    const response = await fetch(`${API_BASE_URL}/api/novels?limit=100`, {
+      next: { revalidate: 3600 },
+    });
 
     if (!response.ok) {
       console.warn("Failed to fetch novels for static generation");
@@ -24,7 +21,7 @@ export async function generateStaticParams() {
 
     const novels: Novel[] = await response.json();
     return novels.map(novel => ({
-      params: { params: [novel.slug] },
+      params: [novel.slug],
     }));
   } catch (error) {
     console.warn("Error generating static params for novels:", error);
@@ -35,10 +32,10 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ params: string[] | undefined }>;
+  params: Promise<{ params: string[] }>;
 }): Promise<Metadata> {
   const resolvedParams = await params;
-  const slug = resolvedParams?.params?.[0];
+  const slug = resolvedParams.params?.[0];
 
   if (!slug) {
     return {

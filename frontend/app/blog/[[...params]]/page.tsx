@@ -3,7 +3,7 @@ import { BlogPost } from "@/lib/types";
 import BlogPageClient from "./client";
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "https://backend-production-xyz.fly.dev";
+  process.env.NEXT_PUBLIC_API_URL || "https://0010capacity-backend.fly.dev";
 
 // Revalidate every hour
 export const revalidate = 3600;
@@ -24,7 +24,7 @@ export async function generateStaticParams() {
 
     const posts: BlogPost[] = await response.json();
     return posts.map(post => ({
-      params: { params: [post.slug] },
+      params: [post.slug],
     }));
   } catch (error) {
     console.warn("Error generating static params for blog:", error);
@@ -35,10 +35,10 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ params: string[] | undefined }>;
+  params: Promise<{ params: string[] }>;
 }): Promise<Metadata> {
   const resolvedParams = await params;
-  const slug = resolvedParams?.params?.[0];
+  const slug = resolvedParams.params?.[0];
 
   if (!slug) {
     return {
