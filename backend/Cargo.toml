@@ -50,9 +50,6 @@ validator = { version = "0.18", features = ["derive"] }
 # Slug generation
 slug = "0.1"
 
-# HTML encoding
-html_escape = "0.2"
-
 [dev-dependencies]
 # Testing
 tokio-test = "0.4"

@@ -19,7 +19,6 @@ mod error;
 mod middleware;
 mod models;
 mod routes;
-mod utils;
 
 use config::Config;
 use error::AppError;
