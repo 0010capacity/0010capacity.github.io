@@ -161,9 +161,10 @@ function NovelDetail({ slug }: { slug: string }) {
     const fetchNovelData = async () => {
       try {
         setLoading(true);
-        const [novelData, chaptersData] = await Promise.all([
+        const [novelData, chaptersData, relationsData] = await Promise.all([
           novelsApi.getBySlug(slug),
           novelsApi.getChapters(slug),
+          novelsApi.getRelations(slug),
         ]);
         const fetchedNovel = novelData as Novel;
 
@@ -174,6 +175,11 @@ function NovelDetail({ slug }: { slug: string }) {
           setChapters([]);
           return;
         }
+
+        // Add related novels to the novel object
+        fetchedNovel.related_novels = Array.isArray(relationsData)
+          ? relationsData
+          : [];
 
         setNovel(fetchedNovel);
         setChapters(
@@ -330,6 +336,50 @@ function NovelDetail({ slug }: { slug: string }) {
             <p className="text-neutral-600 text-sm">아직 {unit}이 없습니다</p>
           )}
         </section>
+
+        {novel.related_novels && novel.related_novels.length > 0 && (
+          <section className="mt-16 pt-16 border-t border-neutral-900">
+            <h2 className="text-sm text-neutral-600 uppercase tracking-widest mb-8">
+              연관 작품
+            </h2>
+            <div className="space-y-3">
+              {novel.related_novels.map(relatedNovel => (
+                <button
+                  key={relatedNovel.id}
+                  onClick={() =>
+                    navigate({
+                      view: "detail",
+                      slug: relatedNovel.slug,
+                    })
+                  }
+                  className="group block w-full text-left p-4 border border-neutral-800 rounded hover:border-neutral-700 hover:bg-neutral-900/50 transition-colors"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-neutral-300 group-hover:text-white transition-colors truncate">
+                        {relatedNovel.title}
+                      </h3>
+                      <p className="text-xs text-neutral-600 mt-1">
+                        {relatedNovel.relation_type === "sequel"
+                          ? "후속작"
+                          : relatedNovel.relation_type === "prequel"
+                            ? "전편"
+                            : relatedNovel.relation_type === "spinoff"
+                              ? "스핀오프"
+                              : relatedNovel.relation_type === "same_universe"
+                                ? "같은 세계관"
+                                : "연관 작품"}
+                      </p>
+                    </div>
+                    <span className="text-xs text-neutral-600 flex-shrink-0">
+                      →
+                    </span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </div>
   );

@@ -30,6 +30,13 @@ export interface Claims {
 }
 
 // Novel Types
+export interface RelatedNovel {
+  id: string;
+  slug: string;
+  title: string;
+  relation_type: string;
+}
+
 export interface Novel {
   id: string;
   slug: string;
@@ -43,6 +50,7 @@ export interface Novel {
   view_count?: number;
   created_at: string;
   updated_at: string;
+  related_novels?: RelatedNovel[];
 }
 
 export interface CreateNovel {
