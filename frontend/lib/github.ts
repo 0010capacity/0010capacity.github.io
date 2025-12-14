@@ -324,7 +324,7 @@ export const createFilePR = async (
       if (!Array.isArray(fileData) && "sha" in fileData) {
         fileSha = fileData.sha;
       }
-    } catch (error) {
+    } catch {
       // 파일이 존재하지 않으면 fileSha는 undefined로 유지
       console.log(`File ${filePath} does not exist, will create new file`);
     }

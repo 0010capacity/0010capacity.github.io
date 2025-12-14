@@ -35,9 +35,10 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: { params: string[] | undefined };
+  params: Promise<{ params: string[] | undefined }>;
 }): Promise<Metadata> {
-  const slug = params?.params?.[0];
+  const resolvedParams = await params;
+  const slug = resolvedParams?.params?.[0];
 
   if (!slug) {
     return {

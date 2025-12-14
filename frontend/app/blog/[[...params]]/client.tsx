@@ -7,6 +7,7 @@ import {
   createContext,
   useContext,
 } from "react";
+import Image from "next/image";
 import { useParams } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -236,9 +237,11 @@ function BlogDetail({ slug }: { slug: string }) {
 
         {post.cover_image_url && (
           <div className="mb-12">
-            <img
+            <Image
               src={post.cover_image_url}
               alt={post.title}
+              width={800}
+              height={400}
               className="w-full rounded"
             />
           </div>
