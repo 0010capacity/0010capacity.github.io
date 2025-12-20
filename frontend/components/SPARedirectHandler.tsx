@@ -22,10 +22,19 @@ export default function SPARedirectHandler() {
           sessionStorage.removeItem("spa-redirect");
           sessionStorage.removeItem("spa-redirect-attempted");
 
-          // Don't force a trailing slash here.
-          // For some routes, normalizing to "/" can cause the GitHub Pages 404 fallback
-          // to re-trigger and trap the user in a redirect loop.
-          const cleanPath = path;
+          // Normalize to the exported trailing-slash URL form on GitHub Pages.
+          // Next.js static export with `trailingSlash: true` serves "/x/" as "/x/index.html".
+          // Accessing "/x" may 404 on GitHub Pages (no directory index for that path),
+          // which can trigger the SPA fallback repeatedly.
+          let cleanPath: string = typeof path === "string" ? path : "/";
+
+          if (cleanPath === "") cleanPath = "/";
+          if (!cleanPath.startsWith("/")) cleanPath = "/" + cleanPath;
+
+          // If it's not root, ensure trailing slash.
+          if (cleanPath !== "/" && !cleanPath.endsWith("/")) {
+            cleanPath = cleanPath + "/";
+          }
 
           // Clean up the URL (remove spa-redirect param)
           const cleanUrl = cleanPath + (search || "") + (hash || "");
