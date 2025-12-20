@@ -523,23 +523,23 @@ export default function NovelsPageClient() {
 
   const renderView = () => {
     if (!paramsArray || paramsArray.length === 0) {
-        return <NovelList />;
+      return <NovelList />;
     } else if (paramsArray.length === 1) {
-        return <NovelDetail slug={paramsArray[0]!} />;
+      return <NovelDetail slug={paramsArray[0]!} />;
     } else if (paramsArray.length === 2) {
-        const chapterNumber = parseInt(paramsArray[1]!, 10);
-        if (isNaN(chapterNumber)) {
-             // Handle invalid chapter number, maybe redirect to novel detail or show list
-             return <NovelDetail slug={paramsArray[0]!} />;
-        }
-        return <ChapterRead slug={paramsArray[0]!} chapterNumber={chapterNumber} />;
+      const chapterNumber = parseInt(paramsArray[1]!, 10);
+      if (isNaN(chapterNumber)) {
+        // Handle invalid chapter number, maybe redirect to novel detail or show list
+        return <NovelDetail slug={paramsArray[0]!} />;
+      }
+      return (
+        <ChapterRead slug={paramsArray[0]!} chapterNumber={chapterNumber} />
+      );
     } else {
-        // Fallback for unexpected paths
-        return <NovelList />;
+      // Fallback for unexpected paths
+      return <NovelList />;
     }
   };
 
-  return (
-      <>{renderView()}</>
-  );
+  return <>{renderView()}</>;
 }
