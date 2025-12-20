@@ -1,42 +1,15 @@
 "use client";
 
-import {
-  useEffect,
-  useState,
-  useCallback,
-  createContext,
-  useContext,
-} from "react";
+import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { novelsApi } from "@/lib/api";
 import { Novel, NovelChapter } from "@/lib/types";
 
-// Navigation Context for SPA-style routing
-interface NavState {
-  view: "list" | "detail" | "chapter";
-  slug?: string;
-  chapterNumber?: number;
-}
-
-interface NavContextType {
-  navState: NavState;
-  navigate: (state: NavState) => void;
-  goBack: () => void;
-}
-
-const NavContext = createContext<NavContextType | null>(null);
-
-function useNav() {
-  const ctx = useContext(NavContext);
-  if (!ctx) throw new Error("useNav must be used within NavProvider");
-  return ctx;
-}
-
 // Novel List Component
 function NovelList() {
-  const { navigate } = useNav();
   const [novels, setNovels] = useState<Novel[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -110,9 +83,9 @@ function NovelList() {
         {!loading && novels.length > 0 && (
           <div className="space-y-8">
             {novels.map(novel => (
-              <button
+              <Link
                 key={novel.id}
-                onClick={() => navigate({ view: "detail", slug: novel.slug })}
+                href={`/novels/${novel.slug}`}
                 className="group block w-full text-left py-6 border-b border-neutral-900 hover:border-neutral-700 transition-colors"
               >
                 <div className="flex justify-between items-start mb-2">
@@ -131,7 +104,7 @@ function NovelList() {
                 <div className="flex items-center gap-4 text-xs text-neutral-600">
                   {novel.genre && <span>{novel.genre}</span>}
                 </div>
-              </button>
+              </Link>
             ))}
           </div>
         )}
@@ -151,7 +124,6 @@ function NovelList() {
 
 // Novel Detail Component
 function NovelDetail({ slug }: { slug: string }) {
-  const { navigate } = useNav();
   const [novel, setNovel] = useState<Novel | null>(null);
   const [chapters, setChapters] = useState<NovelChapter[]>([]);
   const [loading, setLoading] = useState(true);
@@ -235,12 +207,12 @@ function NovelDetail({ slug }: { slug: string }) {
           <p className="text-neutral-500 mb-6">
             {error || "소설을 찾을 수 없습니다"}
           </p>
-          <button
-            onClick={() => navigate({ view: "list" })}
+          <Link
+            href="/novels"
             className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
           >
             ← 목록으로
-          </button>
+          </Link>
         </div>
       </div>
     );
@@ -251,12 +223,12 @@ function NovelDetail({ slug }: { slug: string }) {
   return (
     <div className="min-h-screen text-neutral-100">
       <div className="max-w-2xl mx-auto px-6 py-16">
-        <button
-          onClick={() => navigate({ view: "list" })}
+        <Link
+          href="/novels"
           className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
         >
           ← 목록으로
-        </button>
+        </Link>
 
         <header className="mt-12 mb-16">
           <div className="flex items-center gap-3 mb-4">
@@ -303,15 +275,9 @@ function NovelDetail({ slug }: { slug: string }) {
           {chapters.length > 0 ? (
             <div className="space-y-1">
               {chapters.map(chapter => (
-                <button
+                <Link
                   key={chapter.id}
-                  onClick={() =>
-                    navigate({
-                      view: "chapter",
-                      slug,
-                      chapterNumber: chapter.chapter_number,
-                    })
-                  }
+                  href={`/novels/${slug}/${chapter.chapter_number}`}
                   className="group flex items-baseline justify-between w-full text-left py-4 border-b border-neutral-900 hover:border-neutral-700 transition-colors"
                 >
                   <div className="flex items-baseline gap-4">
@@ -329,7 +295,7 @@ function NovelDetail({ slug }: { slug: string }) {
                       day: "numeric",
                     })}
                   </span>
-                </button>
+                </Link>
               ))}
             </div>
           ) : (
@@ -344,14 +310,9 @@ function NovelDetail({ slug }: { slug: string }) {
             </h2>
             <div className="space-y-3">
               {novel.related_novels.map(relatedNovel => (
-                <button
+                <Link
                   key={relatedNovel.id}
-                  onClick={() =>
-                    navigate({
-                      view: "detail",
-                      slug: relatedNovel.slug,
-                    })
-                  }
+                  href={`/novels/${relatedNovel.slug}`}
                   className="group block w-full text-left p-4 border border-neutral-800 rounded hover:border-neutral-700 hover:bg-neutral-900/50 transition-colors"
                 >
                   <div className="flex items-start justify-between gap-4">
@@ -375,7 +336,7 @@ function NovelDetail({ slug }: { slug: string }) {
                       →
                     </span>
                   </div>
-                </button>
+                </Link>
               ))}
             </div>
           </section>
@@ -393,7 +354,6 @@ function ChapterRead({
   slug: string;
   chapterNumber: number;
 }) {
-  const { navigate } = useNav();
   const [novel, setNovel] = useState<Novel | null>(null);
   const [chapter, setChapter] = useState<NovelChapter | null>(null);
   const [chapters, setChapters] = useState<NovelChapter[]>([]);
@@ -461,12 +421,12 @@ function ChapterRead({
           <p className="text-neutral-500 mb-6">
             {error || "챕터를 찾을 수 없습니다"}
           </p>
-          <button
-            onClick={() => navigate({ view: "detail", slug })}
+          <Link
+            href={`/novels/${slug}`}
             className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
           >
             ← 돌아가기
-          </button>
+          </Link>
         </div>
       </div>
     );
@@ -484,12 +444,12 @@ function ChapterRead({
     <div className="min-h-screen text-neutral-100">
       <div className="max-w-2xl mx-auto px-6 py-16">
         <div className="flex items-center justify-between mb-12">
-          <button
-            onClick={() => navigate({ view: "detail", slug })}
+          <Link
+            href={`/novels/${slug}`}
             className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
           >
             ← {novel.title}
-          </button>
+          </Link>
           <span className="text-sm text-neutral-700">
             {chapterNumber} / {chapters.length}
           </span>
@@ -518,42 +478,30 @@ function ChapterRead({
 
         <div className="flex justify-between items-center py-8 border-t border-neutral-900">
           {prevChapter ? (
-            <button
-              onClick={() =>
-                navigate({
-                  view: "chapter",
-                  slug,
-                  chapterNumber: prevChapter.chapter_number,
-                })
-              }
+            <Link
+              href={`/novels/${slug}/${prevChapter.chapter_number}`}
               className="text-sm text-neutral-500 hover:text-neutral-300 transition-colors"
             >
               ← 이전
-            </button>
+            </Link>
           ) : (
             <span />
           )}
 
-          <button
-            onClick={() => navigate({ view: "detail", slug })}
+          <Link
+            href={`/novels/${slug}`}
             className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
           >
             목차
-          </button>
+          </Link>
 
           {nextChapter ? (
-            <button
-              onClick={() =>
-                navigate({
-                  view: "chapter",
-                  slug,
-                  chapterNumber: nextChapter.chapter_number,
-                })
-              }
+            <Link
+              href={`/novels/${slug}/${nextChapter.chapter_number}`}
               className="text-sm text-neutral-500 hover:text-neutral-300 transition-colors"
             >
               다음 →
-            </button>
+            </Link>
           ) : (
             <span />
           )}
@@ -565,54 +513,33 @@ function ChapterRead({
 
 // Main Page Component with SPA-style Routing
 export default function NovelsPageClient() {
-  const [navState, setNavState] = useState<NavState>({ view: "list" });
-  const [history, setHistory] = useState<NavState[]>([]);
+  const params = useParams();
+  // params can be undefined, an object with params property (which is an array or string)
+  // Since this component is under [[...params]], we expect params.params to be an array of strings.
 
-  const navigate = useCallback(
-    (state: NavState) => {
-      setHistory(prev => [...prev, navState]);
-      setNavState(state);
-    },
-    [navState]
-  );
-
-  const goBack = useCallback(() => {
-    if (history.length > 0) {
-      const newHistory = [...history];
-      const prevState = newHistory.pop();
-      setHistory(newHistory);
-      setNavState(prevState || { view: "list" });
-    } else {
-      setNavState({ view: "list" });
-    }
-  }, [history]);
+  // Note: useParams returns the raw params object.
+  // In app/novels/[[...params]], the param name is "params".
+  const paramsArray = params?.params as string[] | undefined;
 
   const renderView = () => {
-    switch (navState.view) {
-      case "detail":
-        return navState.slug ? (
-          <NovelDetail slug={navState.slug} />
-        ) : (
-          <NovelList />
-        );
-      case "chapter":
-        return navState.slug && navState.chapterNumber ? (
-          <ChapterRead
-            slug={navState.slug}
-            chapterNumber={navState.chapterNumber}
-          />
-        ) : (
-          <NovelList />
-        );
-      case "list":
-      default:
+    if (!paramsArray || paramsArray.length === 0) {
+        return <NovelList />;
+    } else if (paramsArray.length === 1) {
+        return <NovelDetail slug={paramsArray[0]!} />;
+    } else if (paramsArray.length === 2) {
+        const chapterNumber = parseInt(paramsArray[1]!, 10);
+        if (isNaN(chapterNumber)) {
+             // Handle invalid chapter number, maybe redirect to novel detail or show list
+             return <NovelDetail slug={paramsArray[0]!} />;
+        }
+        return <ChapterRead slug={paramsArray[0]!} chapterNumber={chapterNumber} />;
+    } else {
+        // Fallback for unexpected paths
         return <NovelList />;
     }
   };
 
   return (
-    <NavContext.Provider value={{ navState, navigate, goBack }}>
-      {renderView()}
-    </NavContext.Provider>
+      <>{renderView()}</>
   );
 }
