@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Novel } from "@/lib/types";
+import { Novel, NovelChapter } from "@/lib/types";
 import NovelsPageClient from "./client";
 
 const API_BASE_URL =
@@ -20,9 +20,45 @@ export async function generateStaticParams() {
     }
 
     const novels: Novel[] = await response.json();
-    return novels.map(novel => ({
-      params: [novel.slug],
-    }));
+
+    // Initialize paths with the index page
+    const paths = [{ params: [] }];
+
+    // Create promises to fetch chapters for each novel
+    const chaptersPromises = novels.map(async novel => {
+      // Add novel detail page
+      const novelPaths = [{ params: [novel.slug] }];
+
+      try {
+        const res = await fetch(
+          `${API_BASE_URL}/api/novels/${novel.slug}/chapters`,
+          {
+            next: { revalidate: 3600 },
+          }
+        );
+        if (res.ok) {
+          const chapters: NovelChapter[] = await res.json();
+          // Add chapter pages
+          for (const chapter of chapters) {
+            novelPaths.push({
+              params: [novel.slug, String(chapter.chapter_number)],
+            });
+          }
+        }
+      } catch (error) {
+        console.warn(
+          `Failed to fetch chapters for novel ${novel.slug}:`,
+          error
+        );
+      }
+      return novelPaths;
+    });
+
+    // Resolve all promises and flatten the array
+    const allPaths = (await Promise.all(chaptersPromises)).flat();
+
+    // Combine index page with all other paths
+    return [...paths, ...allPaths];
   } catch (error) {
     console.warn("Error generating static params for novels:", error);
     return [{ params: [] }];
@@ -35,7 +71,9 @@ export async function generateMetadata({
   params: Promise<{ params: string[] }>;
 }): Promise<Metadata> {
   const resolvedParams = await params;
-  const slug = resolvedParams.params?.[0];
+  const urlParams = resolvedParams.params || [];
+  const slug = urlParams[0];
+  const chapterNumber = urlParams[1];
 
   if (!slug) {
     return {
@@ -63,6 +101,49 @@ export async function generateMetadata({
     }
 
     const novel: Novel = await response.json();
+
+    // If looking at a specific chapter
+    if (chapterNumber) {
+      try {
+        const chapterResponse = await fetch(
+          `${API_BASE_URL}/api/novels/${slug}/chapters/${chapterNumber}`,
+          {
+            next: { revalidate: 3600 },
+          }
+        );
+
+        if (chapterResponse.ok) {
+          const chapter: NovelChapter = await chapterResponse.json();
+          const description = `[${novel.title}] ${chapter.chapter_number}화 - ${chapter.title}`;
+
+          return {
+            title: `${chapter.title} - ${novel.title} | 이정원`,
+            description,
+            openGraph: {
+              type: "article",
+              title: `${chapter.title} - ${novel.title}`,
+              description,
+              url: `https://0010capacity.github.io/novels/${novel.slug}/${chapter.chapter_number}/`,
+              publishedTime: chapter.published_at || chapter.created_at,
+              authors: ["이정원"],
+            },
+            twitter: {
+              card: "summary_large_image",
+              title: `${chapter.title} - ${novel.title}`,
+              description,
+            },
+            alternates: {
+              canonical: `https://0010capacity.github.io/novels/${novel.slug}/${chapter.chapter_number}/`,
+            },
+          };
+        }
+      } catch (error) {
+        console.warn(
+          `Error fetching metadata for chapter ${chapterNumber} of ${slug}:`,
+          error
+        );
+      }
+    }
 
     const description = novel.description || "창작 소설";
 
