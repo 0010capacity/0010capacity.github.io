@@ -4,9 +4,9 @@
     <meta charset="utf-8" />
     <title>Redirecting...</title>
     <script>
-      // GitHub Pages SPA fallback
-      // Stores the current path and redirects to root
-      // The main app will restore the route on load
+      // GitHub Pages SPA fallback (Next.js static export + trailingSlash)
+      // Stores the current path and redirects to "/" (exported as /index.html)
+      // The main app will restore the route on load.
       (function () {
         var pathSegmentsToKeep = 0;
 
@@ -15,11 +15,18 @@
         var search = l.search;
         var hash = l.hash;
 
-        // Store the original path in sessionStorage
+        // Store the original path in sessionStorage.
+        // Normalize to the exported trailing-slash form so that static export can match "/path/" -> "/path/index.html".
+        // e.g. "/novels/slug" -> "/novels/slug/"
+        var restoredPath = "/" + path;
+        if (restoredPath !== "/" && restoredPath.slice(-1) !== "/") {
+          restoredPath = restoredPath + "/";
+        }
+
         sessionStorage.setItem(
           "spa-redirect",
           JSON.stringify({
-            path: "/" + path,
+            path: restoredPath,
             search: search,
             hash: hash,
           })
