@@ -2,17 +2,28 @@
 
 import { useState } from "react";
 import { Home } from "lucide-react";
-import { GitHubAnalyzer } from "../../lib/github";
 import {
-  Button,
+  Container,
+  Title,
+  Text,
+  Button as MantineButton,
   Card,
-  Loading,
-  ErrorMessage,
+  Stack,
+  Group,
   Badge,
-  Form,
-  FormField,
-  Input,
-} from "../../components";
+  Grid,
+  Progress,
+  Alert,
+  Box,
+  Center,
+  Loader,
+  SimpleGrid,
+  Paper,
+  ThemeIcon,
+  RingProgress,
+} from "@mantine/core";
+import { GitHubAnalyzer } from "../../lib/github";
+import { Button } from "../../components";
 
 interface AnalysisResult {
   languages: { [key: string]: number };
@@ -64,8 +75,6 @@ export default function TechStackAnalysis() {
     }
   };
 
-  // 자동 분석 제거 - 사용자가 버튼을 눌러야만 분석 시작
-
   const formatBytes = (bytes: number): string => {
     if (bytes === 0) return "0 Bytes";
     const k = 1024;
@@ -83,224 +92,307 @@ export default function TechStackAnalysis() {
     : 0;
 
   return (
-    <div className="font-sans min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-      <main className="container mx-auto px-4 py-8 max-w-6xl">
-        {/* Header */}
-        <Card className="mb-8">
-          <div className="mb-4">
-            <Button href="/" variant="outline" icon={Home}></Button>
-          </div>
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            GitHub Tech Stack Analyzer
-          </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 mb-6">
-            Analyze GitHub repositories to automatically detect a
-            developer&apos;s tech stack.
-          </p>
-
-          {/* Username Input */}
-          <Form
-            onSubmit={e => {
-              e.preventDefault();
-              analyzeUserRepos(username, token || undefined);
-            }}
-          >
-            <div className="flex flex-col sm:flex-row gap-4">
-              <FormField label="" className="flex-1">
-                <Input
-                  type="text"
-                  value={username}
-                  onChange={e => setUsername(e.target.value)}
-                  placeholder="GitHub Username"
-                />
-              </FormField>
-              <FormField label="" className="flex-1">
-                <Input
-                  type="password"
-                  value={token}
-                  onChange={e => setToken(e.target.value)}
-                  placeholder="GitHub Personal Access Token (Optional)"
-                />
-              </FormField>
-              <Button type="submit" disabled={loading} className="sm:w-auto">
-                {loading ? "Analyzing..." : "Analyze"}
-              </Button>
+    <Box
+      style={{
+        backgroundImage:
+          "linear-gradient(to bottom right, var(--mantine-color-blue-0), var(--mantine-color-indigo-1))",
+        minHeight: "100vh",
+      }}
+    >
+      <Container size="lg" py="xl">
+        {/* Header Card */}
+        <Card mb="xl" withBorder padding="xl" radius="md">
+          <Stack gap="lg">
+            <MantineButton
+              component="a"
+              href="/"
+              variant="outline"
+              size="sm"
+              leftSection={<Home size={16} />}
+              w="fit-content"
+            >
+              Home
+            </MantineButton>
+            <div>
+              <Title order={1} mb="md">
+                GitHub Tech Stack Analyzer
+              </Title>
+              <Text size="lg" c="dimmed" mb="lg">
+                Analyze GitHub repositories to automatically detect a
+                developer&apos;s tech stack.
+              </Text>
             </div>
-          </Form>
-        </Card>
 
-        {/* Loading State */}
-        {loading && (
-          <Card className="mb-8">
-            <Loading message="Analyzing GitHub repositories..." />
-          </Card>
-        )}
+            {/* Input Form */}
+            <form
+              onSubmit={e => {
+                e.preventDefault();
+                analyzeUserRepos(username, token || undefined);
+              }}
+            >
+              <Stack gap="md">
+                <Group grow align="flex-end">
+                  <TextInput
+                    label="GitHub Username"
+                    placeholder="GitHub Username"
+                    value={username}
+                    onChange={e => setUsername(e.currentTarget.value)}
+                  />
+                  <PasswordInput
+                    label="GitHub Personal Access Token (Optional)"
+                    placeholder="GitHub Personal Access Token (Optional)"
+                    value={token}
+                    onChange={e => setToken(e.currentTarget.value)}
+                  />
+                  <MantineButton
+                    type="submit"
+                    disabled={loading}
+                    loading={loading}
+                  >
+                    {loading ? "Analyzing..." : "Analyze"}
+                  </MantineButton>
+                </Group>
+              </Stack>
+            </form>
+          </Stack>
+        </Card>
 
         {/* Error State */}
         {error && (
-          <ErrorMessage
-            message={error}
-            className="mb-8"
-            onRetry={() => analyzeUserRepos(username, token || undefined)}
-          />
+          <Alert color="red" title="Error" mb="xl">
+            {error}
+            <MantineButton
+              variant="subtle"
+              size="sm"
+              mt="sm"
+              onClick={() => analyzeUserRepos(username, token || undefined)}
+            >
+              Retry
+            </MantineButton>
+          </Alert>
+        )}
+
+        {/* Loading State */}
+        {loading && (
+          <Card mb="xl" withBorder padding="xl" radius="md">
+            <Center py="xl">
+              <Stack align="center">
+                <RingProgress
+                  sections={[{ value: 100, color: "blue" }]}
+                  size={100}
+                  thickness={4}
+                />
+                <Text c="dimmed">Analyzing GitHub repositories...</Text>
+              </Stack>
+            </Center>
+          </Card>
         )}
 
         {/* Initial State - Before Analysis */}
         {!hasAnalyzed && !loading && (
-          <Card className="mb-8 text-center">
-            <div className="mb-6">
-              <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg
-                  className="w-8 h-8 text-blue-600 dark:text-blue-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+          <Card mb="xl" withBorder padding="xl" radius="md">
+            <Center py="xl">
+              <Stack align="center" gap="lg" w="100%">
+                <Center
+                  w={80}
+                  h={80}
+                  style={{
+                    backgroundColor: "var(--mantine-color-blue-1)",
+                    borderRadius: "50%",
+                  }}
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                  />
-                </svg>
-              </div>
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
-                GitHub Tech Stack Analysis
-              </h2>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">
-                Enter the information above and click the &ldquo;Analyze&rdquo;
-                button to analyze GitHub repositories.
-              </p>
-              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
-                <h3 className="font-semibold text-blue-800 dark:text-blue-200 mb-2">
-                  💡 Analysis Tips
-                </h3>
-                <ul className="text-sm text-blue-700 dark:text-blue-300 text-left space-y-1">
-                  <li>
-                    • Entering a Personal Access Token enables more accurate
-                    analysis
-                  </li>
-                  <li>
-                    • Only public repositories are analyzed; private
-                    repositories are not analyzed even with a token
-                  </li>
-                  <li>
-                    • Do not analyze too frequently due to API rate limits
-                  </li>
-                </ul>
-              </div>
-            </div>
+                  <svg
+                    style={{
+                      width: 40,
+                      height: 40,
+                      color: "var(--mantine-color-blue-6)",
+                    }}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                    />
+                  </svg>
+                </Center>
+                <div style={{ textAlign: "center" }}>
+                  <Title order={2} mb="sm">
+                    GitHub Tech Stack Analysis
+                  </Title>
+                  <Text c="dimmed" mb="lg">
+                    Enter the information above and click the
+                    &ldquo;Analyze&rdquo; button to analyze GitHub repositories.
+                  </Text>
+                </div>
+                <Paper
+                  p="md"
+                  radius="md"
+                  style={{
+                    backgroundColor: "var(--mantine-color-blue-0)",
+                    border: "1px solid var(--mantine-color-blue-2)",
+                  }}
+                  w="100%"
+                >
+                  <Stack gap="xs">
+                    <Text fw={600} c="var(--mantine-color-blue-8)" size="sm">
+                      💡 Analysis Tips
+                    </Text>
+                    <Text
+                      component="ul"
+                      size="sm"
+                      c="var(--mantine-color-blue-7)"
+                      style={{ margin: 0, paddingLeft: 20 }}
+                    >
+                      <li>
+                        Entering a Personal Access Token enables more accurate
+                        analysis
+                      </li>
+                      <li>
+                        Only public repositories are analyzed; private
+                        repositories are not analyzed even with a token
+                      </li>
+                      <li>
+                        Do not analyze too frequently due to API rate limits
+                      </li>
+                    </Text>
+                  </Stack>
+                </Paper>
+              </Stack>
+            </Center>
           </Card>
         )}
 
         {/* Analysis Results */}
         {analysis && !loading && (
-          <div className="space-y-8">
+          <Stack gap="xl">
             {/* Languages */}
-            <Card title="Programming Languages">
-              <div className="space-y-3">
+            <Card withBorder padding="xl" radius="md">
+              <Title order={2} mb="lg">
+                Programming Languages
+              </Title>
+              <Stack gap="lg">
                 {Object.entries(analysis.languages)
                   .slice(0, 10)
-                  .map(([lang, bytes]) => (
-                    <div
-                      key={lang}
-                      className="flex items-center justify-between"
-                    >
-                      <span className="font-medium text-gray-700 dark:text-gray-300">
-                        {lang}
-                      </span>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-32 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                          <div
-                            className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-                            style={{
-                              width: `${getLanguagePercentage(bytes, totalBytes)}%`,
-                            }}
-                          />
-                        </div>
-                        <span className="text-sm text-gray-600 dark:text-gray-400 min-w-[3rem]">
-                          {getLanguagePercentage(bytes, totalBytes)}%
-                        </span>
-                        <span className="text-xs text-gray-500 dark:text-gray-500 min-w-[4rem]">
-                          {formatBytes(bytes)}
-                        </span>
+                  .map(([lang, bytes]) => {
+                    const percentage = getLanguagePercentage(bytes, totalBytes);
+                    return (
+                      <div key={lang}>
+                        <Group justify="space-between" mb="xs">
+                          <Text fw={500} size="sm">
+                            {lang}
+                          </Text>
+                          <Group gap="sm">
+                            <Text size="sm" c="dimmed">
+                              {percentage}%
+                            </Text>
+                            <Text size="xs" c="dimmed">
+                              {formatBytes(bytes)}
+                            </Text>
+                          </Group>
+                        </Group>
+                        <Progress
+                          value={percentage}
+                          color="blue"
+                          size="md"
+                          radius="md"
+                        />
                       </div>
-                    </div>
-                  ))}
-              </div>
+                    );
+                  })}
+              </Stack>
             </Card>
 
             {/* Frameworks */}
-            <Card title="Frameworks & Libraries">
-              <div className="flex flex-wrap gap-2">
+            <Card withBorder padding="xl" radius="md">
+              <Title order={2} mb="lg">
+                Frameworks & Libraries
+              </Title>
+              <Group gap="sm">
                 {analysis.frameworks.length > 0 ? (
                   analysis.frameworks.map(framework => (
-                    <Badge key={framework} variant="success">
+                    <Badge
+                      key={framework}
+                      variant="light"
+                      color="green"
+                      size="lg"
+                    >
                       {framework}
                     </Badge>
                   ))
                 ) : (
-                  <p className="text-gray-600 dark:text-gray-400">
-                    No frameworks detected.
-                  </p>
+                  <Text c="dimmed">No frameworks detected.</Text>
                 )}
-              </div>
+              </Group>
             </Card>
 
             {/* Technologies */}
-            <Card title="Tech Stack">
-              <div className="flex flex-wrap gap-2">
+            <Card withBorder padding="xl" radius="md">
+              <Title order={2} mb="lg">
+                Tech Stack
+              </Title>
+              <Group gap="sm">
                 {analysis.technologies.length > 0 ? (
                   analysis.technologies.map(tech => (
-                    <Badge key={tech} variant="info">
+                    <Badge key={tech} variant="light" color="blue" size="lg">
                       {tech}
                     </Badge>
                   ))
                 ) : (
-                  <p className="text-gray-600 dark:text-gray-400">
-                    No technologies detected.
-                  </p>
+                  <Text c="dimmed">No technologies detected.</Text>
                 )}
-              </div>
+              </Group>
             </Card>
 
             {/* Repositories */}
-            <Card
-              title={`Analyzed Repositories (${analysis.repositories.length})`}
-            >
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Card withBorder padding="xl" radius="md">
+              <Title order={2} mb="lg">
+                Analyzed Repositories ({analysis.repositories.length})
+              </Title>
+              <SimpleGrid cols={{ base: 1, md: 2, lg: 3 }} spacing="md">
                 {analysis.repositories.slice(0, 12).map(repo => (
-                  <div
+                  <Paper
                     key={repo.name}
-                    className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow"
+                    p="md"
+                    withBorder
+                    radius="md"
+                    style={{ transition: "box-shadow 0.2s ease" }}
+                    className="hover:shadow-md"
                   >
-                    <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                      <a
+                    <Stack gap="sm">
+                      <Text
+                        component="a"
                         href={repo.html_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="hover:text-blue-600 dark:hover:text-blue-400"
+                        fw={600}
+                        c="blue"
+                        style={{ textDecoration: "none" }}
+                        className="hover:underline"
                       >
                         {repo.name}
-                      </a>
-                    </h3>
-                    {repo.language && (
-                      <Badge variant="default" size="sm" className="mb-2">
-                        {repo.language}
-                      </Badge>
-                    )}
-                    {repo.description && (
-                      <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
-                        {repo.description}
-                      </p>
-                    )}
-                  </div>
+                      </Text>
+                      {repo.language && (
+                        <Badge variant="light" size="sm">
+                          {repo.language}
+                        </Badge>
+                      )}
+                      {repo.description && (
+                        <Text size="sm" c="dimmed" lineClamp={2}>
+                          {repo.description}
+                        </Text>
+                      )}
+                    </Stack>
+                  </Paper>
                 ))}
-              </div>
+              </SimpleGrid>
             </Card>
-          </div>
+          </Stack>
         )}
-      </main>
-    </div>
+      </Container>
+    </Box>
   );
 }

@@ -8,6 +8,26 @@ import {
   useContext,
 } from "react";
 import { usePathname } from "next/navigation";
+import {
+  Box,
+  Button,
+  Group,
+  Stack,
+  Text,
+  Badge,
+  Paper,
+  Grid,
+  Image,
+  TextInput,
+  Textarea,
+  Select,
+  ActionIcon,
+  Center,
+  Loader,
+  Alert,
+  Anchor,
+} from "@mantine/core";
+import { AlertCircle, X, ChevronRight } from "lucide-react";
 import AdminLayout from "@/components/AdminLayout";
 import { appsApi } from "@/lib/api";
 
@@ -54,13 +74,13 @@ interface App {
 
 // Platform options
 const PLATFORMS = [
-  { id: "ios", name: "iOS", color: "blue" },
-  { id: "android", name: "Android", color: "green" },
-  { id: "web", name: "Web", color: "purple" },
-  { id: "windows", name: "Windows", color: "cyan" },
-  { id: "macos", name: "macOS", color: "gray" },
-  { id: "linux", name: "Linux", color: "orange" },
-  { id: "game", name: "Game", color: "pink" },
+  { id: "ios", name: "iOS", color: "blue" as const },
+  { id: "android", name: "Android", color: "green" as const },
+  { id: "web", name: "Web", color: "grape" as const },
+  { id: "windows", name: "Windows", color: "cyan" as const },
+  { id: "macos", name: "macOS", color: "gray" as const },
+  { id: "linux", name: "Linux", color: "orange" as const },
+  { id: "game", name: "Game", color: "pink" as const },
 ];
 
 // Distribution channel options
@@ -110,22 +130,16 @@ const DISTRIBUTION_CHANNELS = [
 // Platform Badge Helper
 function PlatformBadge({ platform }: { platform: string }) {
   const platformInfo = PLATFORMS.find(p => p.id === platform);
-  const colorClasses: Record<string, string> = {
-    blue: "bg-blue-900/50 text-blue-400",
-    green: "bg-green-900/50 text-green-400",
-    purple: "bg-purple-900/50 text-purple-400",
-    cyan: "bg-cyan-900/50 text-cyan-400",
-    gray: "bg-gray-700/50 text-gray-300",
-    orange: "bg-orange-900/50 text-orange-400",
-    pink: "bg-pink-900/50 text-pink-400",
-  };
 
   return (
-    <span
-      className={`px-2 py-1 text-xs rounded ${colorClasses[platformInfo?.color || "gray"] || "bg-neutral-800 text-neutral-400"}`}
+    <Badge
+      variant="light"
+      color={platformInfo?.color || "gray"}
+      size="sm"
+      radius="sm"
     >
       {platformInfo?.name || platform}
-    </span>
+    </Badge>
   );
 }
 
@@ -145,7 +159,6 @@ function AppsList() {
     try {
       setLoading(true);
       const response = await appsApi.list();
-      // API returns array directly or wrapped
       const appsList = Array.isArray(response)
         ? response
         : (response as { apps?: App[] }).apps || [];
@@ -175,9 +188,9 @@ function AppsList() {
   if (loading) {
     return (
       <AdminLayout title="앱 관리">
-        <div className="text-center py-12">
-          <p className="text-neutral-600 text-sm">로딩 중...</p>
-        </div>
+        <Center py="xl">
+          <Loader />
+        </Center>
       </AdminLayout>
     );
   }
@@ -185,129 +198,139 @@ function AppsList() {
   if (error) {
     return (
       <AdminLayout title="앱 관리">
-        <div className="p-4 border border-red-900/50 text-red-400 text-sm rounded">
+        <Alert
+          icon={<AlertCircle size={16} />}
+          title="오류"
+          color="red"
+          mb="lg"
+        >
           {error}
-        </div>
+        </Alert>
       </AdminLayout>
     );
   }
 
   return (
     <AdminLayout title="앱 관리">
-      <div className="flex justify-between items-center mb-8">
-        <p className="text-neutral-500 text-sm">총 {apps.length}개의 앱</p>
-        <button
-          onClick={() => navigate({ view: "new" })}
-          className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 transition-colors rounded text-sm"
-        >
+      <Group justify="space-between" mb="lg">
+        <Text size="sm" c="dimmed">
+          총 {apps.length}개의 앱
+        </Text>
+        <Button size="sm" onClick={() => navigate({ view: "new" })}>
           + 새 앱 등록
-        </button>
-      </div>
+        </Button>
+      </Group>
+
       {apps.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-neutral-600 text-sm mb-4">등록된 앱이 없습니다</p>
-          <button
-            onClick={() => navigate({ view: "new" })}
-            className="text-neutral-400 hover:text-white transition-colors text-sm"
-          >
-            첫 번째 앱을 등록해보세요 →
-          </button>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {apps.map(app => (
-            <div
-              key={app.id}
-              className="p-6 border border-neutral-800 rounded hover:border-neutral-700 transition-colors"
+        <Center py="xl">
+          <Stack align="center" gap="md">
+            <Text size="sm" c="dimmed">
+              등록된 앱이 없습니다
+            </Text>
+            <Button
+              variant="subtle"
+              size="sm"
+              onClick={() => navigate({ view: "new" })}
+              rightSection={<ChevronRight size={16} />}
             >
-              <div className="flex items-start justify-between">
-                <div className="flex items-start gap-4">
+              첫 번째 앱을 등록해보세요
+            </Button>
+          </Stack>
+        </Center>
+      ) : (
+        <Stack gap="md">
+          {apps.map(app => (
+            <Paper key={app.id} p="md" radius="md" withBorder>
+              <Group justify="space-between" align="flex-start">
+                <Group align="flex-start" gap="md">
                   {app.icon_url && (
-                    <div className="w-16 h-16 bg-neutral-800 rounded-xl overflow-hidden flex-shrink-0">
-                      <img
-                        src={app.icon_url}
-                        alt={app.name}
-                        className="w-full h-full object-cover"
-                        onError={e => {
-                          (e.target as HTMLImageElement).style.display = "none";
-                        }}
-                      />
-                    </div>
+                    <Image
+                      src={app.icon_url}
+                      alt={app.name}
+                      width={64}
+                      height={64}
+                      radius="md"
+                      fit="cover"
+                    />
                   )}
-                  <div>
-                    <h3 className="text-lg text-neutral-200 mb-1">
-                      {app.name}
-                    </h3>
-                    <div className="flex flex-wrap gap-1 mb-2">
+                  <Stack gap="xs" style={{ flex: 1 }}>
+                    <Text fw={500}>{app.name}</Text>
+                    <Group gap="xs" wrap="wrap">
                       {(app.platforms || []).map(platform => (
                         <PlatformBadge key={platform} platform={platform} />
                       ))}
-                    </div>
+                    </Group>
                     {app.description && (
-                      <p className="text-neutral-500 text-sm line-clamp-2">
+                      <Text size="sm" c="dimmed" lineClamp={2}>
                         {app.description}
-                      </p>
+                      </Text>
                     )}
                     {(app.distribution_channels || []).length > 0 && (
-                      <div className="mt-2 flex flex-wrap gap-2">
+                      <Group gap="xs" wrap="wrap">
                         {app.distribution_channels.map((channel, idx) => {
                           const channelInfo = DISTRIBUTION_CHANNELS.find(
                             c => c.id === channel.type
                           );
                           return (
-                            <a
+                            <Anchor
                               key={idx}
                               href={channel.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-xs text-neutral-400 hover:text-white transition-colors"
+                              size="xs"
                             >
                               {channel.label ||
                                 channelInfo?.name ||
                                 channel.type}{" "}
                               ↗
-                            </a>
+                            </Anchor>
                           );
                         })}
-                      </div>
+                      </Group>
                     )}
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
+                  </Stack>
+                </Group>
+                <Group gap="xs">
+                  <Button
+                    size="xs"
+                    variant="subtle"
                     onClick={() => navigate({ view: "edit", slug: app.slug })}
-                    className="px-3 py-1.5 text-sm text-neutral-400 hover:text-white transition-colors"
                   >
                     수정
-                  </button>
+                  </Button>
                   {deleteConfirm === app.slug ? (
-                    <div className="flex items-center gap-2">
-                      <button
+                    <>
+                      <Button
+                        size="xs"
+                        color="red"
+                        variant="subtle"
                         onClick={() => handleDelete(app.slug)}
-                        className="px-3 py-1.5 text-sm text-red-400 hover:text-red-300 transition-colors"
                       >
                         확인
-                      </button>
-                      <button
+                      </Button>
+                      <Button
+                        size="xs"
+                        variant="subtle"
                         onClick={() => setDeleteConfirm(null)}
-                        className="px-3 py-1.5 text-sm text-neutral-500 hover:text-neutral-300 transition-colors"
                       >
                         취소
-                      </button>
-                    </div>
+                      </Button>
+                    </>
                   ) : (
-                    <button
+                    <Button
+                      size="xs"
+                      color="red"
+                      variant="subtle"
                       onClick={() => setDeleteConfirm(app.slug)}
-                      className="px-3 py-1.5 text-sm text-neutral-600 hover:text-red-400 transition-colors"
                     >
                       삭제
-                    </button>
+                    </Button>
                   )}
-                </div>
-              </div>
-            </div>
+                </Group>
+              </Group>
+            </Paper>
           ))}
-        </div>
+        </Stack>
       )}
     </AdminLayout>
   );
@@ -332,23 +355,19 @@ function PlatformSelector({
   };
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <Group gap="xs" wrap="wrap">
       {PLATFORMS.map(platform => (
-        <button
+        <Button
           key={platform.id}
-          type="button"
+          size="sm"
+          variant={selected.includes(platform.id) ? "filled" : "light"}
           onClick={() => togglePlatform(platform.id)}
           disabled={disabled}
-          className={`px-4 py-2 rounded border transition-colors ${
-            selected.includes(platform.id)
-              ? "border-neutral-400 bg-neutral-800 text-white"
-              : "border-neutral-800 text-neutral-500 hover:border-neutral-700 hover:text-neutral-300"
-          }`}
         >
           {platform.name}
-        </button>
+        </Button>
       ))}
-    </div>
+    </Group>
   );
 }
 
@@ -403,83 +422,75 @@ function DistributionChannelEditor({
   };
 
   return (
-    <div className="space-y-4">
+    <Stack gap="md">
       {channels.map((channel, index) => (
-        <div
-          key={index}
-          className="p-4 border border-neutral-800 rounded space-y-3"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-neutral-500">
-              배포 채널 {index + 1}
-            </span>
-            <button
-              type="button"
-              onClick={() => removeChannel(index)}
-              disabled={disabled}
-              className="text-neutral-500 hover:text-red-400 transition-colors"
-            >
-              ×
-            </button>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs text-neutral-600 mb-1">
-                채널 유형
-              </label>
-              <select
-                value={channel.type}
-                onChange={e => updateChannel(index, "type", e.target.value)}
+        <Paper key={index} p="md" radius="md" withBorder>
+          <Stack gap="md">
+            <Group justify="space-between">
+              <Text size="sm" c="dimmed">
+                배포 채널 {index + 1}
+              </Text>
+              <ActionIcon
+                color="red"
+                variant="subtle"
+                size="sm"
+                onClick={() => removeChannel(index)}
                 disabled={disabled}
-                className="w-full px-3 py-2 bg-neutral-900 border border-neutral-800 rounded text-neutral-100 text-sm focus:outline-none focus:border-neutral-600 transition-colors"
               >
-                {DISTRIBUTION_CHANNELS.map(opt => (
-                  <option key={opt.id} value={opt.id}>
-                    {opt.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+                <X size={16} />
+              </ActionIcon>
+            </Group>
 
-            <div>
-              <label className="block text-xs text-neutral-600 mb-1">
-                커스텀 라벨 (선택)
-              </label>
-              <input
-                type="text"
-                value={channel.label || ""}
-                onChange={e => updateChannel(index, "label", e.target.value)}
-                disabled={disabled}
-                className="w-full px-3 py-2 bg-neutral-900 border border-neutral-800 rounded text-neutral-100 text-sm placeholder-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors"
-                placeholder="예: 한국 앱스토어"
-              />
-            </div>
-          </div>
+            <Grid gutter="md">
+              <Grid.Col span={{ base: 12, sm: 6 }}>
+                <Select
+                  label="채널 유형"
+                  placeholder="선택하세요"
+                  value={channel.type}
+                  onChange={val => updateChannel(index, "type", val || "")}
+                  disabled={disabled}
+                  data={DISTRIBUTION_CHANNELS.map(opt => ({
+                    value: opt.id,
+                    label: opt.name,
+                  }))}
+                  size="sm"
+                />
+              </Grid.Col>
 
-          <div>
-            <label className="block text-xs text-neutral-600 mb-1">URL</label>
-            <input
+              <Grid.Col span={{ base: 12, sm: 6 }}>
+                <TextInput
+                  label="커스텀 라벨 (선택)"
+                  placeholder="예: 한국 앱스토어"
+                  value={channel.label || ""}
+                  onChange={e => updateChannel(index, "label", e.target.value)}
+                  disabled={disabled}
+                  size="sm"
+                />
+              </Grid.Col>
+            </Grid>
+
+            <TextInput
+              label="URL"
               type="url"
+              placeholder={getPlaceholder(channel.type)}
               value={channel.url}
               onChange={e => updateChannel(index, "url", e.target.value)}
               disabled={disabled}
-              className="w-full px-3 py-2 bg-neutral-900 border border-neutral-800 rounded text-neutral-100 text-sm placeholder-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors"
-              placeholder={getPlaceholder(channel.type)}
+              size="sm"
             />
-          </div>
-        </div>
+          </Stack>
+        </Paper>
       ))}
 
-      <button
-        type="button"
+      <Button
+        variant="light"
+        fullWidth
         onClick={addChannel}
         disabled={disabled}
-        className="w-full py-3 border border-dashed border-neutral-700 rounded text-neutral-500 hover:text-neutral-300 hover:border-neutral-600 transition-colors text-sm"
       >
         + 배포 채널 추가
-      </button>
-    </div>
+      </Button>
+    </Stack>
   );
 }
 
@@ -540,7 +551,6 @@ function AppForm({ initialData, onSubmit, isEdit = false }: AppFormProps) {
     setError("");
     setLoading(true);
 
-    // Clean up empty strings from arrays
     const cleanedData: AppFormData = {
       ...formData,
       screenshots: formData.screenshots.filter(s => s.trim() !== ""),
@@ -559,223 +569,192 @@ function AppForm({ initialData, onSubmit, isEdit = false }: AppFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-2xl space-y-8">
-      {error && (
-        <div className="p-4 border border-red-900/50 text-red-400 text-sm rounded">
-          {error}
-        </div>
-      )}
+    <Box component="form" onSubmit={handleSubmit} maw={600}>
+      <Stack gap="xl">
+        {error && (
+          <Alert icon={<AlertCircle size={16} />} title="오류" color="red">
+            {error}
+          </Alert>
+        )}
 
-      {/* Basic Info Section */}
-      <div className="space-y-6">
-        <h2 className="text-lg text-neutral-300 border-b border-neutral-800 pb-2">
-          기본 정보
-        </h2>
+        {/* Basic Info Section */}
+        <Stack gap="md">
+          <Text size="lg" fw={600}>
+            기본 정보
+          </Text>
 
-        <div>
-          <label htmlFor="name" className="block text-sm text-neutral-500 mb-2">
-            앱 이름 *
-          </label>
-          <input
-            type="text"
-            id="name"
+          <TextInput
+            label="앱 이름 *"
+            placeholder="앱 이름을 입력하세요"
             value={formData.name}
             onChange={e => setFormData({ ...formData, name: e.target.value })}
-            className="w-full px-4 py-3 bg-neutral-900 border border-neutral-800 rounded text-neutral-100 placeholder-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors"
-            placeholder="앱 이름을 입력하세요"
+            disabled={loading}
             required
-            disabled={loading}
+            size="sm"
           />
-          <p className="mt-1 text-xs text-neutral-600">
-            URL 슬러그는 UUID 기반으로 자동 생성됩니다
-          </p>
-        </div>
 
-        <div>
-          <label className="block text-sm text-neutral-500 mb-3">
-            플랫폼 (복수 선택 가능)
-          </label>
-          <PlatformSelector
-            selected={formData.platforms}
-            onChange={platforms => setFormData({ ...formData, platforms })}
-            disabled={loading}
-          />
-        </div>
+          <Stack gap="xs">
+            <Text size="sm" fw={500}>
+              플랫폼 (복수 선택 가능)
+            </Text>
+            <PlatformSelector
+              selected={formData.platforms}
+              onChange={platforms => setFormData({ ...formData, platforms })}
+              disabled={loading}
+            />
+          </Stack>
 
-        <div>
-          <label
-            htmlFor="description"
-            className="block text-sm text-neutral-500 mb-2"
-          >
-            설명
-          </label>
-          <textarea
-            id="description"
+          <Textarea
+            label="설명"
+            placeholder="앱에 대한 간단한 설명을 입력하세요"
             value={formData.description}
             onChange={e =>
               setFormData({ ...formData, description: e.target.value })
             }
-            rows={4}
-            className="w-full px-4 py-3 bg-neutral-900 border border-neutral-800 rounded text-neutral-100 placeholder-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors resize-none"
-            placeholder="앱에 대한 간단한 설명을 입력하세요"
             disabled={loading}
+            minRows={4}
+            size="sm"
           />
-        </div>
-      </div>
+        </Stack>
 
-      {/* Distribution Channels Section */}
-      <div className="space-y-4">
-        <h2 className="text-lg text-neutral-300 border-b border-neutral-800 pb-2">
-          배포 채널
-        </h2>
-        <p className="text-sm text-neutral-600">
-          앱이 배포되는 스토어, 웹사이트 등의 링크를 추가하세요.
-        </p>
-        <DistributionChannelEditor
-          channels={formData.distribution_channels}
-          onChange={channels =>
-            setFormData({ ...formData, distribution_channels: channels })
-          }
-          disabled={loading}
-        />
-      </div>
-
-      {/* Media Section */}
-      <div className="space-y-6">
-        <h2 className="text-lg text-neutral-300 border-b border-neutral-800 pb-2">
-          미디어
-        </h2>
-
-        <div>
-          <label
-            htmlFor="icon_url"
-            className="block text-sm text-neutral-500 mb-2"
-          >
-            앱 아이콘 URL
-          </label>
-          <input
-            type="url"
-            id="icon_url"
-            value={formData.icon_url}
-            onChange={e =>
-              setFormData({ ...formData, icon_url: e.target.value })
+        {/* Distribution Channels Section */}
+        <Stack gap="md">
+          <Stack gap="xs">
+            <Text size="lg" fw={600}>
+              배포 채널
+            </Text>
+            <Text size="sm" c="dimmed">
+              앱이 배포되는 스토어, 웹사이트 등의 링크를 추가하세요.
+            </Text>
+          </Stack>
+          <DistributionChannelEditor
+            channels={formData.distribution_channels}
+            onChange={channels =>
+              setFormData({ ...formData, distribution_channels: channels })
             }
-            className="w-full px-4 py-3 bg-neutral-900 border border-neutral-800 rounded text-neutral-100 placeholder-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors"
-            placeholder="https://example.com/icon.png"
             disabled={loading}
           />
-          {formData.icon_url && (
-            <div className="mt-2">
-              <div className="w-16 h-16 bg-neutral-800 rounded-xl overflow-hidden">
-                <img
-                  src={formData.icon_url}
-                  alt="Icon preview"
-                  className="w-full h-full object-cover"
-                  onError={e => {
-                    (e.target as HTMLImageElement).style.display = "none";
-                  }}
-                />
-              </div>
-            </div>
-          )}
-        </div>
+        </Stack>
 
-        {/* Screenshots */}
-        <div className="space-y-3">
-          <label className="block text-sm text-neutral-500">스크린샷</label>
+        {/* Media Section */}
+        <Stack gap="md">
+          <Text size="lg" fw={600}>
+            미디어
+          </Text>
 
-          {formData.screenshots.map((screenshot, index) => (
-            <div key={index} className="space-y-2">
-              <div className="flex items-center gap-2">
-                <input
-                  type="url"
-                  value={screenshot}
-                  onChange={e => handleScreenshotChange(index, e.target.value)}
-                  className="flex-1 px-4 py-3 bg-neutral-900 border border-neutral-800 rounded text-neutral-100 placeholder-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors"
-                  placeholder={`스크린샷 URL ${index + 1}`}
-                  disabled={loading}
-                />
-                <button
-                  type="button"
-                  onClick={() => removeScreenshot(index)}
-                  className="p-3 text-neutral-500 hover:text-red-400 transition-colors"
-                  disabled={loading}
-                >
-                  ×
-                </button>
-              </div>
-              {screenshot && (
-                <div className="w-24 h-40 bg-neutral-800 rounded overflow-hidden ml-4">
-                  <img
+          <Stack gap="xs">
+            <TextInput
+              label="앱 아이콘 URL"
+              placeholder="https://example.com/icon.png"
+              value={formData.icon_url}
+              onChange={e =>
+                setFormData({ ...formData, icon_url: e.target.value })
+              }
+              disabled={loading}
+              type="url"
+              size="sm"
+            />
+            {formData.icon_url && (
+              <Image
+                src={formData.icon_url}
+                alt="Icon preview"
+                width={64}
+                height={64}
+                radius="md"
+                fit="cover"
+              />
+            )}
+          </Stack>
+
+          {/* Screenshots */}
+          <Stack gap="md">
+            <Text size="sm" fw={500}>
+              스크린샷
+            </Text>
+            {formData.screenshots.map((screenshot, index) => (
+              <Stack key={index} gap="xs">
+                <Group gap="xs">
+                  <TextInput
+                    type="url"
+                    placeholder={`스크린샷 URL ${index + 1}`}
+                    value={screenshot}
+                    onChange={e =>
+                      handleScreenshotChange(index, e.target.value)
+                    }
+                    disabled={loading}
+                    size="sm"
+                    style={{ flex: 1 }}
+                  />
+                  <ActionIcon
+                    color="red"
+                    variant="subtle"
+                    onClick={() => removeScreenshot(index)}
+                    disabled={loading}
+                  >
+                    <X size={16} />
+                  </ActionIcon>
+                </Group>
+                {screenshot && (
+                  <Image
                     src={screenshot}
                     alt={`Screenshot ${index + 1}`}
-                    className="w-full h-full object-cover"
-                    onError={e => {
-                      (e.target as HTMLImageElement).style.display = "none";
-                    }}
+                    height={160}
+                    width={100}
+                    radius="md"
+                    fit="cover"
                   />
-                </div>
-              )}
-            </div>
-          ))}
+                )}
+              </Stack>
+            ))}
+            <Button
+              variant="subtle"
+              size="sm"
+              onClick={addScreenshot}
+              disabled={loading}
+            >
+              + 스크린샷 추가
+            </Button>
+          </Stack>
+        </Stack>
 
-          <button
-            type="button"
-            onClick={addScreenshot}
-            className="text-sm text-neutral-500 hover:text-neutral-300 transition-colors"
-            disabled={loading}
-          >
-            + 스크린샷 추가
-          </button>
-        </div>
-      </div>
+        {/* Additional Info Section */}
+        <Stack gap="md">
+          <Text size="lg" fw={600}>
+            추가 정보
+          </Text>
 
-      {/* Additional Info Section */}
-      <div className="space-y-6">
-        <h2 className="text-lg text-neutral-300 border-b border-neutral-800 pb-2">
-          추가 정보
-        </h2>
-
-        <div>
-          <label
-            htmlFor="privacy_policy_url"
-            className="block text-sm text-neutral-500 mb-2"
-          >
-            개인정보처리방침 URL
-          </label>
-          <input
-            type="url"
-            id="privacy_policy_url"
+          <TextInput
+            label="개인정보처리방침 URL"
+            placeholder="https://example.com/privacy"
             value={formData.privacy_policy_url}
             onChange={e =>
               setFormData({ ...formData, privacy_policy_url: e.target.value })
             }
-            className="w-full px-4 py-3 bg-neutral-900 border border-neutral-800 rounded text-neutral-100 placeholder-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors"
-            placeholder="https://example.com/privacy"
             disabled={loading}
+            type="url"
+            size="sm"
           />
-        </div>
-      </div>
+        </Stack>
 
-      {/* Submit Buttons */}
-      <div className="flex gap-4 pt-4 border-t border-neutral-800">
-        <button
-          type="submit"
-          disabled={loading || !formData.name}
-          className="px-6 py-3 bg-neutral-100 hover:bg-white disabled:bg-neutral-800 disabled:text-neutral-600 text-neutral-900 rounded transition-colors"
-        >
-          {loading ? "저장 중..." : isEdit ? "저장" : "앱 등록"}
-        </button>
-        <button
-          type="button"
-          onClick={() => navigate({ view: "list" })}
-          disabled={loading}
-          className="px-6 py-3 text-neutral-400 hover:text-white transition-colors"
-        >
-          취소
-        </button>
-      </div>
-    </form>
+        {/* Submit Buttons */}
+        <Group justify="flex-start" pt="md">
+          <Button
+            type="submit"
+            disabled={loading || !formData.name}
+            loading={loading}
+          >
+            {isEdit ? "저장" : "앱 등록"}
+          </Button>
+          <Button
+            variant="subtle"
+            onClick={() => navigate({ view: "list" })}
+            disabled={loading}
+          >
+            취소
+          </Button>
+        </Group>
+      </Stack>
+    </Box>
   );
 }
 
@@ -842,14 +821,14 @@ function EditApp({ slug }: { slug: string }) {
   if (loading) {
     return (
       <AdminLayout
-        title="새 앱 등록"
+        title="앱 수정"
         backHref="/admin/apps"
         backLabel="← 앱 목록"
         onBack={() => navigate({ view: "list" })}
       >
-        <div className="text-center py-12">
-          <p className="text-neutral-600 text-sm">로딩 중...</p>
-        </div>
+        <Center py="xl">
+          <Loader />
+        </Center>
       </AdminLayout>
     );
   }
@@ -862,9 +841,9 @@ function EditApp({ slug }: { slug: string }) {
         backLabel="← 앱 목록"
         onBack={() => navigate({ view: "list" })}
       >
-        <div className="p-4 border border-red-900/50 text-red-400 text-sm rounded">
+        <Alert icon={<AlertCircle size={16} />} title="오류" color="red">
           {error}
-        </div>
+        </Alert>
       </AdminLayout>
     );
   }
@@ -888,7 +867,6 @@ export default function AppsAdminClient() {
   const [history, setHistory] = useState<NavState[]>([]);
   const [initialized, setInitialized] = useState(false);
 
-  // Parse URL params on mount only (once)
   useEffect(() => {
     if (initialized) return;
 
@@ -899,7 +877,6 @@ export default function AppsAdminClient() {
     } else if (pathParts.length === 4 && pathParts[3] === "edit") {
       setNavState({ view: "edit", slug: pathParts[2] });
     }
-    // Default is already "list", no need to set it
 
     setInitialized(true);
   }, [pathname, initialized]);

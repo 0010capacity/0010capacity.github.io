@@ -7,6 +7,24 @@ import {
   createContext,
   useContext,
 } from "react";
+import {
+  Box,
+  Button,
+  Group,
+  Stack,
+  Text,
+  Badge,
+  Paper,
+  TextInput,
+  Textarea,
+  Alert,
+  Center,
+  Loader,
+  SegmentedControl,
+  Anchor,
+  ActionIcon,
+} from "@mantine/core";
+import { AlertCircle, X, CheckCircle } from "lucide-react";
 import AdminLayout from "@/components/AdminLayout";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import TagInput from "@/components/TagInput";
@@ -107,176 +125,168 @@ function BlogList() {
 
   return (
     <AdminLayout title="블로그 관리">
-      <div className="flex justify-between items-center mb-8">
-        <div className="flex items-center gap-4">
-          <p className="text-neutral-500 text-sm">총 {posts.length}개의 글</p>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setFilter("all")}
-              className={`px-3 py-1 text-xs rounded transition-colors ${
-                filter === "all"
-                  ? "bg-neutral-700 text-white"
-                  : "bg-neutral-900 text-neutral-500 hover:text-neutral-300"
-              }`}
-            >
-              전체 ({posts.length})
-            </button>
-            <button
-              onClick={() => setFilter("published")}
-              className={`px-3 py-1 text-xs rounded transition-colors ${
-                filter === "published"
-                  ? "bg-green-900/50 text-green-400"
-                  : "bg-neutral-900 text-neutral-500 hover:text-neutral-300"
-              }`}
-            >
-              발행됨 ({publishedCount})
-            </button>
-            <button
-              onClick={() => setFilter("draft")}
-              className={`px-3 py-1 text-xs rounded transition-colors ${
-                filter === "draft"
-                  ? "bg-neutral-700 text-neutral-300"
-                  : "bg-neutral-900 text-neutral-500 hover:text-neutral-300"
-              }`}
-            >
-              임시저장 ({draftCount})
-            </button>
-          </div>
-        </div>
-        <button
-          onClick={() => navigate({ view: "new" })}
-          className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-100 text-sm rounded transition-colors"
-        >
-          + 새 글 작성
-        </button>
-      </div>
+      <Stack gap="lg">
+        <Group justify="space-between" align="flex-end">
+          <Stack gap="xs">
+            <Text size="sm" c="dimmed">
+              총 {posts.length}개의 글
+            </Text>
+            <SegmentedControl
+              value={filter}
+              onChange={val => setFilter(val as "all" | "published" | "draft")}
+              size="xs"
+              data={[
+                { label: `전체 (${posts.length})`, value: "all" },
+                { label: `발행됨 (${publishedCount})`, value: "published" },
+                { label: `임시저장 (${draftCount})`, value: "draft" },
+              ]}
+            />
+          </Stack>
+          <Button size="sm" onClick={() => navigate({ view: "new" })}>
+            + 새 글 작성
+          </Button>
+        </Group>
 
-      {error && (
-        <div className="p-4 mb-6 border border-red-900/50 text-red-400 text-sm rounded">
-          {error}
-        </div>
-      )}
-
-      {loading && (
-        <div className="text-center py-12">
-          <p className="text-neutral-600 text-sm">로딩 중...</p>
-        </div>
-      )}
-
-      {!loading && posts.length === 0 && (
-        <div className="text-center py-12 border border-neutral-800 rounded">
-          <p className="text-neutral-500 mb-4">등록된 블로그 글이 없습니다</p>
-          <button
-            onClick={() => navigate({ view: "new" })}
-            className="text-sm text-neutral-400 hover:text-white transition-colors"
+        {error && (
+          <Alert
+            icon={<AlertCircle size={16} />}
+            title="오류"
+            color="red"
+            mb="lg"
           >
-            첫 번째 글을 작성해보세요 →
-          </button>
-        </div>
-      )}
+            {error}
+          </Alert>
+        )}
 
-      {!loading && filteredPosts.length === 0 && posts.length > 0 && (
-        <div className="text-center py-12 border border-neutral-800 rounded">
-          <p className="text-neutral-500">
-            {filter === "published"
-              ? "발행된 글이 없습니다"
-              : "임시저장된 글이 없습니다"}
-          </p>
-        </div>
-      )}
+        {loading && (
+          <Center py="xl">
+            <Loader />
+          </Center>
+        )}
 
-      {!loading && filteredPosts.length > 0 && (
-        <div className="space-y-4">
-          {filteredPosts.map(post => (
-            <div
-              key={post.id}
-              className="border border-neutral-800 rounded p-4 hover:border-neutral-700 transition-colors"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    {post.published ? (
-                      <span className="px-2 py-1 text-xs bg-green-900/50 text-green-400 rounded">
-                        발행됨
-                      </span>
-                    ) : (
-                      <span className="px-2 py-1 text-xs bg-neutral-800 text-neutral-400 rounded">
-                        임시저장
-                      </span>
-                    )}
-                  </div>
-                  <h3 className="text-lg text-neutral-100 mb-1">
-                    {post.title}
-                  </h3>
-                  {post.excerpt && (
-                    <p className="text-neutral-500 text-sm mb-2 line-clamp-2">
-                      {post.excerpt}
-                    </p>
-                  )}
-                  {post.tags && post.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mb-2">
-                      {post.tags.map((tag, index) => (
-                        <span
-                          key={index}
-                          className="px-2 py-0.5 text-xs bg-neutral-800/50 text-neutral-400 rounded"
+        {!loading && posts.length === 0 && (
+          <Center py="xl">
+            <Stack align="center" gap="md">
+              <Text size="sm" c="dimmed">
+                등록된 블로그 글이 없습니다
+              </Text>
+              <Button
+                variant="subtle"
+                size="sm"
+                onClick={() => navigate({ view: "new" })}
+              >
+                첫 번째 글을 작성해보세요 →
+              </Button>
+            </Stack>
+          </Center>
+        )}
+
+        {!loading && filteredPosts.length === 0 && posts.length > 0 && (
+          <Center py="xl">
+            <Text size="sm" c="dimmed">
+              {filter === "published"
+                ? "발행된 글이 없습니다"
+                : "임시저장된 글이 없습니다"}
+            </Text>
+          </Center>
+        )}
+
+        {!loading && filteredPosts.length > 0 && (
+          <Stack gap="md">
+            {filteredPosts.map(post => (
+              <Paper key={post.id} p="md" radius="md" withBorder>
+                <Stack gap="xs">
+                  <Group justify="space-between" align="flex-start">
+                    <Stack gap="xs" style={{ flex: 1 }}>
+                      <Group gap="xs" align="center">
+                        <Badge
+                          color={post.published ? "green" : "gray"}
+                          variant="light"
+                          size="sm"
                         >
-                          #{tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  <div className="flex items-center gap-4 text-xs text-neutral-600">
-                    <span>
-                      {new Date(post.updated_at).toLocaleDateString("ko-KR")}{" "}
-                      수정
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 ml-4">
-                  <button
-                    onClick={() => navigate({ view: "edit", slug: post.slug })}
-                    className="px-3 py-1.5 text-sm text-neutral-400 hover:text-white transition-colors"
-                  >
-                    편집
-                  </button>
-                  <a
-                    href={`/blog/${post.slug}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-3 py-1.5 text-sm text-neutral-400 hover:text-white transition-colors"
-                  >
-                    보기
-                  </a>
-                  {deleteConfirm === post.slug ? (
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => handleDelete(post.slug)}
-                        className="px-3 py-1.5 text-sm text-red-400 hover:text-red-300 transition-colors"
+                          {post.published ? "발행됨" : "임시저장"}
+                        </Badge>
+                      </Group>
+                      <Text fw={500} size="md">
+                        {post.title}
+                      </Text>
+                      {post.excerpt && (
+                        <Text size="sm" c="dimmed" lineClamp={2}>
+                          {post.excerpt}
+                        </Text>
+                      )}
+                      {post.tags && post.tags.length > 0 && (
+                        <Group gap="xs" wrap="wrap">
+                          {post.tags.map((tag, index) => (
+                            <Badge
+                              key={index}
+                              variant="dot"
+                              size="sm"
+                              color="gray"
+                            >
+                              {tag}
+                            </Badge>
+                          ))}
+                        </Group>
+                      )}
+                      <Text size="xs" c="dimmed">
+                        {new Date(post.updated_at).toLocaleDateString("ko-KR")}{" "}
+                        수정
+                      </Text>
+                    </Stack>
+                    <Group gap="xs">
+                      <Button
+                        size="xs"
+                        variant="subtle"
+                        onClick={() =>
+                          navigate({ view: "edit", slug: post.slug })
+                        }
                       >
-                        확인
-                      </button>
-                      <button
-                        onClick={() => setDeleteConfirm(null)}
-                        className="px-3 py-1.5 text-sm text-neutral-500 hover:text-white transition-colors"
+                        편집
+                      </Button>
+                      <Anchor
+                        href={`/blog/${post.slug}`}
+                        target="_blank"
+                        size="xs"
                       >
-                        취소
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => setDeleteConfirm(post.slug)}
-                      className="px-3 py-1.5 text-sm text-neutral-600 hover:text-red-400 transition-colors"
-                    >
-                      삭제
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+                        보기
+                      </Anchor>
+                      {deleteConfirm === post.slug ? (
+                        <>
+                          <Button
+                            size="xs"
+                            color="red"
+                            variant="subtle"
+                            onClick={() => handleDelete(post.slug)}
+                          >
+                            확인
+                          </Button>
+                          <Button
+                            size="xs"
+                            variant="subtle"
+                            onClick={() => setDeleteConfirm(null)}
+                          >
+                            취소
+                          </Button>
+                        </>
+                      ) : (
+                        <Button
+                          size="xs"
+                          color="red"
+                          variant="subtle"
+                          onClick={() => setDeleteConfirm(post.slug)}
+                        >
+                          삭제
+                        </Button>
+                      )}
+                    </Group>
+                  </Group>
+                </Stack>
+              </Paper>
+            ))}
+          </Stack>
+        )}
+      </Stack>
     </AdminLayout>
   );
 }
@@ -324,123 +334,110 @@ function NewBlogPost() {
 
   return (
     <AdminLayout title="새 블로그 글" onBack={goBack} backLabel="← 블로그 목록">
-      <form
-        onSubmit={e => handleSubmit(e, false)}
-        className="max-w-2xl space-y-8"
-      >
-        {error && (
-          <div className="p-4 border border-red-900/50 text-red-400 text-sm rounded">
-            {error}
-          </div>
-        )}
+      <Box component="form" onSubmit={e => handleSubmit(e, false)} maw={600}>
+        <Stack gap="xl">
+          {error && (
+            <Alert icon={<AlertCircle size={16} />} title="오류" color="red">
+              {error}
+            </Alert>
+          )}
 
-        {/* Title */}
-        <div>
-          <label
-            htmlFor="title"
-            className="block text-sm text-neutral-500 mb-2"
-          >
-            제목 *
-          </label>
-          <input
-            type="text"
-            id="title"
+          {/* Title */}
+          <TextInput
+            label="제목 *"
+            placeholder="블로그 글 제목을 입력하세요"
             value={formData.title}
             onChange={e => setFormData({ ...formData, title: e.target.value })}
-            className="w-full px-4 py-3 bg-neutral-900 border border-neutral-800 rounded text-neutral-100 placeholder-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors"
-            placeholder="블로그 글 제목을 입력하세요"
             required
             disabled={loading}
+            size="sm"
           />
-          <p className="mt-1 text-xs text-neutral-600">
+          <Text size="xs" c="dimmed">
             URL 슬러그는 UUID를 기반으로 자동 생성됩니다
-          </p>
-        </div>
+          </Text>
 
-        {/* Excerpt */}
-        <div>
-          <label
-            htmlFor="excerpt"
-            className="block text-sm text-neutral-500 mb-2"
-          >
-            요약
-          </label>
-          <textarea
-            id="excerpt"
+          {/* Excerpt */}
+          <Textarea
+            label="요약"
+            placeholder="목록에 표시될 간단한 요약을 입력하세요"
             value={formData.excerpt}
             onChange={e =>
               setFormData({ ...formData, excerpt: e.target.value })
             }
-            rows={3}
-            className="w-full px-4 py-3 bg-neutral-900 border border-neutral-800 rounded text-neutral-100 placeholder-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors resize-none"
-            placeholder="목록에 표시될 간단한 요약을 입력하세요"
+            minRows={3}
             disabled={loading}
+            size="sm"
           />
-        </div>
 
-        {/* Tags */}
-        <div>
-          <label className="block text-sm text-neutral-500 mb-2">태그</label>
-          <TagInput
-            tags={formData.tags}
-            onChange={tags => setFormData({ ...formData, tags })}
-            placeholder="주제, 카테고리 등을 입력하세요"
-          />
-          <p className="text-neutral-600 text-xs mt-1">
-            Enter 또는 쉼표로 태그를 추가하세요
-          </p>
-        </div>
+          {/* Tags */}
+          <Stack gap="xs">
+            <Text size="sm" fw={500}>
+              태그
+            </Text>
+            <TagInput
+              tags={formData.tags}
+              onChange={tags => setFormData({ ...formData, tags })}
+              placeholder="주제, 카테고리 등을 입력하세요"
+            />
+            <Text size="xs" c="dimmed">
+              Enter 또는 쉼표로 태그를 추가하세요
+            </Text>
+          </Stack>
 
-        {/* Content */}
-        <div>
-          <label className="block text-sm text-neutral-500 mb-2">본문 *</label>
-          <MarkdownEditor
-            value={formData.content}
-            onChange={content => setFormData({ ...formData, content })}
-            placeholder="블로그 글을 마크다운으로 작성하세요..."
-            height={500}
-            minHeight={400}
-          />
-          <div className="flex justify-end mt-2">
-            <span className="text-neutral-600 text-xs">
-              {formData.content.length.toLocaleString()}자
-            </span>
-          </div>
-        </div>
+          {/* Content */}
+          <Stack gap="xs">
+            <Text size="sm" fw={500}>
+              본문 *
+            </Text>
+            <MarkdownEditor
+              value={formData.content}
+              onChange={content => setFormData({ ...formData, content })}
+              placeholder="블로그 글을 마크다운으로 작성하세요..."
+              height={500}
+              minHeight={400}
+            />
+            <Group justify="flex-end">
+              <Text size="xs" c="dimmed">
+                {formData.content.length.toLocaleString()}자
+              </Text>
+            </Group>
+          </Stack>
 
-        {/* Submit */}
-        <div className="flex flex-col gap-4 pt-4 border-t border-neutral-800">
-          <p className="text-sm text-neutral-500">
-            &ldquo;발행하기&rdquo;를 누르면 즉시 공개됩니다. 임시저장하면 나중에
-            발행할 수 있습니다.
-          </p>
-          <div className="flex gap-4">
-            <button
-              type="button"
-              onClick={e => handleSubmit(e, true)}
-              disabled={loading || !formData.title || !formData.content}
-              className="px-6 py-3 bg-neutral-100 hover:bg-white disabled:bg-neutral-800 disabled:text-neutral-600 text-neutral-900 rounded transition-colors"
-            >
-              {loading ? "저장 중..." : "발행하기"}
-            </button>
-            <button
-              type="submit"
-              disabled={loading || !formData.title || !formData.content}
-              className="px-6 py-3 bg-neutral-800 hover:bg-neutral-700 disabled:bg-neutral-900 disabled:text-neutral-600 text-neutral-100 rounded transition-colors"
-            >
-              {loading ? "저장 중..." : "임시저장"}
-            </button>
-            <button
-              type="button"
-              onClick={goBack}
-              disabled={loading}
-              className="px-6 py-3 text-neutral-400 hover:text-white transition-colors"
-            >
-              취소
-            </button>
-          </div>
-        </div>
-      </form>
+          {/* Submit */}
+          <Stack gap="md" pt="md">
+            <Text size="sm" c="dimmed">
+              &ldquo;발행하기&rdquo;를 누르면 즉시 공개됩니다. 임시저장하면
+              나중에 발행할 수 있습니다.
+            </Text>
+            <Group gap="md">
+              <Button
+                type="button"
+                onClick={e => handleSubmit(e, true)}
+                disabled={loading || !formData.title || !formData.content}
+                loading={loading}
+              >
+                발행하기
+              </Button>
+              <Button
+                type="submit"
+                variant="light"
+                disabled={loading || !formData.title || !formData.content}
+                loading={loading}
+              >
+                임시저장
+              </Button>
+              <Button
+                type="button"
+                variant="subtle"
+                onClick={goBack}
+                disabled={loading}
+              >
+                취소
+              </Button>
+            </Group>
+          </Stack>
+        </Stack>
+      </Box>
     </AdminLayout>
   );
 }
@@ -531,9 +528,9 @@ function EditBlogPost({ slug }: { slug: string }) {
         onBack={goBack}
         backLabel="← 블로그 목록"
       >
-        <div className="text-center py-12">
-          <p className="text-neutral-600 text-sm">로딩 중...</p>
-        </div>
+        <Center py="xl">
+          <Loader />
+        </Center>
       </AdminLayout>
     );
   }
@@ -544,155 +541,142 @@ function EditBlogPost({ slug }: { slug: string }) {
       onBack={goBack}
       backLabel="← 블로그 목록"
     >
-      <form onSubmit={e => handleSubmit(e)} className="max-w-2xl space-y-8">
-        {successMessage && (
-          <div className="p-4 border border-green-900/50 bg-green-900/20 text-green-400 text-sm rounded">
-            ✓ {successMessage}
-          </div>
-        )}
-        {error && (
-          <div className="p-4 border border-red-900/50 text-red-400 text-sm rounded">
-            {error}
-          </div>
-        )}
+      <Box component="form" onSubmit={e => handleSubmit(e)} maw={600}>
+        <Stack gap="xl">
+          {successMessage && (
+            <Alert icon={<CheckCircle size={16} />} title="완료" color="green">
+              {successMessage}
+            </Alert>
+          )}
 
-        {/* Status */}
-        <div>
-          <label className="block text-sm text-neutral-500 mb-3">상태</label>
-          <div className="flex gap-3">
-            {STATUS_OPTIONS.map(status => (
-              <button
-                key={status.id}
-                type="button"
-                disabled={loading}
-                className={`px-4 py-2 rounded transition-colors ${
-                  (status.id === "published") === formData.published
-                    ? status.id === "published"
-                      ? "bg-green-900/50 text-green-400 border border-green-700"
-                      : "bg-neutral-700 text-neutral-200 border border-neutral-600"
-                    : "bg-neutral-900 text-neutral-500 border border-neutral-800 hover:border-neutral-700"
-                }`}
-                onClick={() =>
-                  setFormData({
-                    ...formData,
-                    published: status.id === "published",
-                  })
-                }
-              >
-                {status.name}
-              </button>
-            ))}
-          </div>
-        </div>
+          {error && (
+            <Alert icon={<AlertCircle size={16} />} title="오류" color="red">
+              {error}
+            </Alert>
+          )}
 
-        {/* Title */}
-        <div>
-          <label
-            htmlFor="title"
-            className="block text-sm text-neutral-500 mb-2"
-          >
-            제목 *
-          </label>
-          <input
-            type="text"
-            id="title"
+          {/* Status */}
+          <Stack gap="xs">
+            <Text size="sm" fw={500}>
+              상태
+            </Text>
+            <SegmentedControl
+              value={formData.published ? "published" : "draft"}
+              onChange={val =>
+                setFormData({
+                  ...formData,
+                  published: val === "published",
+                })
+              }
+              disabled={loading}
+              data={[
+                { label: "임시저장", value: "draft" },
+                { label: "발행됨", value: "published" },
+              ]}
+              size="sm"
+            />
+          </Stack>
+
+          {/* Title */}
+          <TextInput
+            label="제목 *"
+            placeholder="블로그 글 제목을 입력하세요"
             value={formData.title}
             onChange={e => setFormData({ ...formData, title: e.target.value })}
-            className="w-full px-4 py-3 bg-neutral-900 border border-neutral-800 rounded text-neutral-100 placeholder-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors"
-            placeholder="블로그 글 제목을 입력하세요"
             required
             disabled={loading}
+            size="sm"
           />
-        </div>
 
-        {/* Slug (Read-only) */}
-        <div>
-          <label htmlFor="slug" className="block text-sm text-neutral-500 mb-2">
-            슬러그 (URL)
-          </label>
-          <div className="flex items-center gap-2">
-            <span className="text-neutral-600 text-sm">/blog/</span>
-            <span className="flex-1 px-4 py-3 bg-neutral-950 border border-neutral-800 rounded text-neutral-400">
-              {formData.slug}
-            </span>
-          </div>
-          <p className="text-neutral-600 text-xs mt-1">
-            슬러그는 생성 시 자동으로 지정되며 변경할 수 없습니다
-          </p>
-        </div>
+          {/* Slug (Read-only) */}
+          <Stack gap="xs">
+            <Text size="sm" fw={500}>
+              슬러그 (URL)
+            </Text>
+            <Group gap="xs">
+              <Text size="sm" c="dimmed">
+                /blog/
+              </Text>
+              <TextInput
+                placeholder={formData.slug}
+                value={formData.slug}
+                disabled
+                size="sm"
+                style={{ flex: 1 }}
+              />
+            </Group>
+            <Text size="xs" c="dimmed">
+              슬러그는 생성 시 자동으로 지정되며 변경할 수 없습니다
+            </Text>
+          </Stack>
 
-        {/* Excerpt */}
-        <div>
-          <label
-            htmlFor="excerpt"
-            className="block text-sm text-neutral-500 mb-2"
-          >
-            요약
-          </label>
-          <textarea
-            id="excerpt"
+          {/* Excerpt */}
+          <Textarea
+            label="요약"
+            placeholder="목록에 표시될 간단한 요약을 입력하세요"
             value={formData.excerpt}
             onChange={e =>
               setFormData({ ...formData, excerpt: e.target.value })
             }
-            rows={3}
-            className="w-full px-4 py-3 bg-neutral-900 border border-neutral-800 rounded text-neutral-100 placeholder-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors resize-none"
-            placeholder="목록에 표시될 간단한 요약을 입력하세요"
+            minRows={3}
             disabled={loading}
+            size="sm"
           />
-        </div>
 
-        {/* Tags */}
-        <div>
-          <label className="block text-sm text-neutral-500 mb-2">태그</label>
-          <TagInput
-            tags={formData.tags}
-            onChange={tags => setFormData({ ...formData, tags })}
-            placeholder="주제, 카테고리 등을 입력하세요"
-          />
-          <p className="text-neutral-600 text-xs mt-1">
-            Enter 또는 쉼표로 태그를 추가하세요
-          </p>
-        </div>
+          {/* Tags */}
+          <Stack gap="xs">
+            <Text size="sm" fw={500}>
+              태그
+            </Text>
+            <TagInput
+              tags={formData.tags}
+              onChange={tags => setFormData({ ...formData, tags })}
+              placeholder="주제, 카테고리 등을 입력하세요"
+            />
+            <Text size="xs" c="dimmed">
+              Enter 또는 쉼표로 태그를 추가하세요
+            </Text>
+          </Stack>
 
-        {/* Content */}
-        <div>
-          <label className="block text-sm text-neutral-500 mb-2">본문 *</label>
-          <MarkdownEditor
-            value={formData.content}
-            onChange={content => setFormData({ ...formData, content })}
-            placeholder="블로그 글을 마크다운으로 작성하세요..."
-            height={500}
-            minHeight={400}
-          />
-          <div className="flex justify-end mt-2">
-            <span className="text-neutral-600 text-xs">
-              {formData.content.length.toLocaleString()}자
-            </span>
-          </div>
-        </div>
+          {/* Content */}
+          <Stack gap="xs">
+            <Text size="sm" fw={500}>
+              본문 *
+            </Text>
+            <MarkdownEditor
+              value={formData.content}
+              onChange={content => setFormData({ ...formData, content })}
+              placeholder="블로그 글을 마크다운으로 작성하세요..."
+              height={500}
+              minHeight={400}
+            />
+            <Group justify="flex-end">
+              <Text size="xs" c="dimmed">
+                {formData.content.length.toLocaleString()}자
+              </Text>
+            </Group>
+          </Stack>
 
-        {/* Submit */}
-        <div className="flex flex-col gap-4 pt-4 border-t border-neutral-800">
-          <div className="flex gap-4">
-            <button
+          {/* Submit */}
+          <Group gap="md" pt="md">
+            <Button
               type="submit"
               disabled={loading || !formData.title || !formData.content}
-              className="px-6 py-3 bg-neutral-100 hover:bg-white disabled:bg-neutral-800 disabled:text-neutral-600 text-neutral-900 rounded transition-colors"
+              loading={loading}
             >
-              {loading ? "저장 중..." : "저장"}
-            </button>
-            <button
+              저장
+            </Button>
+            <Button
               type="button"
+              variant="subtle"
               onClick={() => navigate({ view: "list" })}
               disabled={loading}
-              className="px-6 py-3 text-neutral-400 hover:text-white transition-colors"
             >
               목록으로
-            </button>
-          </div>
-        </div>
-      </form>
+            </Button>
+          </Group>
+        </Stack>
+      </Box>
     </AdminLayout>
   );
 }

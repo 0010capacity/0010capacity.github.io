@@ -1,20 +1,32 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Save, ExternalLink, X, Plus } from "lucide-react";
+import {
+  Container,
+  Stack,
+  Title,
+  Text,
+  TextInput,
+  Textarea,
+  Button,
+  Group,
+  Card,
+  Badge,
+  Alert,
+  Checkbox,
+  Box,
+  Loader,
+  Center,
+  ActionIcon,
+} from "@mantine/core";
+import {
+  IconSave,
+  IconPlus,
+  IconX,
+  IconExternalLink,
+} from "@tabler/icons-react";
 import { createProfilePR } from "../../lib/github";
 import { GitHubAnalyzer } from "../../lib/github";
-import {
-  Button,
-  Card,
-  ErrorMessage,
-  Badge,
-  Form,
-  FormField,
-  FormActions,
-  Input,
-  Textarea,
-} from "../../components";
 
 interface ProfileData {
   name: string;
@@ -166,237 +178,301 @@ export default function EditProfilePage() {
     }));
   };
 
+  if (profileLoading) {
+    return (
+      <Center mih="100vh">
+        <Stack align="center" gap="md">
+          <Loader />
+          <Text>Loading profile data...</Text>
+        </Stack>
+      </Center>
+    );
+  }
+
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">Edit Profile</h1>
+    <Container size="sm" py="xl">
+      <Stack gap="lg">
+        <Title order={1} mb="md">
+          Edit Profile
+        </Title>
 
-      {profileLoading ? (
-        <div className="text-center py-8">
-          <p className="text-lg">Loading profile data...</p>
-        </div>
-      ) : (
-        <Form onSubmit={handleSubmit}>
-          <FormField label="GitHub Personal Access Token" required>
-            <Input
-              type="password"
-              value={token}
-              onChange={e => setToken(e.target.value)}
-              placeholder="ghp_..."
-            />
-            <div className="flex items-center mt-2">
-              <input
-                type="checkbox"
-                id="rememberToken"
-                checked={rememberToken}
-                onChange={e => setRememberToken(e.target.checked)}
-                className="mr-2"
+        <form onSubmit={handleSubmit}>
+          <Stack gap="md">
+            {/* GitHub Token */}
+            <Stack gap="xs">
+              <Text fw={500} size="sm">
+                GitHub Personal Access Token *
+              </Text>
+              <TextInput
+                type="password"
+                value={token}
+                onChange={e => setToken(e.currentTarget.value)}
+                placeholder="ghp_..."
+                disabled={isLoading}
               />
-              <label htmlFor="rememberToken" className="text-sm text-gray-600">
-                Remember token (save in browser)
-              </label>
-            </div>
-            <p className="text-sm text-gray-600 mt-1">
-              Please enter a token with repo permissions.
-            </p>
-          </FormField>
+              <Group gap="xs">
+                <Checkbox
+                  checked={rememberToken}
+                  onChange={e => setRememberToken(e.currentTarget.checked)}
+                  label="Remember token (save in browser)"
+                />
+              </Group>
+              <Text size="xs" c="dimmed">
+                Please enter a token with repo permissions.
+              </Text>
+            </Stack>
 
-          <FormField label="Name" required>
-            <Input
-              type="text"
-              value={profileData.name}
-              onChange={e => handleInputChange("name", e.target.value)}
-            />
-          </FormField>
+            {/* Name */}
+            <Stack gap="xs">
+              <Text fw={500} size="sm">
+                Name *
+              </Text>
+              <TextInput
+                value={profileData.name}
+                onChange={e => handleInputChange("name", e.currentTarget.value)}
+                disabled={isLoading}
+              />
+            </Stack>
 
-          <FormField label="Email" required>
-            <Input
-              type="email"
-              value={profileData.email}
-              onChange={e => handleInputChange("email", e.target.value)}
-            />
-          </FormField>
-
-          <FormField label="Country" required>
-            <Input
-              type="text"
-              value={profileData.country}
-              onChange={e => handleInputChange("country", e.target.value)}
-            />
-          </FormField>
-
-          <FormField label="Education" required>
-            <Input
-              type="text"
-              value={profileData.education}
-              onChange={e => handleInputChange("education", e.target.value)}
-            />
-          </FormField>
-
-          <FormField label="Bio" required>
-            <Textarea
-              value={profileData.bio}
-              onChange={e => handleInputChange("bio", e.target.value)}
-              placeholder="Enter your bio..."
-              className="h-24"
-            />
-          </FormField>
-
-          {/* 테크 스택 섹션 */}
-          <Card
-            title="Tech Stack"
-            actions={
-              <Button
-                type="button"
-                onClick={detectTechStack}
-                disabled={isDetecting || !token}
-                variant="success"
-                size="sm"
-              >
-                {isDetecting ? "Detecting..." : "Auto-detect from GitHub"}
-              </Button>
-            }
-          >
-            {/* Current Tech Stack */}
-            <div className="mb-4">
-              <div className="flex flex-wrap gap-2 mb-2">
-                {profileData.techStack.map(tech => (
-                  <Badge
-                    key={tech}
-                    variant="info"
-                    className="flex items-center gap-2"
-                  >
-                    {tech}
-                    <button
-                      type="button"
-                      onClick={() => removeTechStack(tech)}
-                      className="text-blue-600 hover:text-blue-800 dark:text-blue-400 ml-1"
-                    >
-                      <X size={12} />
-                    </button>
-                  </Badge>
-                ))}
-              </div>
-              {profileData.techStack.length === 0 && (
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  No tech stack registered.
-                </p>
-              )}
-            </div>
-
-            {/* Manual Add */}
-            <div className="flex gap-2 mb-4">
-              <Input
-                type="text"
-                value={newTech}
-                onChange={e => setNewTech(e.target.value)}
-                onKeyPress={e =>
-                  e.key === "Enter" &&
-                  (e.preventDefault(), addTechStack(newTech))
+            {/* Email */}
+            <Stack gap="xs">
+              <Text fw={500} size="sm">
+                Email *
+              </Text>
+              <TextInput
+                type="email"
+                value={profileData.email}
+                onChange={e =>
+                  handleInputChange("email", e.currentTarget.value)
                 }
-                placeholder="Enter tech stack (e.g., React, Python, Node.js)"
-                className="flex-1"
+                disabled={isLoading}
               />
-              <Button
-                type="button"
-                onClick={() => addTechStack(newTech)}
-                disabled={!newTech.trim()}
-                variant="secondary"
-                size="sm"
-                icon={Plus}
-              ></Button>
-            </div>
+            </Stack>
 
-            {/* Auto-detection Results */}
-            {showTechStackEditor && detectedTechStack.length > 0 && (
-              <Card className="border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20">
-                <div className="flex justify-between items-center mb-3">
-                  <h3 className="font-semibold text-green-800 dark:text-green-200">
-                    Technologies detected from GitHub
-                  </h3>
-                  <div className="flex gap-2">
+            {/* Country */}
+            <Stack gap="xs">
+              <Text fw={500} size="sm">
+                Country *
+              </Text>
+              <TextInput
+                value={profileData.country}
+                onChange={e =>
+                  handleInputChange("country", e.currentTarget.value)
+                }
+                disabled={isLoading}
+              />
+            </Stack>
+
+            {/* Education */}
+            <Stack gap="xs">
+              <Text fw={500} size="sm">
+                Education *
+              </Text>
+              <TextInput
+                value={profileData.education}
+                onChange={e =>
+                  handleInputChange("education", e.currentTarget.value)
+                }
+                disabled={isLoading}
+              />
+            </Stack>
+
+            {/* Bio */}
+            <Stack gap="xs">
+              <Text fw={500} size="sm">
+                Bio *
+              </Text>
+              <Textarea
+                value={profileData.bio}
+                onChange={e => handleInputChange("bio", e.currentTarget.value)}
+                placeholder="Enter your bio..."
+                rows={4}
+                disabled={isLoading}
+              />
+            </Stack>
+
+            {/* Tech Stack */}
+            <Card withBorder>
+              <Card.Section withBorder inheritPadding py="md">
+                <Group justify="space-between" align="center">
+                  <Title order={3} size="h4">
+                    Tech Stack
+                  </Title>
+                  <Button
+                    size="xs"
+                    onClick={detectTechStack}
+                    disabled={isDetecting || !token || isLoading}
+                    loading={isDetecting}
+                    variant="light"
+                  >
+                    {isDetecting ? "Detecting..." : "Auto-detect from GitHub"}
+                  </Button>
+                </Group>
+              </Card.Section>
+
+              <Card.Section inheritPadding py="md">
+                <Stack gap="md">
+                  {/* Current Tech Stack */}
+                  <Box>
+                    {profileData.techStack.length > 0 ? (
+                      <Group gap="xs">
+                        {profileData.techStack.map(tech => (
+                          <Badge
+                            key={tech}
+                            variant="light"
+                            rightSection={
+                              <ActionIcon
+                                size="xs"
+                                color="blue"
+                                radius="xl"
+                                variant="transparent"
+                                onClick={() => removeTechStack(tech)}
+                              >
+                                <IconX size={10} />
+                              </ActionIcon>
+                            }
+                          >
+                            {tech}
+                          </Badge>
+                        ))}
+                      </Group>
+                    ) : (
+                      <Text size="sm" c="dimmed">
+                        No tech stack registered.
+                      </Text>
+                    )}
+                  </Box>
+
+                  {/* Manual Add */}
+                  <Group gap="xs">
+                    <TextInput
+                      style={{ flex: 1 }}
+                      value={newTech}
+                      onChange={e => setNewTech(e.currentTarget.value)}
+                      onKeyDown={e => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          addTechStack(newTech);
+                        }
+                      }}
+                      placeholder="Enter tech stack (e.g., React, Python, Node.js)"
+                      disabled={isLoading}
+                    />
                     <Button
-                      type="button"
-                      onClick={addAllDetectedTech}
-                      variant="success"
                       size="sm"
-                      icon={Plus}
-                    ></Button>
-                    <Button
-                      type="button"
-                      onClick={() => setShowTechStackEditor(false)}
-                      variant="secondary"
-                      size="sm"
-                      icon={X}
-                    ></Button>
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {detectedTechStack.map(tech => (
-                    <Button
-                      key={tech}
-                      type="button"
-                      onClick={() => addDetectedTech(tech)}
-                      disabled={profileData.techStack.includes(tech)}
-                      variant="outline"
-                      size="sm"
-                      className="bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200 hover:bg-green-200 dark:hover:bg-green-700 disabled:opacity-50"
+                      onClick={() => addTechStack(newTech)}
+                      disabled={!newTech.trim() || isLoading}
+                      leftSection={<IconPlus size={14} />}
                     >
-                      + {tech}
+                      Add
                     </Button>
-                  ))}
-                </div>
-              </Card>
+                  </Group>
+
+                  {/* Auto-detection Results */}
+                  {showTechStackEditor && detectedTechStack.length > 0 && (
+                    <Card withBorder p="md" bg="var(--mantine-color-green-9)">
+                      <Stack gap="md">
+                        <Group justify="space-between" align="center">
+                          <Title order={4} size="h5" c="green.2">
+                            Technologies detected from GitHub
+                          </Title>
+                          <Group gap="xs">
+                            <Button
+                              size="xs"
+                              onClick={addAllDetectedTech}
+                              variant="light"
+                              color="green"
+                              leftSection={<IconPlus size={14} />}
+                            >
+                              Add All
+                            </Button>
+                            <ActionIcon
+                              size="sm"
+                              variant="light"
+                              color="green"
+                              onClick={() => setShowTechStackEditor(false)}
+                            >
+                              <IconX size={14} />
+                            </ActionIcon>
+                          </Group>
+                        </Group>
+                        <Group gap="xs">
+                          {detectedTechStack.map(tech => (
+                            <Button
+                              key={tech}
+                              size="xs"
+                              onClick={() => addDetectedTech(tech)}
+                              disabled={profileData.techStack.includes(tech)}
+                              variant="light"
+                              color="green"
+                            >
+                              + {tech}
+                            </Button>
+                          ))}
+                        </Group>
+                      </Stack>
+                    </Card>
+                  )}
+
+                  {!token && (
+                    <Alert color="yellow" title="GitHub Token Required">
+                      You need to enter a GitHub token to use the auto-detection
+                      feature.
+                    </Alert>
+                  )}
+                </Stack>
+              </Card.Section>
+            </Card>
+
+            {/* Error Alert */}
+            {error && (
+              <Alert color="red" title="Error">
+                {error}
+              </Alert>
             )}
 
-            {!token && (
-              <p className="text-sm text-orange-600 dark:text-orange-400 mt-2">
-                You need to enter a GitHub token to use the auto-detection
-                feature.
-              </p>
+            {/* Success Alert */}
+            {prUrl && (
+              <Alert color="green" title="Success">
+                <Group justify="space-between">
+                  <Text>Profile updated successfully!</Text>
+                  <Button
+                    component="a"
+                    href={prUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    size="xs"
+                    variant="light"
+                    rightSection={<IconExternalLink size={14} />}
+                  >
+                    View PR
+                  </Button>
+                </Group>
+              </Alert>
             )}
-          </Card>
 
-          <FormActions>
-            <div className="flex gap-4 w-full">
+            {/* Submit Buttons */}
+            <Group justify="flex-end" gap="md" pt="md">
               <Button
                 type="button"
+                variant="default"
                 onClick={() => window.history.back()}
-                variant="secondary"
-                className="flex-1"
+                disabled={isLoading}
               >
-                취소
+                Cancel
               </Button>
               <Button
                 type="submit"
-                disabled={isLoading}
                 loading={isLoading}
-                className="flex-1"
-                icon={Save}
+                disabled={isLoading}
+                leftSection={<IconSave size={16} />}
               >
-                {isLoading ? "Saving..." : ""}
+                Save
               </Button>
-            </div>
-          </FormActions>
-        </Form>
-      )}
-
-      {error && <ErrorMessage message={error} className="mt-4" />}
-
-      {prUrl && (
-        <Card className="mt-4 bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
-          <div className="text-green-800 dark:text-green-200">
-            Profile updated successfully!{" "}
-            <Button
-              href={prUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              variant="outline"
-              size="sm"
-              icon={ExternalLink}
-            ></Button>
-          </div>
-        </Card>
-      )}
-    </div>
+            </Group>
+          </Stack>
+        </form>
+      </Stack>
+    </Container>
   );
 }

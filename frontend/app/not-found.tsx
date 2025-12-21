@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Container, Stack, Title, Text, Group } from "@mantine/core";
 
 /**
  * GitHub Pages + Next.js static export note:
@@ -12,24 +13,33 @@ import Link from "next/link";
  */
 export default function NotFound() {
   return (
-    <div className="min-h-screen text-neutral-100 flex items-center justify-center">
-      <div className="text-center px-6">
-        <h1 className="text-2xl font-light mb-4">404</h1>
-        <p className="text-neutral-600 text-sm mb-8">
+    <Container
+      size="sm"
+      h="100vh"
+      display="flex"
+      style={{
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <Stack gap="lg" align="center" ta="center">
+        <Title order={1} fw={300} size="h2">
+          404
+        </Title>
+        <Text c="dimmed" size="sm">
           페이지를 찾을 수 없습니다
-        </p>
+        </Text>
 
-        <div className="flex items-center justify-center gap-4">
-          <Link
-            href="/"
-            className="text-sm text-neutral-400 hover:text-neutral-200 transition-colors"
-          >
-            ← 홈으로 돌아가기
+        <Group justify="center" gap="md">
+          <Link href="/" style={{ textDecoration: "none" }}>
+            <Text size="sm" c="dimmed">
+              ← 홈으로 돌아가기
+            </Text>
           </Link>
 
           <Link
             href="/"
-            className="text-sm text-neutral-500 hover:text-neutral-300 transition-colors"
+            style={{ textDecoration: "none" }}
             onClick={() => {
               try {
                 // If the SPA fallback stored something stale, clear it.
@@ -40,10 +50,12 @@ export default function NotFound() {
               }
             }}
           >
-            (리다이렉트 정보 초기화)
+            <Text size="sm" c="dimmed">
+              (리다이렉트 정보 초기화)
+            </Text>
           </Link>
-        </div>
-      </div>
-    </div>
+        </Group>
+      </Stack>
+    </Container>
   );
 }

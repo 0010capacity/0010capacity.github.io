@@ -3,6 +3,26 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Plus, Save, ArrowLeft, ExternalLink, Trash2 } from "lucide-react";
+import {
+  Container,
+  Title,
+  Text,
+  Button as MantineButton,
+  TextInput,
+  PasswordInput,
+  Textarea,
+  Select,
+  Checkbox,
+  Alert,
+  Box,
+  Grid,
+  Card,
+  Stack,
+  Group,
+  Center,
+  Loader,
+  Paper,
+} from "@mantine/core";
 import { updateAppPR } from "../../lib/github";
 import { Button } from "../../components";
 
@@ -135,264 +155,252 @@ function EditAppForm() {
 
   if (isLoadingApp) {
     return (
-      <div className="max-w-2xl mx-auto p-6">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Loading app information...
-          </p>
-        </div>
-      </div>
+      <Container size="sm" py="xl">
+        <Center py="xl">
+          <Stack align="center" gap="md">
+            <Loader />
+            <Text c="dimmed">Loading app information...</Text>
+          </Stack>
+        </Center>
+      </Container>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <div className="mb-6">
-        <Button
-          href={`/apps/${encodeURIComponent(appName)}`}
-          variant="outline"
-          className="mb-4"
-          icon={ArrowLeft}
-        ></Button>
-        <h1 className="text-2xl font-bold">Edit App: {appName}</h1>
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* GitHub Token */}
-        <div>
-          <label htmlFor="token" className="block text-sm font-medium mb-1">
-            GitHub Personal Access Token
-          </label>
-          <input
-            type="password"
-            id="token"
-            value={token}
-            onChange={e => setToken(e.target.value)}
-            className="w-full p-2 border rounded"
-            required
-            placeholder="ghp_..."
-          />
-          <p className="text-sm text-gray-600 mt-1">
-            Enter a token with repo permissions.
-          </p>
-        </div>
-
-        {/* 앱 이름 (읽기 전용) */}
-        <div>
-          <label htmlFor="appName" className="block text-sm font-medium mb-1">
-            App Name
-          </label>
-          <input
-            type="text"
-            id="appName"
-            value={appName}
-            className="w-full p-2 border rounded bg-gray-100"
-            readOnly
-          />
-          <p className="text-sm text-gray-600 mt-1">
-            App name cannot be modified.
-          </p>
-        </div>
-
-        {/* 앱 설명 */}
-        <div>
-          <label
-            htmlFor="description"
-            className="block text-sm font-medium mb-1"
-          >
-            App Description
-          </label>
-          <textarea
-            id="description"
-            value={description}
-            onChange={e => setDescription(e.target.value)}
-            className="w-full p-2 border rounded h-24"
-            required
-            placeholder="Enter a detailed description of the app..."
-          />
-        </div>
-
-        {/* 배포 정보 */}
-        <div>
-          <div className="flex justify-between items-center mb-3">
-            <label className="block text-sm font-medium">Deployment Info</label>
-            <Button
-              type="button"
-              onClick={addDeployment}
-              variant="outline"
-              size="sm"
-              icon={Plus}
-            ></Button>
-          </div>
-
-          <div className="space-y-3">
-            {deployments.map((deployment, index) => (
-              <div
-                key={index}
-                className="border border-gray-200 rounded-lg p-4"
-              >
-                <div className="flex justify-between items-start mb-3">
-                  <h4 className="text-sm font-medium text-gray-700">
-                    Deployment {index + 1}
-                  </h4>
-                  {deployments.length > 1 && (
-                    <Button
-                      type="button"
-                      onClick={() => removeDeployment(index)}
-                      variant="danger"
-                      size="sm"
-                      icon={Trash2}
-                    ></Button>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">
-                      Deployment Type
-                    </label>
-                    <select
-                      value={deployment.type}
-                      onChange={e =>
-                        updateDeployment(index, "type", e.target.value)
-                      }
-                      className="w-full p-2 border rounded text-sm"
-                    >
-                      <option value="website">Website</option>
-                      <option value="appstore">App Store</option>
-                      <option value="googleplay">Google Play</option>
-                      <option value="steam">Steam</option>
-                      <option value="download">Download</option>
-                      <option value="other">Other</option>
-                    </select>
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-xs font-medium text-gray-600 mb-1">
-                      URL
-                    </label>
-                    <input
-                      type="url"
-                      value={deployment.url}
-                      onChange={e =>
-                        updateDeployment(index, "url", e.target.value)
-                      }
-                      className="w-full p-2 border rounded text-sm"
-                      placeholder="https://..."
-                      required
-                    />
-                  </div>
-                </div>
-
-                {deployment.type === "other" && (
-                  <div className="mt-3">
-                    <label className="block text-xs font-medium text-gray-600 mb-1">
-                      Custom Label (Optional)
-                    </label>
-                    <input
-                      type="text"
-                      value={deployment.label || ""}
-                      onChange={e =>
-                        updateDeployment(index, "label", e.target.value)
-                      }
-                      className="w-full p-2 border rounded text-sm"
-                      placeholder="e.g., Microsoft Store, Itch.io, etc."
-                    />
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* GitHub 레포지토리 */}
-        <div>
-          <div className="flex items-center mb-2">
-            <input
-              type="checkbox"
-              id="showGithubField"
-              checked={showGithubField}
-              onChange={e => setShowGithubField(e.target.checked)}
-              className="mr-2"
-            />
-            <label htmlFor="showGithubField" className="text-sm font-medium">
-              Add GitHub Repository
-            </label>
-          </div>
-
-          {showGithubField && (
-            <div>
-              <label
-                htmlFor="githubRepo"
-                className="block text-sm font-medium mb-1"
-              >
-                GitHub Repository URL
-              </label>
-              <input
-                type="url"
-                id="githubRepo"
-                value={githubRepo}
-                onChange={e => setGithubRepo(e.target.value)}
-                className="w-full p-2 border rounded"
-                placeholder="https://github.com/username/repo"
-              />
-              <p className="text-sm text-gray-600 mt-1">
-                Please enter the GitHub repository URL where the app&apos;s
-                source code is located.
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* Submit Button */}
-        <div className="flex gap-4">
+    <Container size="sm" py="xl">
+      <Stack gap="lg">
+        <Group gap="md">
           <Button
-            type="button"
-            onClick={() => window.history.back()}
-            variant="secondary"
-            className="flex-1"
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            loading={isLoading}
-            className="flex-1 bg-blue-500 text-white p-3 rounded hover:bg-blue-600 disabled:opacity-50 font-medium"
-            icon={Save}
-          >
-            {isLoading ? "Updating..." : ""}
-          </Button>
-        </div>
-      </form>
-
-      {error && (
-        <div className="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-          {error}
-        </div>
-      )}
-
-      {prUrl && (
-        <div className="mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
-          App information updated successfully!{" "}
-          <Button
-            href={prUrl}
-            target="_blank"
-            rel="noopener noreferrer"
+            href={`/apps/${encodeURIComponent(appName)}`}
             variant="outline"
             size="sm"
-            icon={ExternalLink}
-          ></Button>
-        </div>
-      )}
-    </div>
+            icon={ArrowLeft}
+          />
+          <Title order={1}>Edit App: {appName}</Title>
+        </Group>
+
+        <form onSubmit={handleSubmit}>
+          <Stack gap="lg">
+            {/* GitHub Token */}
+            <Box>
+              <PasswordInput
+                label="GitHub Personal Access Token"
+                value={token}
+                onChange={e => setToken(e.currentTarget.value)}
+                required
+                placeholder="ghp_..."
+                description="Enter a token with repo permissions."
+              />
+            </Box>
+
+            {/* App Name (Read-only) */}
+            <Box>
+              <TextInput
+                label="App Name"
+                value={appName}
+                readOnly
+                disabled
+                description="App name cannot be modified."
+              />
+            </Box>
+
+            {/* App Description */}
+            <Textarea
+              label="App Description"
+              value={description}
+              onChange={e => setDescription(e.currentTarget.value)}
+              required
+              placeholder="Enter a detailed description of the app..."
+              minRows={4}
+            />
+
+            {/* Deployment Info */}
+            <Box>
+              <Group justify="space-between" mb="md">
+                <Text fw={500} size="sm">
+                  Deployment Info
+                </Text>
+                <MantineButton
+                  type="button"
+                  onClick={addDeployment}
+                  variant="outline"
+                  size="sm"
+                  leftSection={<Plus size={16} />}
+                />
+              </Group>
+
+              <Stack gap="md">
+                {deployments.map((deployment, index) => (
+                  <Card
+                    key={index}
+                    withBorder
+                    padding="md"
+                    radius="md"
+                    bg="var(--mantine-color-gray-0)"
+                  >
+                    <Stack gap="md">
+                      <Group justify="space-between">
+                        <Text fw={500} size="sm">
+                          Deployment {index + 1}
+                        </Text>
+                        {deployments.length > 1 && (
+                          <MantineButton
+                            type="button"
+                            onClick={() => removeDeployment(index)}
+                            color="red"
+                            size="sm"
+                            leftSection={<Trash2 size={16} />}
+                          />
+                        )}
+                      </Group>
+
+                      <Grid gutter="md">
+                        <Grid.Col span={{ base: 12, md: 4 }}>
+                          <Select
+                            label="Deployment Type"
+                            value={deployment.type}
+                            onChange={value =>
+                              updateDeployment(
+                                index,
+                                "type",
+                                value || "website"
+                              )
+                            }
+                            data={[
+                              { value: "website", label: "Website" },
+                              { value: "appstore", label: "App Store" },
+                              {
+                                value: "googleplay",
+                                label: "Google Play",
+                              },
+                              { value: "steam", label: "Steam" },
+                              { value: "download", label: "Download" },
+                              { value: "other", label: "Other" },
+                            ]}
+                          />
+                        </Grid.Col>
+
+                        <Grid.Col span={{ base: 12, md: 8 }}>
+                          <TextInput
+                            label="URL"
+                            type="url"
+                            value={deployment.url}
+                            onChange={e =>
+                              updateDeployment(
+                                index,
+                                "url",
+                                e.currentTarget.value
+                              )
+                            }
+                            placeholder="https://..."
+                            required
+                          />
+                        </Grid.Col>
+                      </Grid>
+
+                      {deployment.type === "other" && (
+                        <TextInput
+                          label="Custom Label (Optional)"
+                          value={deployment.label || ""}
+                          onChange={e =>
+                            updateDeployment(
+                              index,
+                              "label",
+                              e.currentTarget.value
+                            )
+                          }
+                          placeholder="e.g., Microsoft Store, Itch.io, etc."
+                        />
+                      )}
+                    </Stack>
+                  </Card>
+                ))}
+              </Stack>
+            </Box>
+
+            {/* GitHub Repository */}
+            <Box>
+              <Checkbox
+                checked={showGithubField}
+                onChange={e => setShowGithubField(e.currentTarget.checked)}
+                label="Add GitHub Repository"
+              />
+
+              {showGithubField && (
+                <Box mt="md">
+                  <TextInput
+                    label="GitHub Repository URL"
+                    type="url"
+                    value={githubRepo}
+                    onChange={e => setGithubRepo(e.currentTarget.value)}
+                    placeholder="https://github.com/username/repo"
+                    description="Please enter the GitHub repository URL where the app's source code is located."
+                  />
+                </Box>
+              )}
+            </Box>
+
+            {/* Error Alert */}
+            {error && (
+              <Alert color="red" title="Error">
+                {error}
+              </Alert>
+            )}
+
+            {/* Success Alert */}
+            {prUrl && (
+              <Alert color="green" title="Success">
+                <Group gap="xs">
+                  <Text size="sm">App information updated successfully!</Text>
+                  <MantineButton
+                    component="a"
+                    href={prUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    variant="outline"
+                    size="sm"
+                    rightSection={<ExternalLink size={14} />}
+                  >
+                    View PR
+                  </MantineButton>
+                </Group>
+              </Alert>
+            )}
+
+            {/* Submit Buttons */}
+            <Group grow>
+              <MantineButton
+                type="button"
+                onClick={() => window.history.back()}
+                variant="outline"
+              >
+                Cancel
+              </MantineButton>
+              <MantineButton
+                type="submit"
+                loading={isLoading}
+                leftSection={<Save size={16} />}
+              >
+                {isLoading ? "Updating..." : "Update"}
+              </MantineButton>
+            </Group>
+          </Stack>
+        </form>
+      </Stack>
+    </Container>
   );
 }
 
 export default function EditAppPage() {
   return (
     <Suspense
-      fallback={<div className="max-w-2xl mx-auto p-6">Loading...</div>}
+      fallback={
+        <Container size="sm" py="xl">
+          <Center py="xl">
+            <Loader />
+          </Center>
+        </Container>
+      }
     >
       <EditAppForm />
     </Suspense>

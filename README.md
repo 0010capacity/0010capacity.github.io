@@ -48,7 +48,7 @@ API 서버가 [http://localhost:8080](http://localhost:8080)에서 실행됩니�
 ### Frontend
 - **Framework**: Next.js 15 (App Router)
 - **Language**: TypeScript
-- **Styling**: Tailwind CSS 4
+- **Styling**: Mantine UI
 - **Deployment**: GitHub Pages
 
 ### Backend

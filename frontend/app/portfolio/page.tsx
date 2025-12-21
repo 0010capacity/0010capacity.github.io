@@ -1,35 +1,68 @@
 import Link from "next/link";
+import {
+  Container,
+  Stack,
+  Title,
+  Text,
+  Grid,
+  Card,
+  Button,
+  Group,
+} from "@mantine/core";
+import { IconArrowLeft } from "@tabler/icons-react";
 
 export default function Portfolio() {
+  const projects = [
+    {
+      id: 1,
+      title: "Project 1",
+      description: "Description of project 1.",
+    },
+    {
+      id: 2,
+      title: "Project 2",
+      description: "Description of project 2.",
+    },
+    {
+      id: 3,
+      title: "Project 3",
+      description: "Description of project 3.",
+    },
+  ];
+
   return (
-    <div className="font-sans min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-8 items-center">
-        <h1 className="text-4xl font-bold">My Portfolio</h1>
-        <p className="text-lg text-center">
+    <Container size="md" py="xl">
+      <Stack gap="xl" align="center">
+        <Title order={1} size="h1">
+          My Portfolio
+        </Title>
+        <Text size="lg" ta="center">
           Here are some of my projects and works.
-        </p>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {/* Placeholder for portfolio items */}
-          <div className="border rounded-lg p-4">
-            <h2 className="text-2xl font-semibold">Project 1</h2>
-            <p>Description of project 1.</p>
-          </div>
-          <div className="border rounded-lg p-4">
-            <h2 className="text-2xl font-semibold">Project 2</h2>
-            <p>Description of project 2.</p>
-          </div>
-          <div className="border rounded-lg p-4">
-            <h2 className="text-2xl font-semibold">Project 3</h2>
-            <p>Description of project 3.</p>
-          </div>
-        </div>
-        <Link
-          className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
+        </Text>
+
+        <Grid gutter="lg" w="100%">
+          {projects.map(project => (
+            <Grid.Col key={project.id} span={{ base: 12, sm: 6, md: 4 }}>
+              <Card withBorder>
+                <Title order={2} size="h3">
+                  {project.title}
+                </Title>
+                <Text>{project.description}</Text>
+              </Card>
+            </Grid.Col>
+          ))}
+        </Grid>
+
+        <Button
+          component={Link}
           href="/"
+          variant="light"
+          leftSection={<IconArrowLeft size={16} />}
+          mt="md"
         >
           Back to Home
-        </Link>
-      </main>
-    </div>
+        </Button>
+      </Stack>
+    </Container>
   );
 }

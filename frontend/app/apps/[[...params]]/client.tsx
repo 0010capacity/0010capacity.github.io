@@ -8,6 +8,20 @@ import {
   useContext,
 } from "react";
 import { useParams } from "next/navigation";
+import {
+  Container,
+  Stack,
+  Group,
+  Button,
+  Center,
+  Loader,
+  Alert,
+  Badge,
+  Paper,
+  Text,
+  Box,
+} from "@mantine/core";
+import { IconAlertCircle } from "@tabler/icons-react";
 import { appsApi } from "@/lib/api";
 import { App, DistributionChannel, Platform } from "@/lib/types";
 
@@ -33,13 +47,13 @@ function useNav() {
 
 // Platform display info
 const PLATFORM_INFO: Record<Platform, { name: string; color: string }> = {
-  ios: { name: "iOS", color: "bg-blue-900/50 text-blue-400" },
-  android: { name: "Android", color: "bg-green-900/50 text-green-400" },
-  web: { name: "Web", color: "bg-purple-900/50 text-purple-400" },
-  windows: { name: "Windows", color: "bg-cyan-900/50 text-cyan-400" },
-  macos: { name: "macOS", color: "bg-gray-700/50 text-gray-300" },
-  linux: { name: "Linux", color: "bg-orange-900/50 text-orange-400" },
-  game: { name: "Game", color: "bg-pink-900/50 text-pink-400" },
+  ios: { name: "iOS", color: "blue" },
+  android: { name: "Android", color: "green" },
+  web: { name: "Web", color: "purple" },
+  windows: { name: "Windows", color: "cyan" },
+  macos: { name: "macOS", color: "gray" },
+  linux: { name: "Linux", color: "orange" },
+  game: { name: "Game", color: "pink" },
 };
 
 // Distribution channel display names
@@ -61,12 +75,12 @@ const CHANNEL_NAMES: Record<string, string> = {
 function PlatformBadge({ platform }: { platform: Platform }) {
   const info = PLATFORM_INFO[platform] || {
     name: platform,
-    color: "bg-neutral-800 text-neutral-400",
+    color: "gray",
   };
   return (
-    <span className={`px-2 py-1 text-xs rounded ${info.color}`}>
+    <Badge color={info.color} size="xs">
       {info.name}
-    </span>
+    </Badge>
   );
 }
 
@@ -105,86 +119,108 @@ function AppList() {
   }, []);
 
   return (
-    <div className="min-h-screen text-neutral-100">
-      <div className="max-w-2xl mx-auto px-6 py-16">
-        <header className="mb-16">
-          <button
-            onClick={() => (window.location.href = "/")}
-            className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
-          >
-            ← 돌아가기
-          </button>
-          <h1 className="text-2xl font-light mt-8 mb-2">앱</h1>
-          <p className="text-neutral-500 text-sm">제가 만든 앱들입니다</p>
-        </header>
-
-        {error && (
-          <div className="mb-8 p-4 border border-red-900/50 rounded-lg text-red-400 text-sm">
-            {error}
+    <Box mih="100vh" py="xl">
+      <Container size="md">
+        <Stack gap="xl">
+          <div>
+            <Button
+              onClick={() => (window.location.href = "/")}
+              variant="subtle"
+              size="sm"
+              mb="lg"
+            >
+              ← 돌아가기
+            </Button>
+            <Text size="xl" fw={300}>
+              앱
+            </Text>
+            <Text size="sm" c="dimmed">
+              제가 만든 앱들입니다
+            </Text>
           </div>
-        )}
 
-        {loading && (
-          <div className="text-center py-16">
-            <p className="text-neutral-600 text-sm">불러오는 중...</p>
-          </div>
-        )}
+          {error && (
+            <Alert
+              icon={<IconAlertCircle size={16} />}
+              title="오류"
+              color="red"
+              variant="light"
+            >
+              {error}
+            </Alert>
+          )}
 
-        {!loading && apps.length > 0 && (
-          <ul className="space-y-6">
-            {apps.map(app => (
-              <li key={app.id}>
-                <button
+          {loading && (
+            <Center py="xl">
+              <Loader size="sm" />
+            </Center>
+          )}
+
+          {!loading && apps.length > 0 && (
+            <Stack gap="md">
+              {apps.map(app => (
+                <Paper
+                  key={app.id}
+                  p="md"
+                  radius="md"
+                  style={{ borderBottom: "1px solid var(--mantine-color-gray-3)" }}
+                  component="button"
                   onClick={() => navigate({ view: "detail", slug: app.slug })}
-                  className="block w-full text-left group py-6 border-b border-neutral-800 hover:border-neutral-600 transition-colors"
+                  style={{ display: "blow="100%"
+                  ta="left"
                 >
-                  <div className="flex items-start gap-4">
+                  <Group gap="md" align="flex-start">
                     {app.icon_url && (
-                      <div className="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 bg-neutral-800">
-                        <img
-                          src={app.icon_url}
-                          alt={app.name}
-                          className="w-full h-full object-cover"
-                          onError={e => {
-                            (e.target as HTMLImageElement).style.display =
-                              "none";
-                          }}
-                        />
-                      </div>
+                      <Box
+                        component="img"
+                        src={app.icon_url}
+                        alt={app.name}
+                        w={48}
+  style={{ width: "100%", height: "100%", obje                      h={48}
+                        style={{ borderRadius: "var(--mantine-radius-md)", objectFit: "cover" }}tFit: "cover }}
+                        onError={e => {
+                          (e.target as HTMLImageElement).style.display =
+                            "none";
+                        }}
+                      />
                     )}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-2 flex-wrap">
-                        <h2 className="text-lg font-medium text-neutral-200 group-hover:text-white transition-colors">
+                    <Stack gap="sm" style={{ flex: 1 }}>
+                      <Group gap="xs">
+                        <Text fw={500} size="lg">
                           {app.name}
-                        </h2>
+                        </Text>
                         {(app.platforms || []).map(platform => (
                           <PlatformBadge
                             key={platform}
                             platform={platform as Platform}
                           />
                         ))}
-                      </div>
+                      </Group>
                       {app.description && (
-                        <p className="text-sm text-neutral-500 line-clamp-2">
+                        <Text size="sm" c="dimmed" lineClamp={2}>
                           {app.description}
-                        </p>
+                        </Text>
                       )}
-                    </div>
-                  </div>
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
+                    </Stack>
+                  </Group>
+                </Paper>
+              ))}
+            </Stack>
+          )}
 
-        {!loading && apps.length === 0 && !error && (
-          <div className="text-center py-16">
-            <p className="text-neutral-500 mb-2">아직 등록된 앱이 없습니다</p>
-            <p className="text-neutral-600 text-sm">곧 추가될 예정입니다</p>
-          </div>
-        )}
-      </div>
-    </div>
+          {!loading && apps.length === 0 && !error && (
+            <Center py="xl">
+              <Stack align="center">
+                <Text c="dimmed">아직 등록된 앱이 없습니다</Text>
+                <Text size="sm" c="dimmed">
+                  곧 추가될 예정입니다
+                </Text>
+              </Stack>
+            </Center>
+          )}
+        </Stack>
+      </Container>
+    </Box>
   );
 }
 
@@ -219,155 +255,71 @@ function AppDetail({ slug }: { slug: string }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen text-neutral-100 flex items-center justify-center">
-        <p className="text-neutral-600 text-sm">불러오는 중...</p>
-      </div>
+      <Center mih="100vh">
+        <Loader size="sm" />
+      </Center>
     );
   }
 
   if (error || !app) {
     return (
-      <div className="min-h-screen text-neutral-100">
-        <div className="max-w-2xl mx-auto px-6 py-16">
-          <p className="text-neutral-500 mb-6">
-            {error || "앱을 찾을 수 없습니다"}
-          </p>
-          <button
-            onClick={() => navigate({ view: "list" })}
-            className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
-          >
-            ← 앱 목록으로
-          </button>
-        </div>
-      </div>
+      <Box mih="100vh" py="xl">
+        <Container size="md">
+          <Stack gap="lg">
+            <Text c="dimmed">
+              {error || "앱을 찾을 수 없습니다"}
+            </Text>
+            <Button
+              onClick={() => navigate({ view: "list" })}
+              variant="subtle"
+              size="sm"
+            >
+              ← 앱 목록으로
+            </Button>
+          </Stack>
+        </Container>
+      </Box>
     );
   }
 
   return (
-    <div className="min-h-screen text-neutral-100">
-      <div className="max-w-2xl mx-auto px-6 py-16">
-        <button
-          onClick={() => navigate({ view: "list" })}
-          className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
-        >
-          ← 돌아가기
-        </button>
-
-        <header className="mt-12 mb-16">
-          <div className="flex items-center gap-4 mb-6">
-            {app.icon_url && (
-              <div className="w-16 h-16 rounded-xl overflow-hidden bg-neutral-800">
-                <img
-                  src={app.icon_url}
-                  alt={app.name}
-                  className="w-full h-full object-cover"
-                  onError={e => {
-                    (e.target as HTMLImageElement).style.display = "none";
-                  }}
-                />
-              </div>
-            )}
-            <div>
-              <h1 className="text-3xl font-light mb-2">{app.name}</h1>
-              <div className="flex flex-wrap gap-2">
-                {(app.platforms || []).map(platform => (
-                  <PlatformBadge
-                    key={platform}
-                    platform={platform as Platform}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {app.description && (
-            <p className="text-neutral-400 leading-relaxed">
-              {app.description}
-            </p>
-          )}
-
-          <div className="flex gap-6 mt-8 pt-6 border-t border-neutral-900 text-sm text-neutral-600">
-            <span>{new Date(app.created_at).toLocaleDateString("ko-KR")}</span>
-          </div>
-        </header>
-
-        {/* Distribution Channels */}
-        {app.distribution_channels && app.distribution_channels.length > 0 && (
-          <section className="mb-12">
-            <h2 className="text-sm text-neutral-600 uppercase tracking-widest mb-6">
-              Download / Links
-            </h2>
-            <div className="space-y-2">
-              {app.distribution_channels.map((channel, index) => (
-                <a
-                  key={index}
-                  href={channel.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group flex items-center justify-between py-4 border-b border-neutral-900 hover:border-neutral-700 transition-colors"
-                >
-                  <span className="text-neutral-300 group-hover:text-white transition-colors">
-                    {getChannelName(channel)}
-                  </span>
-                  <span className="text-neutral-700 text-sm">→</span>
-                </a>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Screenshots */}
-        {app.screenshots && app.screenshots.length > 0 && (
-          <section className="mb-12">
-            <h2 className="text-sm text-neutral-600 uppercase tracking-widest mb-6">
-              Screenshots
-            </h2>
-            <div className="grid grid-cols-2 gap-4">
-              {app.screenshots.map((screenshot, index) => (
-                <img
-                  key={index}
-                  src={screenshot}
-                  alt={`${app.name} screenshot ${index + 1}`}
-                  className="w-full rounded-lg"
-                  onError={e => {
-                    (e.target as HTMLImageElement).style.display = "none";
-                  }}
-                />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Privacy Policy */}
-        {app.privacy_policy_url && (
-          <section className="mb-12">
-            <h2 className="text-sm text-neutral-600 uppercase tracking-widest mb-6">
-              Privacy Policy
-            </h2>
-            <a
-              href={app.privacy_policy_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex items-center justify-between py-4 border-b border-neutral-900 hover:border-neutral-700 transition-colors"
-            >
-              <span className="text-neutral-300 group-hover:text-white transition-colors">
-                개인정보 처리방침
-              </span>
-              <span className="text-neutral-700 text-sm">→</span>
-            </a>
-          </section>
-        )}
-
-        <footer className="pt-8 border-t border-neutral-900">
-          <button
+    <Box mih="100vh" py="xl">
+      <Container size="md">
+        <Stack gap="xl">
+          <Button
             onClick={() => navigate({ view: "list" })}
-            className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
+px", borderTop: "1px solid #1a1a1a" }}>
+          <button
+dingTop: "32" }}>→</spn>style={{ pad404040", fontSize: "14pxstyle={{ oor: "# "none", color: "inherit" }}
+            >
+              <pan tyle={{ color: "#d1d5db" }}>
+                개인정보 처리a1a", textDecoration:={{ display: "flex", alignItems: "enter", justifyContent: "space-between", paddingTop: "16px", paddingBottom: "16px", borderBottom: "1px soid #11style", marginBottom: "24px" }}>
+              Privacy Policy
+Spacing: "0.1em textTrnform: "uppercae", letterstyle={{ marginBottom: "48px" }}>
+            <h2 style={{ fontSize: "14px", oor: "#737373",style={{ width: "100%", borderRadius: "8px" }}
+16px" }}>
+              {, 1fr)", gap: " gridTemplateColumns: "repeat(2style={{ display: "grid",1em", marginBottom: "24px" }}>
+              Screenshots", letterSpacing: "0. "14px", oor: "#737373", textTrnform: "uppercae            <h2 style={{ fontSize:style={{ marginBottom: "48px" }}>
+px" }}>→</spn> fontSize: "14            variant="subtle"
+            size="sm"
           >
-            ← 앱 목록으로
-          </button>
-        </footer>
-      </div>
-    </div>
+            ← 돌아가기
+          </Button>
+
+          <Group gap="md" align="flex-start">
+            {app.istyle={{ fontSize: "14px", con_urol && (
+              <Box
+                component="img"
+                src={or: "#737373", cursor: "pointer", bapp.icon_url}
+                alt={app.name}
+                w={64}
+                h={64}
+                ckground: "none", border: "none", padding: 0 }}
+          >
+            ← 앱 목록          </Button>
+        </Stack>
+      </Container>
+    </Box>
   );
 }
 

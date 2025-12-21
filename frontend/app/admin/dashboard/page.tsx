@@ -2,7 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
+import {
+  Container,
+  Stack,
+  Group,
+  Title,
+  Text,
+  Button,
+  Anchor,
+} from "@mantine/core";
 
 export default function AdminDashboardPage() {
   const router = useRouter();
@@ -30,70 +38,126 @@ export default function AdminDashboardPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen text-neutral-100 flex items-center justify-center">
-        <p className="text-neutral-600 text-sm">로딩 중...</p>
-      </div>
+      <Container
+        size="md"
+        h="100vh"
+        display="flex"
+        style={{ alignItems: "center", justifyContent: "center" }}
+      >
+        <Text c="dimmed" size="sm">
+          로딩 중...
+        </Text>
+      </Container>
     );
   }
 
   return (
-    <div className="min-h-screen text-neutral-100">
-      <div className="max-w-2xl mx-auto px-6 py-16">
+    <Container size="md" py="xl">
+      <Stack gap="xl">
         {/* Header */}
-        <header className="mb-16">
-          <Link
-            href="/"
-            className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
-          >
+        <Stack gap="md">
+          <Anchor href="/" c="dimmed" size="sm" underline="hover">
             ← 메인으로
-          </Link>
-          <div className="flex justify-between items-center mt-8">
-            <div>
-              <h1 className="text-2xl font-light mb-2">관리자</h1>
-              <p className="text-neutral-500 text-sm">{user.username}</p>
-            </div>
-            <button
-              onClick={handleLogout}
-              className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
-            >
+          </Anchor>
+          <Group justify="space-between" align="flex-start">
+            <Stack gap={0}>
+              <Title order={1} fw={300} size="h2">
+                관리자
+              </Title>
+              <Text c="dimmed" size="sm">
+                {user.username}
+              </Text>
+            </Stack>
+            <Button variant="subtle" onClick={handleLogout} size="sm">
               로그아웃
-            </button>
-          </div>
-        </header>
+            </Button>
+          </Group>
+        </Stack>
 
         {/* Menu */}
-        <nav className="space-y-4">
-          <Link
+        <Stack gap="sm">
+          <Anchor
             href="/admin/novels"
-            className="group flex items-center justify-between py-4 border-b border-neutral-900 hover:border-neutral-700 transition-colors"
+            component="a"
+            display="block"
+            py="md"
+            px={0}
+            c="inherit"
+            style={{
+              borderBottom: "1px solid var(--mantine-color-gray-8)",
+              transition: "border-color 0.2s ease",
+              textDecoration: "none",
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.borderColor = "var(--mantine-color-gray-7)";
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.borderColor = "var(--mantine-color-gray-8)";
+            }}
           >
-            <span className="text-neutral-300 group-hover:text-white transition-colors">
-              소설 관리
-            </span>
-            <span className="text-neutral-700 text-sm">→</span>
-          </Link>
+            <Group justify="space-between">
+              <Text fw={500}>소설 관리</Text>
+              <Text c="dimmed" size="sm">
+                →
+              </Text>
+            </Group>
+          </Anchor>
 
-          <Link
+          <Anchor
             href="/admin/blog"
-            className="group flex items-center justify-between py-4 border-b border-neutral-900 hover:border-neutral-700 transition-colors"
+            component="a"
+            display="block"
+            py="md"
+            px={0}
+            c="inherit"
+            style={{
+              borderBottom: "1px solid var(--mantine-color-gray-8)",
+              transition: "border-color 0.2s ease",
+              textDecoration: "none",
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.borderColor = "var(--mantine-color-gray-7)";
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.borderColor = "var(--mantine-color-gray-8)";
+            }}
           >
-            <span className="text-neutral-300 group-hover:text-white transition-colors">
-              블로그 관리
-            </span>
-            <span className="text-neutral-700 text-sm">→</span>
-          </Link>
+            <Group justify="space-between">
+              <Text fw={500}>블로그 관리</Text>
+              <Text c="dimmed" size="sm">
+                →
+              </Text>
+            </Group>
+          </Anchor>
 
-          <Link
+          <Anchor
             href="/admin/apps"
-            className="group flex items-center justify-between py-4 border-b border-neutral-900 hover:border-neutral-700 transition-colors"
+            component="a"
+            display="block"
+            py="md"
+            px={0}
+            c="inherit"
+            style={{
+              borderBottom: "1px solid var(--mantine-color-gray-8)",
+              transition: "border-color 0.2s ease",
+              textDecoration: "none",
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.borderColor = "var(--mantine-color-gray-7)";
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.borderColor = "var(--mantine-color-gray-8)";
+            }}
           >
-            <span className="text-neutral-300 group-hover:text-white transition-colors">
-              앱 관리
-            </span>
-            <span className="text-neutral-700 text-sm">→</span>
-          </Link>
-        </nav>
-      </div>
-    </div>
+            <Group justify="space-between">
+              <Text fw={500}>앱 관리</Text>
+              <Text c="dimmed" size="sm">
+                →
+              </Text>
+            </Group>
+          </Anchor>
+        </Stack>
+      </Stack>
+    </Container>
   );
 }

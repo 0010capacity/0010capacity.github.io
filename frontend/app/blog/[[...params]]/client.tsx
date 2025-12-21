@@ -122,6 +122,7 @@ function BlogList() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [hoveredSlug, setHoveredSlug] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -191,6 +192,8 @@ function BlogList() {
               component="button"
               key={post.id}
               onClick={() => navigate({ view: "detail", slug: post.slug })}
+              onMouseEnter={() => setHoveredSlug(post.slug)}
+              onMouseLeave={() => setHoveredSlug(null)}
               underline="never"
               style={{
                 display: "block",
@@ -201,7 +204,6 @@ function BlogList() {
                 color: "inherit",
                 transition: "border-color 0.2s",
               }}
-              className="group"
             >
               <Group
                 justify="space-between"
@@ -214,14 +216,13 @@ function BlogList() {
                     order={2}
                     size="h3"
                     fw={500}
-                    c="dimmed"
+                    c={hoveredSlug === post.slug ? "white" : "dimmed"}
                     style={{
                       transition: "color 0.2s",
                       whiteSpace: "nowrap",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                     }}
-                    className="group-hover:text-white"
                   >
                     {post.title}
                   </Title>
@@ -394,12 +395,12 @@ function BlogDetail({ slug }: { slug: string }) {
         </Text>
       )}
 
-      <TypographyStylesProvider className="mb-16">
-        <div className="prose prose-invert prose-neutral max-w-none">
+      <TypographyStylesProvider>
+        <Box style={{ marginBottom: "4rem" }}>
           <ReactMarkdown remarkPlugins={[remarkGfm]}>
             {post.content}
           </ReactMarkdown>
-        </div>
+        </Box>
       </TypographyStylesProvider>
 
       <Box
@@ -440,10 +441,10 @@ export default function BlogPageClient() {
 
   const navigate = useCallback(
     (state: NavState) => {
-      setHistory(prev => [...prev, navState]);
+      setHistory([...history, navState]);
       setNavState(state);
     },
-    [navState]
+    [navState, history]
   );
 
   const goBack = useCallback(() => {

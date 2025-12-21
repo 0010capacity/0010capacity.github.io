@@ -3,6 +3,18 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import {
+  Container,
+  TextInput,
+  Button,
+  Stack,
+  Text,
+  Alert,
+  Center,
+  Loader,
+  Box,
+} from "@mantine/core";
+import { IconAlertCircle } from "@tabler/icons-react";
 import { authApi } from "@/lib/api";
 
 interface LoginResponse {
@@ -34,9 +46,9 @@ export default function AdminLoginPage() {
 
   if (checkingAuth) {
     return (
-      <div className="min-h-screen text-neutral-100 flex items-center justify-center">
-        <p className="text-neutral-600 text-sm">로딩 중...</p>
-      </div>
+      <Center mih="100vh">
+        <Loader size="sm" />
+      </Center>
     );
   }
 
@@ -63,76 +75,70 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen text-neutral-100 flex items-center justify-center px-6">
-      <div className="w-full max-w-sm">
+    <Center mih="100vh" px="md">
+      <Box w="100%" maw={400}>
         {/* Header */}
-        <header className="text-center mb-12">
-          <h1 className="text-2xl font-light mb-2">관리자 로그인</h1>
-        </header>
+        <Stack gap="xl" align="center" mb="xl">
+          <Text size="xl" fw={300}>
+            관리자 로그인
+          </Text>
+        </Stack>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <Stack component="form" onSubmit={handleSubmit} gap="lg">
           {error && (
-            <div className="p-4 border border-red-900/50 text-red-400 text-sm rounded">
+            <Alert
+              icon={<IconAlertCircle size={16} />}
+              color="red"
+              title="오류"
+              variant="light"
+            >
               {error}
-            </div>
+            </Alert>
           )}
 
-          <div>
-            <label
-              htmlFor="username"
-              className="block text-sm text-neutral-500 mb-2"
-            >
-              사용자명
-            </label>
-            <input
-              type="text"
+          <Stack gap="sm">
+            <TextInput
+              label="사용자명"
               id="username"
               value={username}
-              onChange={e => setUsername(e.target.value)}
-              className="w-full px-4 py-3 bg-neutral-900 border border-neutral-800 rounded text-neutral-100 placeholder-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors"
+              onChange={e => setUsername(e.currentTarget.value)}
               required
               disabled={loading}
             />
-          </div>
+          </Stack>
 
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm text-neutral-500 mb-2"
-            >
-              비밀번호
-            </label>
-            <input
-              type="password"
+          <Stack gap="sm">
+            <TextInput
+              label="비밀번호"
               id="password"
+              type="password"
               value={password}
-              onChange={e => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-neutral-900 border border-neutral-800 rounded text-neutral-100 placeholder-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors"
+              onChange={e => setPassword(e.currentTarget.value)}
               required
               disabled={loading}
             />
-          </div>
+          </Stack>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 bg-neutral-800 hover:bg-neutral-700 disabled:bg-neutral-900 disabled:text-neutral-600 text-neutral-100 rounded transition-colors"
-          >
+          <Button type="submit" disabled={loading} fullWidth variant="filled">
             {loading ? "로그인 중..." : "로그인"}
-          </button>
-        </form>
+          </Button>
+        </Stack>
 
         {/* Footer */}
-        <footer className="mt-12 text-center">
-          <Link
-            href="/"
-            className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
-          >
-            ← 돌아가기
+        <Center mt="xl">
+          <Link href="/">
+            <Text
+              size="sm"
+              c="dimmed"
+              component="a"
+              style={{ textDecoration: "none" }}
+            >
+              ← 돌아가기
+            </Text>
           </Link>
-        </footer>
-      </div>
-    </div>
+        </Center>
+      </Box>
+    </Center>
   );
 }

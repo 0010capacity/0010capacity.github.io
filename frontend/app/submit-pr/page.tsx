@@ -2,9 +2,23 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { Send, ExternalLink } from "lucide-react";
+import {
+  Container,
+  Stack,
+  Title,
+  Text,
+  TextInput,
+  Textarea,
+  Select,
+  Button,
+  Group,
+  Alert,
+  Box,
+  Loader,
+  Center,
+} from "@mantine/core";
+import { IconSend, IconExternalLink } from "@tabler/icons-react";
 import { createPrivacyPolicyPR } from "../../lib/github";
-import { Button } from "../../components";
 
 function SubmitPRForm() {
   const searchParams = useSearchParams();
@@ -51,122 +65,147 @@ function SubmitPRForm() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">Submit Privacy Policy PR</h1>
+    <Container size="sm" py="xl">
+      <Stack gap="xl">
+        <Box>
+          <Title order={1} mb="md">
+            Submit Privacy Policy PR
+          </Title>
+          <Text c="dimmed">
+            Create a pull request to add or update a privacy policy for your
+            app.
+          </Text>
+        </Box>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="token" className="block text-sm font-medium mb-1">
-            GitHub Personal Access Token
-          </label>
-          <input
-            type="password"
-            id="token"
-            value={token}
-            onChange={e => setToken(e.target.value)}
-            className="w-full p-2 border rounded"
-            required
-            placeholder="ghp_..."
-          />
-          <p className="text-sm text-gray-600 mt-1">
-            Please enter a token with repo permissions.
-          </p>
-        </div>
+        <form onSubmit={handleSubmit}>
+          <Stack gap="md">
+            {/* Token Input */}
+            <Stack gap="xs">
+              <Text fw={500} size="sm">
+                GitHub Personal Access Token
+              </Text>
+              <TextInput
+                type="password"
+                value={token}
+                onChange={e => setToken(e.currentTarget.value)}
+                placeholder="ghp_..."
+                required
+                disabled={isLoading}
+              />
+              <Text size="xs" c="dimmed">
+                Please enter a token with repo permissions.
+              </Text>
+            </Stack>
 
-        <div>
-          <label htmlFor="appName" className="block text-sm font-medium mb-1">
-            App Name
-          </label>
-          <input
-            type="text"
-            id="appName"
-            value={appName}
-            onChange={e => setAppName(e.target.value)}
-            className="w-full p-2 border rounded"
-            required
-            placeholder="MyApp"
-          />
-        </div>
+            {/* App Name Input */}
+            <Stack gap="xs">
+              <Text fw={500} size="sm">
+                App Name
+              </Text>
+              <TextInput
+                value={appName}
+                onChange={e => setAppName(e.currentTarget.value)}
+                placeholder="MyApp"
+                required
+                disabled={isLoading}
+              />
+            </Stack>
 
-        <div>
-          <label htmlFor="language" className="block text-sm font-medium mb-1">
-            Language
-          </label>
-          <select
-            id="language"
-            value={language}
-            onChange={e => setLanguage(e.target.value)}
-            className="w-full p-2 border rounded"
-          >
-            <option value="ko">Korean (ko)</option>
-            <option value="en">English (en)</option>
-            <option value="ja">Japanese (ja)</option>
-            <option value="zh">Chinese (zh)</option>
-          </select>
-        </div>
+            {/* Language Select */}
+            <Stack gap="xs">
+              <Text fw={500} size="sm">
+                Language
+              </Text>
+              <Select
+                value={language}
+                onChange={value => setLanguage(value || "ko")}
+                data={[
+                  { value: "ko", label: "Korean (ko)" },
+                  { value: "en", label: "English (en)" },
+                  { value: "ja", label: "Japanese (ja)" },
+                  { value: "zh", label: "Chinese (zh)" },
+                ]}
+                disabled={isLoading}
+                searchable={false}
+              />
+            </Stack>
 
-        <div>
-          <label htmlFor="content" className="block text-sm font-medium mb-1">
-            Privacy Policy Content
-          </label>
-          <textarea
-            id="content"
-            value={content}
-            onChange={e => setContent(e.target.value)}
-            className="w-full p-2 border rounded h-64"
-            required
-            placeholder="Enter the privacy policy content..."
-          />
-        </div>
+            {/* Content Textarea */}
+            <Stack gap="xs">
+              <Text fw={500} size="sm">
+                Privacy Policy Content
+              </Text>
+              <Textarea
+                value={content}
+                onChange={e => setContent(e.currentTarget.value)}
+                placeholder="Enter the privacy policy content..."
+                minRows={8}
+                required
+                disabled={isLoading}
+              />
+            </Stack>
 
-        <div className="flex gap-4">
-          <Button
-            type="button"
-            onClick={() => window.history.back()}
-            variant="secondary"
-            className="flex-1"
-          >
-            취소
-          </Button>
-          <Button
-            type="submit"
-            disabled={isLoading}
-            loading={isLoading}
-            className="flex-1 bg-blue-500 text-white p-2 rounded hover:bg-blue-600 disabled:opacity-50"
-            icon={Send}
-          >
-            {isLoading ? "Creating PR..." : ""}
-          </Button>
-        </div>
-      </form>
+            {/* Error Alert */}
+            {error && (
+              <Alert title="Error" color="red" variant="light">
+                {error}
+              </Alert>
+            )}
 
-      {error && (
-        <div className="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-          {error}
-        </div>
-      )}
+            {/* Success Alert */}
+            {prUrl && (
+              <Alert title="Success" color="green" variant="light">
+                <Group justify="space-between">
+                  <Text>PR created successfully!</Text>
+                  <Button
+                    component="a"
+                    href={prUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    variant="light"
+                    size="xs"
+                    rightSection={<IconExternalLink size={14} />}
+                  >
+                    View PR
+                  </Button>
+                </Group>
+              </Alert>
+            )}
 
-      {prUrl && (
-        <div className="mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
-          PR created successfully!{" "}
-          <Button
-            href={prUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            variant="outline"
-            size="sm"
-            icon={ExternalLink}
-          ></Button>
-        </div>
-      )}
-    </div>
+            {/* Action Buttons */}
+            <Group justify="flex-end" gap="md" pt="md">
+              <Button
+                type="button"
+                variant="default"
+                onClick={() => window.history.back()}
+                disabled={isLoading}
+              >
+                취소
+              </Button>
+              <Button
+                type="submit"
+                disabled={isLoading || !token || !appName || !content}
+                loading={isLoading}
+                leftSection={<IconSend size={16} />}
+              >
+                {isLoading ? "Creating PR..." : "Submit PR"}
+              </Button>
+            </Group>
+          </Stack>
+        </form>
+      </Stack>
+    </Container>
   );
 }
 
 export default function SubmitPRPage() {
   return (
     <Suspense
-      fallback={<div className="max-w-2xl mx-auto p-6">Loading...</div>}
+      fallback={
+        <Center h="100vh">
+          <Loader />
+        </Center>
+      }
     >
       <SubmitPRForm />
     </Suspense>

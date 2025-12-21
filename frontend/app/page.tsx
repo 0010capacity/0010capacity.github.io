@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import {
   Container,
   Flex,
@@ -11,6 +12,8 @@ import {
 } from "@mantine/core";
 
 export default function HomePage() {
+  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+
   return (
     <Container
       fluid
@@ -45,6 +48,8 @@ export default function HomePage() {
               component={Link}
               href={item.href}
               p="xl"
+              onMouseEnter={() => setHoveredItem(item.href)}
+              onMouseLeave={() => setHoveredItem(null)}
               style={theme => ({
                 borderRadius: theme.radius.lg,
                 border: `1px solid var(--mantine-color-dark-4)`,
@@ -55,18 +60,21 @@ export default function HomePage() {
                 justifyContent: "center",
                 width: 140,
                 height: 140,
-                "&:hover": {
-                  borderColor: "var(--mantine-color-dark-2)",
-                  backgroundColor: "var(--mantine-color-dark-6)",
-                },
+                borderColor:
+                  hoveredItem === item.href
+                    ? "var(--mantine-color-dark-2)"
+                    : "var(--mantine-color-dark-4)",
+                backgroundColor:
+                  hoveredItem === item.href
+                    ? "var(--mantine-color-dark-6)"
+                    : "transparent",
               })}
             >
               <Text
                 size="lg"
                 fw={500}
-                c="dimmed"
+                c={hoveredItem === item.href ? "white" : "dimmed"}
                 style={{ transition: "color 0.2s" }}
-                className="group-hover:text-white"
               >
                 {item.label}
               </Text>

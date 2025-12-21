@@ -144,7 +144,7 @@ function NovelList() {
                 borderBottom: "1px solid var(--mantine-color-dark-4)",
                 transition: "border-color 0.2s",
               }}
-              className="group"
+             
             >
               <Group justify="space-between" align="flex-start" mb="xs">
                 <Title
@@ -153,7 +153,7 @@ function NovelList() {
                   fw={500}
                   c="dimmed"
                   style={{ transition: "color 0.2s" }}
-                  className="group-hover:text-white"
+                 
                 >
                   {novel.title}
                 </Title>
@@ -394,7 +394,7 @@ function NovelDetail({ slug }: { slug: string }) {
                   borderBottom: "1px solid var(--mantine-color-dark-4)",
                   color: "inherit",
                 }}
-                className="group"
+               
               >
                 <Group gap="lg" align="baseline">
                   <Text size="sm" c="dimmed" w={48}>
@@ -404,7 +404,7 @@ function NovelDetail({ slug }: { slug: string }) {
                   <Text
                     c="dimmed"
                     style={{ transition: "color 0.2s" }}
-                    className="group-hover:text-white"
+                   
                   >
                     {chapter.title}
                   </Text>
@@ -458,7 +458,7 @@ function NovelDetail({ slug }: { slug: string }) {
                   transition: "background-color 0.2s",
                   color: "inherit",
                 }}
-                className="hover:bg-dark-6"
+               
               >
                 <Group justify="space-between" align="flex-start" wrap="nowrap">
                   <Box style={{ flex: 1, minWidth: 0 }}>
@@ -467,7 +467,7 @@ function NovelDetail({ slug }: { slug: string }) {
                       c="dimmed"
                       truncate
                       style={{ transition: "color 0.2s" }}
-                      className="group-hover:text-white"
+                     
                     >
                       {relatedNovel.title}
                     </Text>
@@ -643,12 +643,12 @@ function ChapterRead({
         </Text>
       </header>
 
-      <TypographyStylesProvider className="mb-16">
-        <div className="prose prose-invert prose-neutral max-w-none">
+      <TypographyStylesProvider >
+        <Box>
           <ReactMarkdown remarkPlugins={[remarkGfm]}>
             {chapter.content}
           </ReactMarkdown>
-        </div>
+        </Box>
       </TypographyStylesProvider>
 
       <Group

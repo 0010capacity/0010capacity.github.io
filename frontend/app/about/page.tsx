@@ -79,7 +79,10 @@ export default function AboutPage() {
                     color: "var(--mantine-color-text)",
                     transition: "color 0.2s",
                   }}
-                  className="hover:text-white"
+                  onMouseEnter={e => (e.currentTarget.style.color = "white")}
+                  onMouseLeave={e =>
+                    (e.currentTarget.style.color = "var(--mantine-color-text)")
+                  }
                 >
                   {item.value}
                 </Anchor>

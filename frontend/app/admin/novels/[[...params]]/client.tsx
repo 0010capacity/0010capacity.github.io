@@ -10,6 +10,36 @@ import {
 import AdminLayout from "@/components/AdminLayout";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { novelsApi } from "@/lib/api";
+import {
+  Stack,
+  Group,
+  Text,
+  Button,
+  Paper,
+  Badge,
+  Flex,
+  Box,
+  Input,
+  Textarea,
+  Select,
+  ActionIcon,
+  Alert,
+  Loader,
+  Container,
+  SimpleGrid,
+  Modal,
+  Table,
+  ScrollArea,
+  Grid,
+  Tabs,
+} from "@mantine/core";
+import {
+  IconPlus,
+  IconEdit,
+  IconTrash,
+  IconArrowRight,
+  IconX,
+} from "@tabler/icons-react";
 
 // Navigation Context for SPA-style routing
 interface NavState {
@@ -165,6 +195,25 @@ const getStatusName = (statusId: string) => {
   return STATUS_OPTIONS.find(s => s.id === statusId)?.name || statusId;
 };
 
+const getStatusColor = (status: string): string => {
+  const colors: Record<string, string> = {
+    ongoing: "blue",
+    completed: "green",
+    hiatus: "yellow",
+    draft: "gray",
+  };
+  return colors[status] || "gray";
+};
+
+const getTypeColor = (novelType: string): string => {
+  const colors: Record<string, string> = {
+    short: "purple",
+    long: "indigo",
+    series: "cyan",
+  };
+  return colors[novelType] || "gray";
+};
+
 // Novel List Component
 function NovelsList() {
   const { navigate } = useNav();
@@ -208,163 +257,166 @@ function NovelsList() {
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    const colors: Record<string, string> = {
-      ongoing: "bg-blue-900/50 text-blue-400",
-      completed: "bg-green-900/50 text-green-400",
-      hiatus: "bg-yellow-900/50 text-yellow-400",
-      draft: "bg-neutral-800 text-neutral-400",
-    };
-
+  if (loading) {
     return (
-      <span
-        className={`px-2 py-1 text-xs rounded ${colors[status] || colors.draft}`}
-      >
-        {getStatusName(status)}
-      </span>
+      <AdminLayout title="소설 관리">
+        <Flex justify="center" align="center" h={300}>
+          <Loader />
+        </Flex>
+      </AdminLayout>
     );
-  };
-
-  const getTypeBadge = (novelType: string) => {
-    const colors: Record<string, string> = {
-      short: "bg-purple-900/50 text-purple-400",
-      long: "bg-indigo-900/50 text-indigo-400",
-      series: "bg-cyan-900/50 text-cyan-400",
-    };
-
-    return (
-      <span
-        className={`px-2 py-1 text-xs rounded ${colors[novelType] || "bg-neutral-800 text-neutral-400"}`}
-      >
-        {getNovelTypeName(novelType)}
-      </span>
-    );
-  };
+  }
 
   return (
     <AdminLayout title="소설 관리">
-      <div className="flex justify-between items-center mb-8">
-        <p className="text-neutral-500 text-sm">총 {novels.length}개의 소설</p>
-        <button
-          onClick={() => navigate({ view: "new" })}
-          className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-100 text-sm rounded transition-colors"
-        >
-          + 새 소설
-        </button>
-      </div>
-
-      {error && (
-        <div className="p-4 mb-6 border border-red-900/50 text-red-400 text-sm rounded">
-          {error}
-        </div>
-      )}
-
-      {loading && (
-        <div className="text-center py-12">
-          <p className="text-neutral-600 text-sm">로딩 중...</p>
-        </div>
-      )}
-
-      {!loading && novels.length === 0 && (
-        <div className="text-center py-12 border border-neutral-800 rounded">
-          <p className="text-neutral-500 mb-4">아직 소설이 없습니다</p>
-          <button
+      <Stack gap="lg">
+        {/* Header */}
+        <Group justify="space-between" align="center">
+          <Text size="sm" c="dimmed">
+            총 {novels.length}개의 소설
+          </Text>
+          <Button
             onClick={() => navigate({ view: "new" })}
-            className="text-neutral-400 hover:text-white transition-colors"
+            leftSection={<IconPlus size={16} />}
+            size="sm"
           >
-            첫 소설 작성하기 →
-          </button>
-        </div>
-      )}
+            새 소설
+          </Button>
+        </Group>
 
-      {!loading && novels.length > 0 && (
-        <div className="space-y-4">
+        {/* Error Message */}
+        {error && (
+          <Alert title="오류" color="red" variant="light">
+            {error}
+          </Alert>
+        )}
+
+        {/* Empty State */}
+        {novels.length === 0 && (
+          <Paper
+            p="xl"
+            ta="center"
+            style={{ borderTop: "1px solid var(--mantine-color-gray-7)" }}
+          >
+            <Text c="dimmed" mb="md">
+              아직 소설이 없습니다
+            </Text>
+            <Button variant="light" onClick={() => navigate({ view: "new" })}>
+              첫 소설 작성하기 →
+            </Button>
+          </Paper>
+        )}
+
+        {/* Novel List */}
+        <Stack gap="md">
           {novels.map(novel => (
-            <div
+            <Paper
               key={novel.id}
-              className="border border-neutral-800 rounded p-4 hover:border-neutral-700 transition-colors"
+              p="md"
+              style={{
+                borderLeft: `4px solid var(--mantine-color-${getTypeColor(novel.novel_type)}-6)`,
+              }}
             >
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    {getTypeBadge(novel.novel_type)}
-                    {getStatusBadge(novel.status)}
-                  </div>
-                  <h3 className="text-lg text-neutral-100 mb-1">
-                    {novel.title}
-                  </h3>
-                  {novel.description && (
-                    <p className="text-neutral-500 text-sm mb-2 line-clamp-2">
-                      {novel.description}
-                    </p>
-                  )}
-                  <div className="flex flex-wrap gap-1 mb-2">
-                    {novel.genres?.map(genre => (
-                      <span
-                        key={genre}
-                        className="px-2 py-0.5 text-xs bg-neutral-800/50 text-neutral-400 rounded"
-                      >
-                        {getGenreName(genre)}
-                      </span>
-                    ))}
-                  </div>
-                  <p className="text-neutral-600 text-xs">
-                    {new Date(novel.created_at).toLocaleDateString("ko-KR")}
-                  </p>
-                </div>
+              <Stack gap="sm">
+                {/* Badges */}
+                <Group gap="xs">
+                  <Badge color={getTypeColor(novel.novel_type)} variant="light">
+                    {getNovelTypeName(novel.novel_type)}
+                  </Badge>
+                  <Badge color={getStatusColor(novel.status)} variant="light">
+                    {getStatusName(novel.status)}
+                  </Badge>
+                </Group>
 
-                <div className="flex items-center gap-2 ml-4">
-                  <button
+                {/* Title and Description */}
+                <Box>
+                  <Text fw={600} size="md" mb="xs">
+                    {novel.title}
+                  </Text>
+                  {novel.description && (
+                    <Text size="sm" c="dimmed" lineClamp={2}>
+                      {novel.description}
+                    </Text>
+                  )}
+                </Box>
+
+                {/* Genres */}
+                {novel.genres && novel.genres.length > 0 && (
+                  <Group gap="xs">
+                    {novel.genres.map(genre => (
+                      <Badge key={genre} variant="dot" size="sm">
+                        {getGenreName(genre)}
+                      </Badge>
+                    ))}
+                  </Group>
+                )}
+
+                {/* Meta */}
+                <Text size="xs" c="dimmed">
+                  {new Date(novel.created_at).toLocaleDateString("ko-KR")}
+                </Text>
+
+                {/* Actions */}
+                <Group justify="flex-end" gap="xs" mt="md">
+                  <Button
+                    variant="light"
+                    size="xs"
                     onClick={() =>
                       navigate({ view: "chapter-new", slug: novel.slug })
                     }
-                    className="px-3 py-1.5 text-sm bg-neutral-800 hover:bg-neutral-700 text-neutral-300 rounded transition-colors"
                   >
                     + {getNovelUnit(novel.novel_type)}
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant="default"
+                    size="xs"
                     onClick={() =>
                       navigate({ view: "chapters", slug: novel.slug })
                     }
-                    className="px-3 py-1.5 text-sm text-neutral-400 hover:text-white transition-colors"
                   >
                     {novel.novel_type === "series" ? "회차 관리" : "장 관리"}
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant="default"
+                    size="xs"
                     onClick={() => navigate({ view: "edit", slug: novel.slug })}
-                    className="px-3 py-1.5 text-sm text-neutral-400 hover:text-white transition-colors"
                   >
                     정보 수정
-                  </button>
+                  </Button>
                   {deleteConfirm === novel.slug ? (
-                    <div className="flex items-center gap-2">
-                      <button
+                    <>
+                      <Button
+                        variant="light"
+                        color="red"
+                        size="xs"
                         onClick={() => handleDelete(novel.slug)}
-                        className="px-3 py-1.5 text-sm text-red-400 hover:text-red-300 transition-colors"
                       >
                         확인
-                      </button>
-                      <button
+                      </Button>
+                      <Button
+                        variant="default"
+                        size="xs"
                         onClick={() => setDeleteConfirm(null)}
-                        className="px-3 py-1.5 text-sm text-neutral-500 hover:text-white transition-colors"
                       >
                         취소
-                      </button>
-                    </div>
+                      </Button>
+                    </>
                   ) : (
-                    <button
+                    <Button
+                      variant="subtle"
+                      color="red"
+                      size="xs"
                       onClick={() => setDeleteConfirm(novel.slug)}
-                      className="px-3 py-1.5 text-sm text-neutral-600 hover:text-red-400 transition-colors"
                     >
                       삭제
-                    </button>
+                    </Button>
                   )}
-                </div>
-              </div>
-            </div>
+                </Group>
+              </Stack>
+            </Paper>
           ))}
-        </div>
-      )}
+        </Stack>
+      </Stack>
     </AdminLayout>
   );
 }
@@ -388,23 +440,21 @@ function GenreSelector({
   };
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <Group gap="xs">
       {GENRES.map(genre => (
-        <button
+        <Badge
           key={genre.id}
-          type="button"
-          onClick={() => toggleGenre(genre.id)}
-          disabled={disabled}
-          className={`px-3 py-1.5 text-sm rounded transition-colors ${
-            selected.includes(genre.id)
-              ? "bg-neutral-100 text-neutral-900"
-              : "bg-neutral-800 text-neutral-400 hover:bg-neutral-700"
-          } disabled:opacity-50`}
+          variant={selected.includes(genre.id) ? "filled" : "light"}
+          onClick={() => !disabled && toggleGenre(genre.id)}
+          style={{
+            cursor: disabled ? "not-allowed" : "pointer",
+            opacity: disabled ? 0.5 : 1,
+          }}
         >
           {genre.name}
-        </button>
+        </Badge>
       ))}
-    </div>
+    </Group>
   );
 }
 
@@ -473,88 +523,102 @@ function RelatedNovelsSelector({
   };
 
   return (
-    <div className="space-y-4">
+    <Stack gap="md">
       {/* Selected relations */}
       {selected.length > 0 && (
-        <div className="space-y-2">
+        <Stack gap="sm">
           {selected.map(relation => (
-            <div
+            <Group
               key={relation.slug}
-              className="flex items-center gap-2 p-2 bg-neutral-900 rounded"
+              justify="space-between"
+              p="sm"
+              style={{ backgroundColor: "var(--mantine-color-gray-8)" }}
             >
-              <span className="flex-1 text-neutral-300">{relation.title}</span>
-              <select
+              <Text flex={1} size="sm">
+                {relation.title}
+              </Text>
+              <Select
                 value={relation.relation_type}
-                onChange={e =>
-                  updateRelationType(relation.slug, e.target.value)
+                onChange={value =>
+                  value && updateRelationType(relation.slug, value)
                 }
                 disabled={disabled}
-                className="px-2 py-1 bg-neutral-800 border border-neutral-700 rounded text-sm text-neutral-300"
-              >
-                {RELATION_TYPES.map(type => (
-                  <option key={type.id} value={type.id}>
-                    {type.name}
-                  </option>
-                ))}
-              </select>
-              <button
-                type="button"
+                data={RELATION_TYPES.map(type => ({
+                  value: type.id,
+                  label: type.name,
+                }))}
+                size="xs"
+                searchable={false}
+                clearable={false}
+              />
+              <ActionIcon
+                variant="subtle"
+                color="red"
                 onClick={() => removeRelation(relation.slug)}
                 disabled={disabled}
-                className="px-2 py-1 text-neutral-500 hover:text-red-400 transition-colors"
+                size="sm"
               >
-                ✕
-              </button>
-            </div>
+                <IconX size={16} />
+              </ActionIcon>
+            </Group>
           ))}
-        </div>
+        </Stack>
       )}
 
       {/* Add relation */}
-      <div className="relative">
-        <div className="flex gap-2">
-          <input
-            type="text"
+      <Stack gap="sm">
+        <Group gap="sm">
+          <Input
+            placeholder="연관 작품 검색..."
             value={searchQuery}
             onChange={e => {
-              setSearchQuery(e.target.value);
+              setSearchQuery(e.currentTarget.value);
               setShowDropdown(true);
             }}
             onFocus={() => setShowDropdown(true)}
-            placeholder="연관 작품 검색..."
             disabled={disabled}
-            className="flex-1 px-4 py-2 bg-neutral-900 border border-neutral-800 rounded text-neutral-100 placeholder-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors"
+            flex={1}
           />
-          <select
+          <Select
             value={selectedRelationType}
-            onChange={e => setSelectedRelationType(e.target.value)}
+            onChange={value => value && setSelectedRelationType(value)}
             disabled={disabled}
-            className="px-3 py-2 bg-neutral-900 border border-neutral-800 rounded text-neutral-300"
-          >
-            {RELATION_TYPES.map(type => (
-              <option key={type.id} value={type.id}>
-                {type.name}
-              </option>
-            ))}
-          </select>
-        </div>
+            data={RELATION_TYPES.map(type => ({
+              value: type.id,
+              label: type.name,
+            }))}
+            searchable={false}
+            clearable={false}
+            style={{ minWidth: 150 }}
+          />
+        </Group>
 
         {showDropdown && filteredNovels.length > 0 && (
-          <div className="absolute z-10 w-full mt-1 bg-neutral-900 border border-neutral-700 rounded shadow-lg max-h-48 overflow-y-auto">
-            {filteredNovels.map(novel => (
-              <button
-                key={novel.slug}
-                type="button"
-                onClick={() => addRelation(novel)}
-                className="w-full px-4 py-2 text-left text-neutral-300 hover:bg-neutral-800 transition-colors"
-              >
-                {novel.title}
-              </button>
-            ))}
-          </div>
+          <Paper
+            p="xs"
+            style={{
+              maxHeight: 300,
+              overflow: "auto",
+              border: "1px solid var(--mantine-color-gray-6)",
+            }}
+          >
+            <Stack gap={0}>
+              {filteredNovels.map(novel => (
+                <Button
+                  key={novel.slug}
+                  variant="subtle"
+                  onClick={() => addRelation(novel)}
+                  justify="flex-start"
+                  size="sm"
+                >
+                  {novel.title}
+                </Button>
+              ))}
+            </Stack>
+          </Paper>
         )}
-      </div>
-    </div>
+      </Stack>
+    </Stack>
   );
 }
 
@@ -570,7 +634,7 @@ function NewNovel() {
     novel_type: "series" as string,
     genres: [] as string[],
     status: "draft" as string,
-    content: "", // For short/long novels that don't use chapters
+    content: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -595,7 +659,6 @@ function NewNovel() {
       };
 
       const response = (await novelsApi.create(submitData, token)) as Novel;
-      // 소설 생성 후 첫 번째 챕터 작성 페이지로 이동
       navigate({ view: "chapter-new", slug: response.slug });
     } catch (err) {
       setError(err instanceof Error ? err.message : "소설 생성에 실패했습니다");
@@ -606,151 +669,155 @@ function NewNovel() {
 
   return (
     <AdminLayout title="새 소설" onBack={goBack} backLabel="← 소설 목록">
-      <form onSubmit={handleSubmit} className="max-w-2xl space-y-8">
-        {error && (
-          <div className="p-4 border border-red-900/50 text-red-400 text-sm rounded">
-            {error}
-          </div>
-        )}
+      <form onSubmit={handleSubmit}>
+        <Stack gap="lg" maw={600}>
+          {error && (
+            <Alert title="오류" color="red" variant="light">
+              {error}
+            </Alert>
+          )}
 
-        {/* Title */}
-        <div>
-          <label
-            htmlFor="title"
-            className="block text-sm text-neutral-500 mb-2"
+          {/* Title */}
+          <Stack gap="xs">
+            <Text component="label" fw={500} size="sm">
+              제목 *
+            </Text>
+            <Input
+              value={formData.title}
+              onChange={e =>
+                setFormData({ ...formData, title: e.currentTarget.value })
+              }
+              placeholder="소설 제목을 입력하세요"
+              required
+              disabled={loading}
+            />
+            <Text size="xs" c="dimmed">
+              URL 슬러그는 UUID 기반으로 자동 생성됩니다
+            </Text>
+          </Stack>
+
+          {/* Novel Type */}
+          <Stack gap="xs">
+            <Text fw={500} size="sm">
+              소설 유형 *
+            </Text>
+            <Grid gutter="md">
+              {NOVEL_TYPES.map(type => (
+                <Grid.Col key={type.id} span={{ base: 12, sm: 4 }}>
+                  <Paper
+                    p="md"
+                    onClick={() =>
+                      setFormData({ ...formData, novel_type: type.id })
+                    }
+                    style={{
+                      cursor: "pointer",
+                      border:
+                        formData.novel_type === type.id
+                          ? "2px solid var(--mantine-primary-color)"
+                          : "2px solid var(--mantine-color-gray-6)",
+                      transition: "border-color 0.2s",
+                    }}
+                  >
+                    <Text fw={600} size="sm">
+                      {type.name}
+                    </Text>
+                    <Text size="xs" c="dimmed" mt="xs">
+                      {type.description}
+                    </Text>
+                  </Paper>
+                </Grid.Col>
+              ))}
+            </Grid>
+          </Stack>
+
+          {/* Genres */}
+          <Stack gap="xs">
+            <Text fw={500} size="sm">
+              장르
+            </Text>
+            <GenreSelector
+              selected={formData.genres}
+              onChange={genres => setFormData({ ...formData, genres })}
+              disabled={loading}
+            />
+          </Stack>
+
+          {/* Description */}
+          <Stack gap="xs">
+            <Text component="label" fw={500} size="sm">
+              설명
+            </Text>
+            <Textarea
+              value={formData.description}
+              onChange={e =>
+                setFormData({ ...formData, description: e.currentTarget.value })
+              }
+              rows={4}
+              placeholder="소설에 대한 간단한 설명을 입력하세요"
+              disabled={loading}
+            />
+          </Stack>
+
+          {/* Status */}
+          <Stack gap="xs">
+            <Text fw={500} size="sm">
+              상태
+            </Text>
+            <Group gap="xs">
+              {STATUS_OPTIONS.map(status => (
+                <Badge
+                  key={status.id}
+                  variant={formData.status === status.id ? "filled" : "light"}
+                  onClick={() =>
+                    setFormData({ ...formData, status: status.id })
+                  }
+                  style={{
+                    cursor: loading ? "not-allowed" : "pointer",
+                    opacity: loading ? 0.5 : 1,
+                  }}
+                >
+                  {status.name}
+                </Badge>
+              ))}
+            </Group>
+          </Stack>
+
+          {/* Submit */}
+          <Stack
+            gap="md"
+            pt="md"
+            style={{ borderTop: "1px solid var(--mantine-color-gray-7)" }}
           >
-            제목 *
-          </label>
-          <input
-            type="text"
-            id="title"
-            value={formData.title}
-            onChange={e => setFormData({ ...formData, title: e.target.value })}
-            className="w-full px-4 py-3 bg-neutral-900 border border-neutral-800 rounded text-neutral-100 placeholder-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors"
-            placeholder="소설 제목을 입력하세요"
-            required
-            disabled={loading}
-          />
-          <p className="mt-1 text-xs text-neutral-600">
-            URL 슬러그는 UUID 기반으로 자동 생성됩니다
-          </p>
-        </div>
-
-        {/* Novel Type */}
-        <div>
-          <label className="block text-sm text-neutral-500 mb-3">
-            소설 유형 *
-          </label>
-          <div className="grid grid-cols-3 gap-3">
-            {NOVEL_TYPES.map(type => (
-              <button
-                key={type.id}
-                type="button"
-                onClick={() =>
-                  setFormData({ ...formData, novel_type: type.id })
-                }
-                disabled={loading}
-                className={`p-4 rounded border text-left transition-colors ${
-                  formData.novel_type === type.id
-                    ? "border-neutral-400 bg-neutral-800"
-                    : "border-neutral-800 hover:border-neutral-700"
-                }`}
+            <Text size="sm" c="dimmed">
+              {formData.novel_type === "short"
+                ? "소설 정보를 저장하면 본문 작성 페이지로 이동합니다."
+                : formData.novel_type === "long"
+                  ? "소설 정보를 저장하면 첫 번째 장(章) 작성 페이지로 이동합니다."
+                  : "소설 정보를 저장하면 1화 작성 페이지로 이동합니다."}
+            </Text>
+            <Group justify="flex-start">
+              <Button
+                type="submit"
+                disabled={loading || !formData.title}
+                loading={loading}
               >
-                <div className="font-medium text-neutral-200">{type.name}</div>
-                <div className="text-xs text-neutral-500 mt-1">
-                  {type.description}
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Genres */}
-        <div>
-          <label className="block text-sm text-neutral-500 mb-3">장르</label>
-          <GenreSelector
-            selected={formData.genres}
-            onChange={genres => setFormData({ ...formData, genres })}
-            disabled={loading}
-          />
-        </div>
-
-        {/* Description */}
-        <div>
-          <label
-            htmlFor="description"
-            className="block text-sm text-neutral-500 mb-2"
-          >
-            설명
-          </label>
-          <textarea
-            id="description"
-            value={formData.description}
-            onChange={e =>
-              setFormData({ ...formData, description: e.target.value })
-            }
-            rows={4}
-            className="w-full px-4 py-3 bg-neutral-900 border border-neutral-800 rounded text-neutral-100 placeholder-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors resize-none"
-            placeholder="소설에 대한 간단한 설명을 입력하세요"
-            disabled={loading}
-          />
-        </div>
-
-        {/* Status */}
-        <div>
-          <label className="block text-sm text-neutral-500 mb-3">상태</label>
-          <div className="flex flex-wrap gap-2">
-            {STATUS_OPTIONS.map(status => (
-              <button
-                key={status.id}
-                type="button"
-                onClick={() => setFormData({ ...formData, status: status.id })}
-                disabled={loading}
-                className={`px-4 py-2 rounded transition-colors ${
-                  formData.status === status.id
-                    ? "bg-neutral-100 text-neutral-900"
-                    : "bg-neutral-800 text-neutral-400 hover:bg-neutral-700"
-                }`}
-              >
-                {status.name}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Submit */}
-        <div className="flex flex-col gap-4 pt-4 border-t border-neutral-800">
-          <p className="text-sm text-neutral-500">
-            {formData.novel_type === "short"
-              ? "소설 정보를 저장하면 본문 작성 페이지로 이동합니다."
-              : formData.novel_type === "long"
-                ? "소설 정보를 저장하면 첫 번째 장(章) 작성 페이지로 이동합니다."
-                : "소설 정보를 저장하면 1화 작성 페이지로 이동합니다."}
-          </p>
-          <div className="flex gap-4">
-            <button
-              type="submit"
-              disabled={loading || !formData.title}
-              className="px-6 py-3 bg-neutral-100 hover:bg-white disabled:bg-neutral-800 disabled:text-neutral-600 text-neutral-900 rounded transition-colors"
-            >
-              {loading
-                ? "생성 중..."
-                : formData.novel_type === "short"
+                {formData.novel_type === "short"
                   ? "저장 후 본문 작성 →"
                   : formData.novel_type === "long"
                     ? "저장 후 1장 작성 →"
                     : "저장 후 1화 작성 →"}
-            </button>
-            <button
-              type="button"
-              onClick={goBack}
-              disabled={loading}
-              className="px-6 py-3 text-neutral-400 hover:text-white transition-colors"
-            >
-              취소
-            </button>
-          </div>
-        </div>
+              </Button>
+              <Button
+                type="button"
+                variant="default"
+                onClick={goBack}
+                disabled={loading}
+              >
+                취소
+              </Button>
+            </Group>
+          </Stack>
+        </Stack>
       </form>
     </AdminLayout>
   );
@@ -823,36 +890,34 @@ function EditNovel({ slug }: { slug: string }) {
     }
 
     try {
-      // Update novel
-      await novelsApi.update(slug, formData, token);
-
-      // Handle relation changes
       const removedRelations = originalRelations.filter(
-        orig => !relatedNovels.some(rel => rel.slug === orig.slug)
+        orig => !relatedNovels.some(r => r.slug === orig.slug)
       );
-
-      const addedOrUpdatedRelations = relatedNovels.filter(rel => {
-        const orig = originalRelations.find(o => o.slug === rel.slug);
-        return !orig || orig.relation_type !== rel.relation_type;
+      const addedOrUpdatedRelations = relatedNovels.filter(r => {
+        const orig = originalRelations.find(o => o.slug === r.slug);
+        return !orig || orig.relation_type !== r.relation_type;
       });
 
-      // Remove relations
-      for (const rel of removedRelations) {
-        await novelsApi.removeRelation(slug, rel.slug, token);
+      const submitData: Record<string, unknown> = {
+        title: formData.title,
+        description: formData.description,
+        novel_type: formData.novel_type,
+        genres: formData.genres,
+        status: formData.status,
+      };
+
+      if (removedRelations.length > 0) {
+        submitData.remove_related_novels = removedRelations.map(r => r.slug);
       }
 
-      // Add or update relations
-      for (const rel of addedOrUpdatedRelations) {
-        await novelsApi.addRelation(
-          slug,
-          {
-            related_novel_slug: rel.slug,
-            relation_type: rel.relation_type,
-          },
-          token
-        );
+      if (addedOrUpdatedRelations.length > 0) {
+        submitData.related_novels = addedOrUpdatedRelations.map(r => ({
+          related_novel_slug: r.slug,
+          relation_type: r.relation_type,
+        }));
       }
 
+      await novelsApi.update(slug, submitData, token);
       navigate({ view: "list" });
     } catch (err) {
       setError(err instanceof Error ? err.message : "소설 수정에 실패했습니다");
@@ -864,155 +929,161 @@ function EditNovel({ slug }: { slug: string }) {
   if (fetchLoading) {
     return (
       <AdminLayout title="소설 편집" onBack={goBack} backLabel="← 소설 목록">
-        <div className="text-center py-12">
-          <p className="text-neutral-600 text-sm">로딩 중...</p>
-        </div>
+        <Flex justify="center" align="center" h={300}>
+          <Loader />
+        </Flex>
       </AdminLayout>
     );
   }
 
   return (
     <AdminLayout title="소설 편집" onBack={goBack} backLabel="← 소설 목록">
-      <form onSubmit={handleSubmit} className="max-w-2xl space-y-8">
-        {error && (
-          <div className="p-4 border border-red-900/50 text-red-400 text-sm rounded">
-            {error}
-          </div>
-        )}
+      <form onSubmit={handleSubmit}>
+        <Stack gap="lg" maw={600}>
+          {error && (
+            <Alert title="오류" color="red" variant="light">
+              {error}
+            </Alert>
+          )}
 
-        {/* Title */}
-        <div>
-          <label
-            htmlFor="title"
-            className="block text-sm text-neutral-500 mb-2"
+          {/* Title */}
+          <Stack gap="xs">
+            <Text component="label" fw={500} size="sm">
+              제목 *
+            </Text>
+            <Input
+              value={formData.title}
+              onChange={e =>
+                setFormData({ ...formData, title: e.currentTarget.value })
+              }
+              placeholder="소설 제목"
+              required
+              disabled={loading}
+            />
+          </Stack>
+
+          {/* Novel Type */}
+          <Stack gap="xs">
+            <Text fw={500} size="sm">
+              소설 유형 *
+            </Text>
+            <Grid gutter="md">
+              {NOVEL_TYPES.map(type => (
+                <Grid.Col key={type.id} span={{ base: 12, sm: 4 }}>
+                  <Paper
+                    p="md"
+                    onClick={() =>
+                      setFormData({ ...formData, novel_type: type.id })
+                    }
+                    style={{
+                      cursor: "pointer",
+                      border:
+                        formData.novel_type === type.id
+                          ? "2px solid var(--mantine-primary-color)"
+                          : "2px solid var(--mantine-color-gray-6)",
+                      transition: "border-color 0.2s",
+                    }}
+                  >
+                    <Text fw={600} size="sm">
+                      {type.name}
+                    </Text>
+                    <Text size="xs" c="dimmed" mt="xs">
+                      {type.description}
+                    </Text>
+                  </Paper>
+                </Grid.Col>
+              ))}
+            </Grid>
+          </Stack>
+
+          {/* Genres */}
+          <Stack gap="xs">
+            <Text fw={500} size="sm">
+              장르
+            </Text>
+            <GenreSelector
+              selected={formData.genres}
+              onChange={genres => setFormData({ ...formData, genres })}
+              disabled={loading}
+            />
+          </Stack>
+
+          {/* Description */}
+          <Stack gap="xs">
+            <Text component="label" fw={500} size="sm">
+              설명
+            </Text>
+            <Textarea
+              value={formData.description}
+              onChange={e =>
+                setFormData({ ...formData, description: e.currentTarget.value })
+              }
+              rows={4}
+              placeholder="소설에 대한 설명"
+              disabled={loading}
+            />
+          </Stack>
+
+          {/* Status */}
+          <Stack gap="xs">
+            <Text fw={500} size="sm">
+              상태
+            </Text>
+            <Group gap="xs">
+              {STATUS_OPTIONS.map(status => (
+                <Badge
+                  key={status.id}
+                  variant={formData.status === status.id ? "filled" : "light"}
+                  onClick={() =>
+                    setFormData({ ...formData, status: status.id })
+                  }
+                  style={{
+                    cursor: loading ? "not-allowed" : "pointer",
+                    opacity: loading ? 0.5 : 1,
+                  }}
+                >
+                  {status.name}
+                </Badge>
+              ))}
+            </Group>
+          </Stack>
+
+          {/* Related Novels */}
+          <Stack gap="xs">
+            <Text fw={500} size="sm">
+              연관 작품
+            </Text>
+            <RelatedNovelsSelector
+              novelSlug={slug}
+              selected={relatedNovels}
+              onChange={setRelatedNovels}
+              disabled={loading}
+            />
+          </Stack>
+
+          {/* Submit */}
+          <Group
+            justify="flex-start"
+            pt="md"
+            style={{ borderTop: "1px solid var(--mantine-color-gray-7)" }}
           >
-            제목 *
-          </label>
-          <input
-            type="text"
-            id="title"
-            value={formData.title}
-            onChange={e => setFormData({ ...formData, title: e.target.value })}
-            className="w-full px-4 py-3 bg-neutral-900 border border-neutral-800 rounded text-neutral-100 placeholder-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors"
-            placeholder="소설 제목을 입력하세요"
-            required
-            disabled={loading}
-          />
-        </div>
-
-        {/* Novel Type */}
-        <div>
-          <label className="block text-sm text-neutral-500 mb-3">
-            소설 유형 *
-          </label>
-          <div className="grid grid-cols-3 gap-3">
-            {NOVEL_TYPES.map(type => (
-              <button
-                key={type.id}
-                type="button"
-                onClick={() =>
-                  setFormData({ ...formData, novel_type: type.id })
-                }
-                disabled={loading}
-                className={`p-4 rounded border text-left transition-colors ${
-                  formData.novel_type === type.id
-                    ? "border-neutral-400 bg-neutral-800"
-                    : "border-neutral-800 hover:border-neutral-700"
-                }`}
-              >
-                <div className="font-medium text-neutral-200">{type.name}</div>
-                <div className="text-xs text-neutral-500 mt-1">
-                  {type.description}
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Genres */}
-        <div>
-          <label className="block text-sm text-neutral-500 mb-3">장르</label>
-          <GenreSelector
-            selected={formData.genres}
-            onChange={genres => setFormData({ ...formData, genres })}
-            disabled={loading}
-          />
-        </div>
-
-        {/* Description */}
-        <div>
-          <label
-            htmlFor="description"
-            className="block text-sm text-neutral-500 mb-2"
-          >
-            설명
-          </label>
-          <textarea
-            id="description"
-            value={formData.description}
-            onChange={e =>
-              setFormData({ ...formData, description: e.target.value })
-            }
-            rows={4}
-            className="w-full px-4 py-3 bg-neutral-900 border border-neutral-800 rounded text-neutral-100 placeholder-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors resize-none"
-            placeholder="소설에 대한 간단한 설명을 입력하세요"
-            disabled={loading}
-          />
-        </div>
-
-        {/* Status */}
-        <div>
-          <label className="block text-sm text-neutral-500 mb-3">상태</label>
-          <div className="flex flex-wrap gap-2">
-            {STATUS_OPTIONS.map(status => (
-              <button
-                key={status.id}
-                type="button"
-                onClick={() => setFormData({ ...formData, status: status.id })}
-                disabled={loading}
-                className={`px-4 py-2 rounded transition-colors ${
-                  formData.status === status.id
-                    ? "bg-neutral-100 text-neutral-900"
-                    : "bg-neutral-800 text-neutral-400 hover:bg-neutral-700"
-                }`}
-              >
-                {status.name}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Related Novels */}
-        <div>
-          <label className="block text-sm text-neutral-500 mb-3">
-            연관 작품
-          </label>
-          <RelatedNovelsSelector
-            novelSlug={slug}
-            selected={relatedNovels}
-            onChange={setRelatedNovels}
-            disabled={loading}
-          />
-        </div>
-
-        {/* Submit */}
-        <div className="flex gap-4 pt-4 border-t border-neutral-800">
-          <button
-            type="submit"
-            disabled={loading || !formData.title}
-            className="px-6 py-3 bg-neutral-100 hover:bg-white disabled:bg-neutral-800 disabled:text-neutral-600 text-neutral-900 rounded transition-colors"
-          >
-            {loading ? "저장 중..." : "저장"}
-          </button>
-          <button
-            type="button"
-            onClick={goBack}
-            disabled={loading}
-            className="px-6 py-3 text-neutral-400 hover:text-white transition-colors"
-          >
-            취소
-          </button>
-        </div>
+            <Button
+              type="submit"
+              disabled={loading || !formData.title}
+              loading={loading}
+            >
+              저장
+            </Button>
+            <Button
+              type="button"
+              variant="default"
+              onClick={goBack}
+              disabled={loading}
+            >
+              취소
+            </Button>
+          </Group>
+        </Stack>
       </form>
     </AdminLayout>
   );
@@ -1020,21 +1091,26 @@ function EditNovel({ slug }: { slug: string }) {
 
 // Chapters List Component
 function ChaptersList({ slug }: { slug: string }) {
-  const { navigate } = useNav();
+  const { navigate, goBack } = useNav();
   const [novel, setNovel] = useState<Novel | null>(null);
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
 
-  const fetchData = useCallback(async () => {
+  useEffect(() => {
+    fetchData();
+  }, [slug]);
+
+  const fetchData = async () => {
     try {
+      setLoading(true);
       const [novelData, chaptersData] = await Promise.all([
         novelsApi.getBySlug(slug),
         novelsApi.getChapters(slug),
       ]);
       setNovel(novelData as Novel);
-      setChapters((chaptersData as Chapter[]) || []);
+      setChapters((chaptersData as any).chapters || []);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "데이터를 불러오는데 실패했습니다"
@@ -1042,11 +1118,7 @@ function ChaptersList({ slug }: { slug: string }) {
     } finally {
       setLoading(false);
     }
-  }, [slug]);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  };
 
   const handleDelete = async (chapterNumber: number) => {
     const token = localStorage.getItem("admin_token");
@@ -1057,128 +1129,138 @@ function ChaptersList({ slug }: { slug: string }) {
       setChapters(chapters.filter(c => c.chapter_number !== chapterNumber));
       setDeleteConfirm(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "삭제에 실패했습니다");
+      setError(
+        err instanceof Error ? err.message : "장을 삭제하는데 실패했습니다"
+      );
     }
   };
 
-  // 소설 유형에 따른 라벨
-  const unit = novel ? getNovelUnit(novel.novel_type) : "화";
-  const titleText = novel
-    ? novel.novel_type === "series"
-      ? `${novel.title} - 회차 관리`
-      : `${novel.title} - 장 관리`
-    : "챕터 관리";
+  if (loading) {
+    return (
+      <AdminLayout
+        title={`${novel?.title} - ${getUnitListLabel(novel?.novel_type || "series")}`}
+        onBack={goBack}
+        backLabel="← 돌아가기"
+      >
+        <Flex justify="center" align="center" h={300}>
+          <Loader />
+        </Flex>
+      </AdminLayout>
+    );
+  }
+
+  const unit = getNovelUnit(novel?.novel_type || "series");
+  const unitLabel = getNovelUnitLabel(novel?.novel_type || "series");
+  const titleText =
+    novel?.novel_type === "series" ? `${unit} 목록` : `${unit} 목록`;
 
   return (
     <AdminLayout
-      title={titleText}
-      onBack={() => navigate({ view: "list" })}
-      backLabel="← 소설 목록"
+      title={`${novel?.title} - ${titleText}`}
+      onBack={goBack}
+      backLabel="← 돌아가기"
     >
-      <div className="flex justify-between items-center mb-8">
-        <p className="text-neutral-500 text-sm">
-          총 {chapters.length}개의{" "}
-          {novel?.novel_type === "series" ? "회차" : "장"}
-        </p>
-        <button
-          onClick={() => navigate({ view: "chapter-new", slug })}
-          className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-100 text-sm rounded transition-colors"
-        >
-          + 새 {unit}
-        </button>
-      </div>
+      <Stack gap="lg">
+        {error && (
+          <Alert title="오류" color="red" variant="light">
+            {error}
+          </Alert>
+        )}
 
-      {error && (
-        <div className="p-4 mb-6 border border-red-900/50 text-red-400 text-sm rounded">
-          {error}
-        </div>
-      )}
-
-      {loading && (
-        <div className="text-center py-12">
-          <p className="text-neutral-600 text-sm">로딩 중...</p>
-        </div>
-      )}
-
-      {!loading && chapters.length === 0 && (
-        <div className="text-center py-12 border border-neutral-800 rounded">
-          <p className="text-neutral-500 mb-4">
-            아직 {novel?.novel_type === "series" ? "회차" : "장"}이 없습니다
-          </p>
-          <button
+        <Group justify="space-between">
+          <Text size="sm" c="dimmed">
+            총 {chapters.length}개의 {unit}
+          </Text>
+          <Button
             onClick={() => navigate({ view: "chapter-new", slug })}
-            className="text-neutral-400 hover:text-white transition-colors"
+            leftSection={<IconPlus size={16} />}
+            size="sm"
           >
-            첫 {novel?.novel_type === "series" ? "화" : "장"} 작성하기 →
-          </button>
-        </div>
-      )}
+            새 {unit}
+          </Button>
+        </Group>
 
-      {!loading && chapters.length > 0 && (
-        <div className="space-y-2">
-          {chapters.map(chapter => (
-            <div
-              key={chapter.id}
-              className="flex items-center justify-between p-4 border border-neutral-800 rounded hover:border-neutral-700 transition-colors"
+        {chapters.length === 0 ? (
+          <Paper p="xl" ta="center">
+            <Text c="dimmed" mb="md">
+              아직 {unit}이 없습니다
+            </Text>
+            <Button
+              variant="light"
+              onClick={() => navigate({ view: "chapter-new", slug })}
             >
-              <div className="flex items-center gap-4">
-                <span className="text-neutral-600 text-sm w-12">
-                  {chapter.chapter_number}
-                  {unit}
-                </span>
-                <span className="text-neutral-200">
-                  {chapter.title || `(제목 없음)`}
-                </span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() =>
-                    navigate({
-                      view: "chapter-edit",
-                      slug,
-                      chapterNumber: chapter.chapter_number,
-                    })
-                  }
-                  className="px-3 py-1.5 text-sm text-neutral-400 hover:text-white transition-colors"
-                >
-                  편집
-                </button>
-                {deleteConfirm === chapter.chapter_number ? (
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => handleDelete(chapter.chapter_number)}
-                      className="px-3 py-1.5 text-sm text-red-400 hover:text-red-300 transition-colors"
+              첫 {unit} 작성하기 →
+            </Button>
+          </Paper>
+        ) : (
+          <Stack gap="md">
+            {chapters.map(chapter => (
+              <Paper key={chapter.id} p="md">
+                <Group justify="space-between" align="flex-start">
+                  <Box flex={1}>
+                    <Text fw={600} size="md">
+                      {unit} {chapter.chapter_number}: {chapter.title}
+                    </Text>
+                    <Text size="xs" c="dimmed" mt="xs">
+                      {new Date(chapter.created_at).toLocaleDateString("ko-KR")}
+                    </Text>
+                  </Box>
+                  <Group gap="xs">
+                    <Button
+                      variant="default"
+                      size="xs"
+                      onClick={() =>
+                        navigate({
+                          view: "chapter-edit",
+                          slug,
+                          chapterNumber: chapter.chapter_number,
+                        })
+                      }
                     >
-                      확인
-                    </button>
-                    <button
-                      onClick={() => setDeleteConfirm(null)}
-                      className="px-3 py-1.5 text-sm text-neutral-500 hover:text-white transition-colors"
-                    >
-                      취소
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => setDeleteConfirm(chapter.chapter_number)}
-                    className="px-3 py-1.5 text-sm text-neutral-600 hover:text-red-400 transition-colors"
-                  >
-                    삭제
-                  </button>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+                      수정
+                    </Button>
+                    {deleteConfirm === chapter.chapter_number ? (
+                      <>
+                        <Button
+                          variant="light"
+                          color="red"
+                          size="xs"
+                          onClick={() => handleDelete(chapter.chapter_number)}
+                        >
+                          확인
+                        </Button>
+                        <Button
+                          variant="default"
+                          size="xs"
+                          onClick={() => setDeleteConfirm(null)}
+                        >
+                          취소
+                        </Button>
+                      </>
+                    ) : (
+                      <Button
+                        variant="subtle"
+                        color="red"
+                        size="xs"
+                        onClick={() => setDeleteConfirm(chapter.chapter_number)}
+                      >
+                        삭제
+                      </Button>
+                    )}
+                  </Group>
+                </Group>
+              </Paper>
+            ))}
+          </Stack>
+        )}
+      </Stack>
     </AdminLayout>
   );
 }
 
 // New Chapter Component
 function NewChapter({ slug }: { slug: string }) {
-  const { navigate } = useNav();
+  const { navigate, goBack } = useNav();
   const [novel, setNovel] = useState<Novel | null>(null);
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(true);
@@ -1190,27 +1272,29 @@ function NewChapter({ slug }: { slug: string }) {
     title: "",
     content: "",
   });
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchNovelData = useCallback(async () => {
     try {
-      const [novelData, chaptersData] = await Promise.all([
-        novelsApi.getBySlug(slug),
-        novelsApi.getChapters(slug),
-      ]);
-      setNovel(novelData as Novel);
+      const novelData = (await novelsApi.getBySlug(slug)) as Novel;
+      const chaptersData = (await novelsApi.getChapters(slug)) as any;
+      setNovel(novelData);
 
-      // Set next chapter number
-      const chapters = (chaptersData as { chapter_number: number }[]) || [];
-      const maxNumber = chapters.reduce(
-        (max: number, c: { chapter_number: number }) =>
-          Math.max(max, c.chapter_number),
+      const chapters = chaptersData.chapters || [];
+      const maxNumber = Math.max(
+        ...chapters.map((c: Chapter) => c.chapter_number),
         0
       );
-      setFormData(prev => ({ ...prev, number: maxNumber + 1 }));
+      setFormData(prev => ({
+        ...prev,
+        number: maxNumber + 1,
+      }));
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "데이터를 불러오는데 실패했습니다"
+        err instanceof Error
+          ? err.message
+          : "소설 정보를 불러오는데 실패했습니다"
       );
     } finally {
       setFetchLoading(false);
@@ -1223,20 +1307,12 @@ function NewChapter({ slug }: { slug: string }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Prevent duplicate submissions
-    if (isSubmitting) {
-      return;
-    }
-
     setError("");
-    setLoading(true);
     setIsSubmitting(true);
 
     const token = localStorage.getItem("admin_token");
     if (!token) {
       setError("로그인이 필요합니다");
-      setLoading(false);
       setIsSubmitting(false);
       return;
     }
@@ -1246,191 +1322,141 @@ function NewChapter({ slug }: { slug: string }) {
         slug,
         {
           chapter_number: formData.number,
-          title: formData.title.trim() || null,
+          title: formData.title,
           content: formData.content,
         },
         token
       );
-      // 성공 메시지 표시 (소설 유형에 따라 단위 변경)
-      const unit = novel ? getNovelUnit(novel.novel_type) : "화";
-      const titleText = formData.title.trim() || `(제목 없음)`;
-      setSuccessMessage(`${formData.number}${unit} "${titleText}" 저장 완료!`);
-      // 다음 챕터 작성을 위해 폼 초기화
-      setFormData({
-        number: formData.number + 1,
-        title: "",
-        content: "",
-      });
-      setError("");
-      // 3초 후 성공 메시지 숨김
-      setTimeout(() => setSuccessMessage(""), 3000);
+
+      const unit = getNovelUnit(novel?.novel_type || "series");
+      const nextUnit = getNextUnitText(novel?.novel_type || "series");
+      setSuccessMessage(`${unit}이 저장되었습니다`);
+
+      // 성공 메시지 표시 후 다음 단계로 진행
+      setTimeout(() => {
+        navigate({ view: "chapter-new", slug });
+      }, 1500);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "챕터 생성에 실패했습니다");
+      setError(err instanceof Error ? err.message : "저장에 실패했습니다");
     } finally {
-      setLoading(false);
       setIsSubmitting(false);
     }
   };
 
   if (fetchLoading) {
     return (
-      <AdminLayout
-        title="새 챕터"
-        onBack={() => navigate({ view: "chapters", slug })}
-        backLabel="← 목록"
-      >
-        <div className="text-center py-12">
-          <p className="text-neutral-600 text-sm">로딩 중...</p>
-        </div>
+      <AdminLayout title="새 장" onBack={goBack} backLabel="← 돌아가기">
+        <Flex justify="center" align="center" h={300}>
+          <Loader />
+        </Flex>
       </AdminLayout>
     );
   }
 
-  // 소설 유형에 따른 라벨
-  const unitLabel = novel ? getNovelUnitLabel(novel.novel_type) : "회차";
-  const listLabel = novel ? getUnitListLabel(novel.novel_type) : "목록";
-  const nextText = novel ? getNextUnitText(novel.novel_type) : "다음 화";
-  const titleText = novel
-    ? novel.novel_type === "series"
-      ? `${novel.title} - 새 화`
-      : `${novel.title} - 새 장`
-    : "새 챕터";
+  const unitLabel = getNovelUnitLabel(novel?.novel_type || "series");
+  const listLabel = getUnitListLabel(novel?.novel_type || "series");
+  const nextText = getNextUnitText(novel?.novel_type || "series");
+  const titleText =
+    novel?.novel_type === "series"
+      ? `새로운 회차`
+      : novel?.novel_type === "long"
+        ? `새로운 장(章)`
+        : `새로운 본문`;
 
   return (
-    <AdminLayout
-      title={titleText}
-      onBack={() => navigate({ view: "chapters", slug })}
-      backLabel={`← ${listLabel}`}
-    >
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {successMessage && (
-          <div className="p-4 border border-green-900/50 bg-green-900/20 text-green-400 text-sm rounded">
-            ✓ {successMessage}
-          </div>
-        )}
-        {error && (
-          <div className="p-4 border border-red-900/50 text-red-400 text-sm rounded">
-            {error}
-          </div>
-        )}
+    <AdminLayout title={titleText} onBack={goBack} backLabel="← 돌아가기">
+      <form onSubmit={handleSubmit}>
+        <Stack gap="lg" maw={900}>
+          {error && (
+            <Alert title="오류" color="red" variant="light">
+              {error}
+            </Alert>
+          )}
 
-        <div className="grid grid-cols-[100px_1fr] gap-4">
-          <div>
-            <label
-              htmlFor="number"
-              className="block text-sm text-neutral-500 mb-2"
-            >
-              {unitLabel} *
-            </label>
-            <input
+          {successMessage && (
+            <Alert title="성공" color="green" variant="light">
+              {successMessage}
+            </Alert>
+          )}
+
+          {/* Chapter Number */}
+          <Stack gap="xs">
+            <Text component="label" fw={500} size="sm">
+              {unitLabel}
+            </Text>
+            <Input
               type="number"
-              id="number"
               value={formData.number}
               onChange={e =>
-                setFormData({ ...formData, number: parseInt(e.target.value) })
+                setFormData({
+                  ...formData,
+                  number: parseInt(e.currentTarget.value) || 1,
+                })
               }
               min={1}
-              className="w-full px-4 py-3 bg-neutral-900 border border-neutral-800 rounded text-neutral-100 focus:outline-none focus:border-neutral-600 transition-colors"
-              required
-              disabled={loading}
+              disabled={isSubmitting}
             />
-          </div>
+          </Stack>
 
-          <div>
-            <label
-              htmlFor="title"
-              className="block text-sm text-neutral-500 mb-2"
-            >
-              제목
-            </label>
-            <input
-              type="text"
-              id="title"
+          {/* Title */}
+          <Stack gap="xs">
+            <Text component="label" fw={500} size="sm">
+              제목 *
+            </Text>
+            <Input
               value={formData.title}
               onChange={e =>
-                setFormData({ ...formData, title: e.target.value })
+                setFormData({ ...formData, title: e.currentTarget.value })
               }
-              className="w-full px-4 py-3 bg-neutral-900 border border-neutral-800 rounded text-neutral-100 placeholder-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors"
-              placeholder="챕터 제목을 입력하세요 (선택사항)"
-              disabled={loading}
+              placeholder="장의 제목을 입력하세요"
+              required
+              disabled={isSubmitting}
             />
-          </div>
-        </div>
+          </Stack>
 
-        <div>
-          <label className="block text-sm text-neutral-500 mb-2">내용 *</label>
-          <MarkdownEditor
-            value={formData.content}
-            onChange={content => setFormData({ ...formData, content })}
-            placeholder="챕터 내용을 입력하세요..."
-            minHeight={400}
-          />
-        </div>
+          {/* Content */}
+          <Stack gap="xs">
+            <Text component="label" fw={500} size="sm">
+              내용 *
+            </Text>
+            <MarkdownEditor
+              value={formData.content}
+              onChange={content => setFormData({ ...formData, content })}
+              disabled={isSubmitting}
+            />
+          </Stack>
 
-        <div className="flex flex-col gap-4 pt-4 border-t border-neutral-800">
-          <div className="flex gap-4">
-            <button
+          {/* Submit */}
+          <Group
+            justify="flex-start"
+            pt="md"
+            style={{ borderTop: "1px solid var(--mantine-color-gray-7)" }}
+          >
+            <Button
               type="submit"
-              disabled={loading || !formData.content || isSubmitting}
-              className="px-6 py-3 bg-neutral-100 hover:bg-white disabled:bg-neutral-800 disabled:text-neutral-600 text-neutral-900 rounded transition-colors"
+              disabled={isSubmitting || !formData.title || !formData.content}
+              loading={isSubmitting}
             >
-              {loading ? "생성 중..." : `저장 후 ${nextText} →`}
-            </button>
-            <button
+              저장 후 {nextText} 작성 →
+            </Button>
+            <Button
               type="button"
-              disabled={loading || !formData.content || isSubmitting}
-              onClick={async () => {
-                // Prevent duplicate submissions
-                if (isSubmitting) {
-                  return;
-                }
-
-                const token = localStorage.getItem("admin_token");
-                if (!token) return;
-                setLoading(true);
-                setIsSubmitting(true);
-                try {
-                  await novelsApi.createChapter(
-                    slug,
-                    {
-                      chapter_number: formData.number,
-                      title: formData.title.trim() || null,
-                      content: formData.content,
-                    },
-                    token
-                  );
-                  navigate({ view: "chapters", slug });
-                } catch (err) {
-                  setError(
-                    err instanceof Error
-                      ? err.message
-                      : "챕터 생성에 실패했습니다"
-                  );
-                  setLoading(false);
-                  setIsSubmitting(false);
-                }
-              }}
-              className="px-6 py-3 bg-neutral-800 hover:bg-neutral-700 disabled:bg-neutral-900 disabled:text-neutral-600 text-neutral-100 rounded transition-colors"
-            >
-              {loading ? "생성 중..." : "저장 후 목록으로"}
-            </button>
-            <button
-              type="button"
+              variant="default"
               onClick={() => navigate({ view: "chapters", slug })}
-              disabled={loading}
-              className="px-6 py-3 text-neutral-400 hover:text-white transition-colors"
+              disabled={isSubmitting}
+            >
+              {listLabel}로 돌아가기
+            </Button>
+            <Button
+              type="button"
+              variant="default"
+              onClick={goBack}
+              disabled={isSubmitting}
             >
               취소
-            </button>
-          </div>
-          <p className="text-xs text-neutral-600">
-            &ldquo;저장 후 {nextText}&rdquo;를 누르면 저장하고 바로
-            {novel?.novel_type === "series"
-              ? " 다음 회차를"
-              : " 다음 장을"}{" "}
-            작성할 수 있습니다.
-          </p>
-        </div>
+            </Button>
+          </Group>
+        </Stack>
       </form>
     </AdminLayout>
   );
@@ -1444,7 +1470,7 @@ function EditChapter({
   slug: string;
   chapterNumber: number;
 }) {
-  const { navigate } = useNav();
+  const { navigate, goBack } = useNav();
   const [novel, setNovel] = useState<Novel | null>(null);
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(true);
@@ -1463,7 +1489,8 @@ function EditChapter({
         novelsApi.getChapter(slug, chapterNumber),
       ]);
       setNovel(novelData as Novel);
-      const chapter = chapterData as Chapter;
+
+      const chapter = (chapterData as any).chapter;
       setFormData({
         number: chapter.chapter_number,
         title: chapter.title,
@@ -1499,14 +1526,14 @@ function EditChapter({
         slug,
         chapterNumber,
         {
-          title: formData.title.trim() || null,
+          title: formData.title,
           content: formData.content,
         },
         token
       );
       navigate({ view: "chapters", slug });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "챕터 수정에 실패했습니다");
+      setError(err instanceof Error ? err.message : "저장에 실패했습니다");
     } finally {
       setLoading(false);
     }
@@ -1514,106 +1541,96 @@ function EditChapter({
 
   if (fetchLoading) {
     return (
-      <AdminLayout
-        title="챕터 편집"
-        onBack={() => navigate({ view: "chapters", slug })}
-        backLabel="← 목록"
-      >
-        <div className="text-center py-12">
-          <p className="text-neutral-600 text-sm">로딩 중...</p>
-        </div>
+      <AdminLayout title="장 편집" onBack={goBack} backLabel="← 돌아가기">
+        <Flex justify="center" align="center" h={300}>
+          <Loader />
+        </Flex>
       </AdminLayout>
     );
   }
 
+  const unitLabel = getNovelUnitLabel(novel?.novel_type || "series");
+
   return (
-    <AdminLayout
-      title={
-        novel ? `${novel.title} - 챕터 ${chapterNumber} 편집` : "챕터 편집"
-      }
-      onBack={() => navigate({ view: "chapters", slug })}
-      backLabel="← 챕터 목록"
-    >
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {error && (
-          <div className="p-4 border border-red-900/50 text-red-400 text-sm rounded">
-            {error}
-          </div>
-        )}
+    <AdminLayout title="장 편집" onBack={goBack} backLabel="← 돌아가기">
+      <form onSubmit={handleSubmit}>
+        <Stack gap="lg" maw={900}>
+          {error && (
+            <Alert title="오류" color="red" variant="light">
+              {error}
+            </Alert>
+          )}
 
-        <div className="grid grid-cols-[100px_1fr] gap-4">
-          <div>
-            <label
-              htmlFor="number"
-              className="block text-sm text-neutral-500 mb-2"
-            >
-              회차
-            </label>
-            <input
-              type="number"
-              id="number"
-              value={formData.number}
-              disabled
-              className="w-full px-4 py-3 bg-neutral-900 border border-neutral-800 rounded text-neutral-500"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="title"
-              className="block text-sm text-neutral-500 mb-2"
-            >
-              제목
-            </label>
-            <input
-              type="text"
-              id="title"
+          {/* Title */}
+          <Stack gap="xs">
+            <Text component="label" fw={500} size="sm">
+              제목 *
+            </Text>
+            <Input
               value={formData.title}
               onChange={e =>
-                setFormData({ ...formData, title: e.target.value })
+                setFormData({ ...formData, title: e.currentTarget.value })
               }
-              className="w-full px-4 py-3 bg-neutral-900 border border-neutral-800 rounded text-neutral-100 placeholder-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors"
-              placeholder="챕터 제목을 입력하세요 (선택사항)"
+              placeholder="장의 제목"
+              required
               disabled={loading}
             />
-          </div>
-        </div>
+          </Stack>
 
-        <div>
-          <label className="block text-sm text-neutral-500 mb-2">내용 *</label>
-          <MarkdownEditor
-            value={formData.content}
-            onChange={content => setFormData({ ...formData, content })}
-            placeholder="챕터 내용을 입력하세요..."
-            minHeight={400}
-          />
-        </div>
+          {/* Content */}
+          <Stack gap="xs">
+            <Text component="label" fw={500} size="sm">
+              내용 *
+            </Text>
+            <MarkdownEditor
+              value={formData.content}
+              onChange={content => setFormData({ ...formData, content })}
+              disabled={loading}
+            />
+          </Stack>
 
-        <div className="flex gap-4 pt-4 border-t border-neutral-800">
-          <button
-            type="submit"
-            disabled={loading || !formData.content}
-            className="px-6 py-3 bg-neutral-100 hover:bg-white disabled:bg-neutral-800 disabled:text-neutral-600 text-neutral-900 rounded transition-colors"
+          {/* Submit */}
+          <Group
+            justify="flex-start"
+            pt="md"
+            style={{ borderTop: "1px solid var(--mantine-color-gray-7)" }}
           >
-            {loading ? "저장 중..." : "저장"}
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate({ view: "chapters", slug })}
-            disabled={loading}
-            className="px-6 py-3 text-neutral-400 hover:text-white transition-colors"
-          >
-            취소
-          </button>
-        </div>
+            <Button
+              type="submit"
+              disabled={loading || !formData.title || !formData.content}
+              loading={loading}
+            >
+              저장
+            </Button>
+            <Button
+              type="button"
+              variant="default"
+              onClick={() => navigate({ view: "chapters", slug })}
+              disabled={loading}
+            >
+              목록으로 돌아가기
+            </Button>
+            <Button
+              type="button"
+              variant="default"
+              onClick={goBack}
+              disabled={loading}
+            >
+              취소
+            </Button>
+          </Group>
+        </Stack>
       </form>
     </AdminLayout>
   );
 }
 
-// Main Router Component
+// Main NovelsAdminClient Component
 export default function NovelsAdminClient() {
-  const [navState, setNavState] = useState<NavState>({ view: "list" });
+  const [navState, setNavState] = useState<NavState>({
+    view: "list",
+  });
+
   const [history, setHistory] = useState<NavState[]>([]);
 
   const navigate = useCallback(
@@ -1625,50 +1642,36 @@ export default function NovelsAdminClient() {
   );
 
   const goBack = useCallback(() => {
-    if (history.length > 0) {
-      const newHistory = [...history];
+    setHistory(prev => {
+      const newHistory = [...prev];
       const prevState = newHistory.pop();
-      setHistory(newHistory);
-      setNavState(prevState || { view: "list" });
-    } else {
-      setNavState({ view: "list" });
-    }
-  }, [history]);
+      if (prevState) {
+        setNavState(prevState);
+      }
+      return newHistory;
+    });
+  }, []);
 
   const renderView = () => {
-    switch (navState.view) {
+    const { view, slug, chapterNumber } = navState;
+
+    switch (view) {
+      case "list":
+        return <NovelsList />;
       case "new":
         return <NewNovel />;
       case "edit":
-        return navState.slug ? (
-          <EditNovel slug={navState.slug} />
-        ) : (
-          <NovelsList />
-        );
+        return slug ? <EditNovel slug={slug} /> : null;
       case "chapters":
-        return navState.slug ? (
-          <ChaptersList slug={navState.slug} />
-        ) : (
-          <NovelsList />
-        );
+        return slug ? <ChaptersList slug={slug} /> : null;
       case "chapter-new":
-        return navState.slug ? (
-          <NewChapter slug={navState.slug} />
-        ) : (
-          <NovelsList />
-        );
+        return slug ? <NewChapter slug={slug} /> : null;
       case "chapter-edit":
-        return navState.slug && navState.chapterNumber ? (
-          <EditChapter
-            slug={navState.slug}
-            chapterNumber={navState.chapterNumber}
-          />
-        ) : (
-          <NovelsList />
-        );
-      case "list":
+        return slug && chapterNumber ? (
+          <EditChapter slug={slug} chapterNumber={chapterNumber} />
+        ) : null;
       default:
-        return <NovelsList />;
+        return null;
     }
   };
 
