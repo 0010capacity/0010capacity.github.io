@@ -12,7 +12,8 @@ import { useParams } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { blogApi } from "@/lib/api";
-import { BlogPost } from "@/lib/types";
+import type { BlogPost } from "@/lib/types";
+import Skeleton from "@/components/ui/Skeleton";
 
 // Navigation Context for SPA-style routing
 interface NavState {
@@ -32,6 +33,73 @@ function useNav() {
   const ctx = useContext(NavContext);
   if (!ctx) throw new Error("useNav must be used within NavProvider");
   return ctx;
+}
+
+function BlogListSkeleton() {
+  return (
+    <div className="space-y-1" aria-label="블로그 목록 로딩" aria-busy="true">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <div
+          key={i}
+          className="py-4 border-b border-neutral-900 flex items-baseline justify-between gap-4"
+        >
+          <div className="flex-1 min-w-0 pr-4">
+            <Skeleton className="h-5 w-4/5" />
+            <div className="flex gap-2 mt-3">
+              <Skeleton className="h-3 w-12" />
+              <Skeleton className="h-3 w-10" />
+              <Skeleton className="h-3 w-14" />
+            </div>
+          </div>
+          <Skeleton className="h-4 w-24 flex-shrink-0" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function BlogDetailSkeleton() {
+  return (
+    <div className="min-h-screen text-neutral-100">
+      <div className="max-w-2xl mx-auto px-6 py-16">
+        <div className="text-sm text-neutral-600">← 블로그</div>
+
+        <header className="mt-12 mb-12">
+          <Skeleton className="h-4 w-36 mb-4" />
+          <Skeleton className="h-10 w-4/5 mb-4" />
+          <Skeleton className="h-10 w-3/5 mb-8" />
+
+          <div className="flex gap-3 flex-wrap">
+            <Skeleton className="h-6 w-16" />
+            <Skeleton className="h-6 w-20" />
+            <Skeleton className="h-6 w-14" />
+          </div>
+        </header>
+
+        <div className="mb-12">
+          <Skeleton className="w-full h-56 rounded" />
+        </div>
+
+        <div
+          className="mb-16 space-y-3"
+          aria-label="블로그 본문 로딩"
+          aria-busy="true"
+        >
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-11/12" />
+          <Skeleton className="h-4 w-10/12" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-9/12" />
+          <Skeleton className="h-4 w-11/12" />
+          <Skeleton className="h-4 w-8/12" />
+        </div>
+
+        <footer className="pt-8 border-t border-neutral-900">
+          <Skeleton className="h-4 w-48" />
+        </footer>
+      </div>
+    </div>
+  );
 }
 
 // Blog List Component
@@ -85,11 +153,7 @@ function BlogList() {
           </div>
         )}
 
-        {loading && (
-          <div className="text-center py-16">
-            <p className="text-neutral-600 text-sm">불러오는 중...</p>
-          </div>
-        )}
+        {loading && <BlogListSkeleton />}
 
         {!loading && posts.length > 0 && (
           <div className="space-y-1">
@@ -167,17 +231,11 @@ function BlogDetail({ slug }: { slug: string }) {
       }
     };
 
-    if (slug) {
-      fetchPost();
-    }
+    if (slug) fetchPost();
   }, [slug]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen text-neutral-100 flex items-center justify-center">
-        <p className="text-neutral-600 text-sm">불러오는 중...</p>
-      </div>
-    );
+    return <BlogDetailSkeleton />;
   }
 
   if (error || !post) {
@@ -284,7 +342,10 @@ export default function BlogPageClient() {
   useEffect(() => {
     if (paramsArray && paramsArray.length === 1 && paramsArray[0]) {
       setNavState({ view: "detail", slug: paramsArray[0] });
+    } else {
+      setNavState({ view: "list" });
     }
+    // We intentionally only key off paramsArray (derived from route)
   }, [paramsArray]);
 
   const navigate = useCallback(

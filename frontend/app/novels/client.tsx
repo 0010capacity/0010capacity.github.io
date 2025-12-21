@@ -7,6 +7,31 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { novelsApi } from "@/lib/api";
 import { Novel, NovelChapter } from "@/lib/types";
+import Skeleton from "@/components/ui/Skeleton";
+
+function NovelListSkeleton() {
+  return (
+    <div className="space-y-8">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <div
+          key={i}
+          className="block w-full text-left py-6 border-b border-neutral-900"
+        >
+          <div className="flex justify-between items-start mb-2 gap-4">
+            <Skeleton className="h-6 w-2/3" />
+            <Skeleton className="h-5 w-16 flex-shrink-0" />
+          </div>
+          <Skeleton className="h-4 w-full mb-2" />
+          <Skeleton className="h-4 w-4/5 mb-3" />
+          <div className="flex items-center gap-4 text-xs">
+            <Skeleton className="h-3 w-20" />
+            <Skeleton className="h-3 w-14" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 // Novel List Component
 function NovelList() {
@@ -74,11 +99,7 @@ function NovelList() {
           </div>
         )}
 
-        {loading && (
-          <div className="text-center py-16">
-            <p className="text-neutral-600 text-sm">불러오는 중...</p>
-          </div>
-        )}
+        {loading && <NovelListSkeleton />}
 
         {!loading && novels.length > 0 && (
           <div className="space-y-8">
