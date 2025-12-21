@@ -35,7 +35,6 @@ export default function HomePage() {
       <div className={styles.navGrid}>
         {navItems.map(item => (
           <Link key={item.href} href={item.href} className={styles.navItem}>
-            <div className={styles.iconWrapper}>{item.icon}</div>
             <span className={styles.label}>{item.label}</span>
           </Link>
         ))}

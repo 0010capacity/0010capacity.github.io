@@ -124,6 +124,19 @@ export default function MusicPlayer() {
 
   return (
     <Box pos="fixed" bottom={16} right={16} style={{ zIndex: 1000 }}>
+      {/* Song Title */}
+      <Text
+        size="xs"
+        c="dimmed"
+        ta="center"
+        mb={8}
+        style={{
+          textShadow: "0 1px 2px rgba(0,0,0,0.5)",
+        }}
+      >
+        {currentSong?.title}
+      </Text>
+
       {/* Playlist Dropdown */}
       <Transition transition="slide-up" mounted={showPlaylist} duration={200}>
         {styles => (
@@ -320,19 +333,6 @@ export default function MusicPlayer() {
           </ActionIcon>
         </Group>
       </Paper>
-
-      {/* Song Title */}
-      <Text
-        size="xs"
-        c="dimmed"
-        ta="center"
-        mt={4}
-        style={{
-          textShadow: "0 1px 2px rgba(0,0,0,0.5)",
-        }}
-      >
-        {currentSong?.title}
-      </Text>
     </Box>
   );
 }

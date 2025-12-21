@@ -126,13 +126,8 @@ export default function AdminLoginPage() {
 
         {/* Footer */}
         <Center mt="xl">
-          <Link href="/">
-            <Text
-              size="sm"
-              c="dimmed"
-              component="a"
-              style={{ textDecoration: "none" }}
-            >
+          <Link href="/" style={{ textDecoration: "none" }}>
+            <Text size="sm" c="dimmed">
               ← 돌아가기
             </Text>
           </Link>
