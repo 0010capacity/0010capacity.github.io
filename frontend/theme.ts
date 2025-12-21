@@ -34,7 +34,6 @@ export const theme = createTheme({
     accent,
   },
   primaryColor: "neutral",
-  accentColor: "accent",
 
   // Typography
   fontFamily: "NanumMyeongjo, serif",
@@ -51,11 +50,11 @@ export const theme = createTheme({
 
   // Line heights for better readability
   lineHeights: {
-    xs: 1.4,
-    sm: 1.45,
-    md: 1.5,
-    lg: 1.6,
-    xl: 1.7,
+    xs: "1.4",
+    sm: "1.45",
+    md: "1.5",
+    lg: "1.6",
+    xl: "1.7",
   },
 
   // Spacing scale
