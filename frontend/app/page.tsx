@@ -5,16 +5,6 @@ export default function HomePage() {
     <div className="min-h-screen text-neutral-100 flex flex-col relative">
       {/* Main Content */}
       <main className="flex-1 flex flex-col items-center justify-center px-6">
-        {/* 인사 */}
-        <div className="text-center mb-16">
-          <h1 className="text-3xl md:text-4xl font-light mb-4 text-neutral-200">
-            안녕하세요
-          </h1>
-          <p className="text-lg text-neutral-500">
-            이정원의 공간에 오신 것을 환영합니다
-          </p>
-        </div>
-
         {/* 3가지 선택지 */}
         <nav className="flex flex-col md:flex-row gap-6 md:gap-12">
           <Link
