@@ -30,7 +30,7 @@
   /* Color scheme */
   color-scheme: dark;
 
-  /* CSS variables for custom colors */
+  /* CSS variables - pure grayscale */
   --color-background: #0a0a0a;
   --color-foreground: #171717;
   --color-foreground-alt: #262626;
@@ -38,8 +38,6 @@
   --color-border-light: #525252;
   --color-text-primary: #f5f5f5;
   --color-text-secondary: #a3a3a3;
-  --color-accent: #3b9eec;
-  --color-accent-light: #7fc7ff;
 
   /* Smooth transitions */
   --transition-fast: 0.15s ease-in-out;
@@ -51,7 +49,6 @@
   --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.3);
   --shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.4);
-  --shadow-accent: 0 4px 20px rgba(58, 158, 236, 0.15);
 
   /* Border radius */
   --radius-xs: 0.25rem;
@@ -165,11 +162,11 @@ a {
 }
 
 a:hover {
-  color: var(--color-accent);
+  color: var(--color-text-secondary);
 }
 
 a:focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--color-border);
   outline-offset: 2px;
   border-radius: var(--radius-sm);
 }
@@ -197,7 +194,7 @@ pre {
 
 code {
   background-color: var(--color-foreground-alt);
-  color: var(--color-accent-light);
+  color: var(--color-text-primary);
   padding: 0.125rem 0.375rem;
   border-radius: var(--radius-sm);
   white-space: pre-wrap;
@@ -237,8 +234,8 @@ input:focus,
 textarea:focus,
 select:focus {
   outline: none;
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 2px rgba(58, 158, 236, 0.1);
+  border-color: var(--color-border-light);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
 }
 
 input::placeholder,
@@ -253,7 +250,7 @@ button {
 }
 
 button:focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--color-border);
   outline-offset: 2px;
 }
 
@@ -285,7 +282,7 @@ tr:hover {
 blockquote {
   margin: 1.5rem 0;
   padding-left: 1rem;
-  border-left: 3px solid var(--color-accent);
+  border-left: 3px solid var(--color-border-light);
   color: var(--color-text-secondary);
   font-style: italic;
   font-size: 1.025rem;
@@ -310,18 +307,18 @@ img {
 
 /* ===== Selection ===== */
 ::selection {
-  background-color: var(--color-accent);
+  background-color: var(--color-border-light);
   color: var(--color-background);
 }
 
 ::-moz-selection {
-  background-color: var(--color-accent);
+  background-color: var(--color-border-light);
   color: var(--color-background);
 }
 
 /* ===== Focus Visible (Accessibility) ===== */
 :focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--color-border);
   outline-offset: 2px;
 }
 

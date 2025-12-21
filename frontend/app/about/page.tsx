@@ -1,22 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import {
   Container,
   Title,
   Text,
   Group,
   Anchor,
-  Badge,
   Button,
   Stack,
   Box,
 } from "@mantine/core";
+import { ArrowLeft } from "lucide-react";
 
 export default function AboutPage() {
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-
   const items = [
     {
       label: "이메일",
@@ -33,28 +30,36 @@ export default function AboutPage() {
     { label: "위치", value: "대한민국" },
   ];
 
+  const skills = [
+    "TypeScript",
+    "JavaScript",
+    "C#",
+    "Java",
+    "Kotlin",
+    "Swift",
+    "ASP.NET",
+    "iOS",
+    "Android",
+    "Web",
+  ];
+
   return (
-    <Container
-      size="xs"
-      h="100vh"
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      {/* 명함 카드 */}
-      <Box w="100%">
+    <Container size="sm" py="xl" mih="100vh">
+      <Stack gap="xl">
+        <Button
+          component={Link}
+          href="/"
+          variant="subtle"
+          size="sm"
+          leftSection={<ArrowLeft size={16} />}
+          mb="lg"
+        >
+          돌아가기
+        </Button>
+
         {/* 이름 */}
-        <Box mb="xl" style={{ textAlign: "center" }}>
-          <Title
-            order={1}
-            size="h2"
-            fw={500}
-            mb={4}
-            style={{ letterSpacing: "-0.025em" }}
-          >
+        <Box style={{ textAlign: "center" }}>
+          <Title order={1} size="h2" fw={400} mb="xs">
             이정원
           </Title>
           <Text size="sm" c="dimmed">
@@ -63,13 +68,19 @@ export default function AboutPage() {
         </Box>
 
         {/* 정보 */}
-        <Stack gap="md" mb="xl">
+        <Stack
+          gap="md"
+          style={{
+            borderTop: "1px solid var(--color-border)",
+            paddingTop: "xl",
+          }}
+        >
           {items.map((item, index) => (
             <Group
               key={index}
               justify="space-between"
               py="xs"
-              style={{ borderBottom: "1px solid var(--mantine-color-dark-4)" }}
+              style={{ borderBottom: "1px solid var(--color-border)" }}
             >
               <Text size="sm" c="dimmed">
                 {item.label}
@@ -80,99 +91,43 @@ export default function AboutPage() {
                   target={item.external ? "_blank" : undefined}
                   rel={item.external ? "noopener noreferrer" : undefined}
                   size="sm"
-                  c="dimmed"
                   underline="hover"
-                  style={{
-                    color:
-                      hoveredIndex === index
-                        ? "white"
-                        : "var(--mantine-color-text)",
-                    transition: "color 0.2s",
-                  }}
-                  onMouseEnter={() => setHoveredIndex(index)}
-                  onMouseLeave={() => setHoveredIndex(null)}
                 >
                   {item.value}
                 </Anchor>
               ) : (
-                <Text
-                  size="sm"
-                  c="dimmed"
-                  ta="right"
-                  style={{ color: "var(--mantine-color-text)" }}
-                >
-                  {item.value}
-                </Text>
+                <Text size="sm">{item.value}</Text>
               )}
             </Group>
           ))}
         </Stack>
 
-        {/* 한 줄 소개 */}
-        <Box mb="xl" style={{ textAlign: "center" }}>
-          <Text size="sm" c="dimmed" fs="italic">
-            &ldquo;뭐든 만듭니다.&rdquo;
-          </Text>
-        </Box>
-
         {/* 기술 스택 */}
-        <Box mb="xl">
+        <Box
+          style={{
+            borderTop: "1px solid var(--color-border)",
+            paddingTop: "xl",
+          }}
+        >
           <Text
             size="xs"
             c="dimmed"
             tt="uppercase"
-            ta="center"
             mb="md"
-            fw={700}
-            style={{ letterSpacing: "2px" }}
+            fw={500}
+            style={{ letterSpacing: "0.1em" }}
           >
             Skills
           </Text>
-          <Group justify="center" gap="xs">
-            {[
-              "TypeScript",
-              "C#",
-              "ASP.NET",
-              "JavaScript",
-              "Java",
-              "Kotlin",
-              "Swift",
-              "iOS",
-              "Android",
-              "Web",
-            ].map(skill => (
-              <Badge
-                key={skill}
-                variant="outline"
-                color="gray"
-                size="sm"
-                radius="xl"
-                style={{
-                  fontWeight: 400,
-                  color: "var(--mantine-color-dimmed)",
-                  borderColor: "var(--mantine-color-dark-4)",
-                }}
-              >
+          <Group gap="sm">
+            {skills.map(skill => (
+              <Text key={skill} size="sm" c="dimmed">
                 {skill}
-              </Badge>
+              </Text>
             ))}
           </Group>
         </Box>
-      </Box>
-
-      {/* 돌아가기 */}
-      <Box mt="lg">
-        <Button
-          component={Link}
-          href="/"
-          variant="subtle"
-          color="gray"
-          size="sm"
-          leftSection="←"
-        >
-          돌아가기
-        </Button>
-      </Box>
+      </Stack>
     </Container>
   );
 }

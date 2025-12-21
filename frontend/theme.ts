@@ -1,8 +1,8 @@
 import { createTheme, MantineColorsTuple } from "@mantine/core";
 
-// Define custom colors - neutral base with accent accent
+// Define custom colors - pure grayscale
 const neutral: MantineColorsTuple = [
-  "#f5f5f5", // 50 (approx)
+  "#f5f5f5", // 50
   "#e5e5e5", // 100
   "#d4d4d4", // 200
   "#a3a3a3", // 300
@@ -14,24 +14,9 @@ const neutral: MantineColorsTuple = [
   "#0a0a0a", // 950 - Background default
 ];
 
-// Accent color - subtle blue for interactive elements
-const accent: MantineColorsTuple = [
-  "#e8f4ff", // 50
-  "#d0e8ff", // 100
-  "#a8d8ff", // 200
-  "#7fc7ff", // 300
-  "#5ab8ff", // 400
-  "#3b9eec", // 500 - Primary accent
-  "#2e82d0", // 600
-  "#2169b3", // 700
-  "#1751a3", // 800
-  "#0f3a8a", // 900
-];
-
 export const theme = createTheme({
   colors: {
     neutral,
-    accent,
   },
   primaryColor: "neutral",
 
@@ -41,11 +26,11 @@ export const theme = createTheme({
 
   // Typography scaling
   fontSizes: {
-    xs: "0.75rem", // 12px
-    sm: "0.875rem", // 14px
-    md: "1rem", // 16px
-    lg: "1.125rem", // 18px
-    xl: "1.25rem", // 20px
+    xs: "0.75rem",
+    sm: "0.875rem",
+    md: "1rem",
+    lg: "1.125rem",
+    xl: "1.25rem",
   },
 
   // Line heights for better readability
@@ -59,25 +44,25 @@ export const theme = createTheme({
 
   // Spacing scale
   spacing: {
-    xs: "0.5rem", // 8px
-    sm: "0.75rem", // 12px
-    md: "1rem", // 16px
-    lg: "1.5rem", // 24px
-    xl: "2rem", // 32px
+    xs: "0.5rem",
+    sm: "0.75rem",
+    md: "1rem",
+    lg: "1.5rem",
+    xl: "2rem",
   },
 
   // Border radius scale
   radius: {
-    xs: "0.25rem", // 4px
-    sm: "0.5rem", // 8px
-    md: "0.75rem", // 12px
-    lg: "1rem", // 16px
-    xl: "1.5rem", // 24px
+    xs: "0.25rem",
+    sm: "0.5rem",
+    md: "0.75rem",
+    lg: "1rem",
+    xl: "1.5rem",
   },
 
   defaultRadius: "md",
 
-  // Button styles
+  // Component styles
   components: {
     Button: {
       defaultProps: {
@@ -87,59 +72,44 @@ export const theme = createTheme({
         root: {
           fontWeight: 500,
           letterSpacing: "0.02em",
-          transition: "all 0.2s ease-in-out",
-
-          "&:hover": {
-            transform: "translateY(-1px)",
-          },
-
-          "&:active": {
-            transform: "translateY(0)",
-          },
+          transition: "border-color 0.2s ease-in-out",
         },
       },
     },
 
-    // Text input styles
     TextInput: {
       defaultProps: {
         size: "md",
       },
       styles: {
         input: {
-          transition: "all 0.2s ease-in-out",
-
+          transition: "border-color 0.2s ease-in-out",
           "&:focus": {
-            borderColor: "var(--mantine-color-accent-5)",
-            boxShadow: "0 0 0 2px rgba(58, 158, 236, 0.1)",
+            borderColor: "var(--mantine-color-neutral-4)",
           },
         },
       },
     },
 
-    // Paper/Card styles
     Paper: {
       styles: {
         root: {
-          transition: "all 0.2s ease-in-out",
+          transition: "border-color 0.2s ease-in-out",
         },
       },
     },
 
-    // Anchor/Link styles
     Anchor: {
       styles: {
         root: {
           transition: "color 0.2s ease-in-out",
-
           "&:hover": {
-            color: "var(--mantine-color-accent-5)",
+            color: "var(--mantine-color-neutral-2)",
           },
         },
       },
     },
 
-    // Title styles
     Title: {
       styles: {
         root: {
@@ -149,7 +119,6 @@ export const theme = createTheme({
       },
     },
 
-    // Text styles
     Text: {
       styles: {
         root: {
@@ -157,13 +126,5 @@ export const theme = createTheme({
         },
       },
     },
-  },
-
-  // Global styles
-  other: {
-    // Custom shadows for depth
-    shadowElevationOne: "0 1px 2px rgba(0, 0, 0, 0.3)",
-    shadowElevationTwo: "0 3px 8px rgba(0, 0, 0, 0.3)",
-    shadowElevationThree: "0 8px 16px rgba(0, 0, 0, 0.3)",
   },
 });
