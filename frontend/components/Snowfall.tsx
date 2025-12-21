@@ -18,25 +18,43 @@ export default function Snowfall() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext("2d");
+    // Ensure the canvas overlays the entire viewport (no Tailwind dependency)
+    canvas.style.position = "fixed";
+    canvas.style.top = "0";
+    canvas.style.right = "0";
+    canvas.style.bottom = "0";
+    canvas.style.left = "0";
+    canvas.style.width = "100vw";
+    canvas.style.height = "100vh";
+    canvas.style.pointerEvents = "none";
+    canvas.style.zIndex = "999";
+
+    const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
     let animationFrameId: number;
     let snowflakes: Snowflake[] = [];
 
     const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      // Match device pixels for crispness
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = Math.floor(window.innerWidth * dpr);
+      canvas.height = Math.floor(window.innerHeight * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
 
     const createSnowflakes = () => {
-      const count = Math.floor((canvas.width * canvas.height) / 15000);
+      // Use CSS px (viewport) dimensions for simulation coordinates
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+
+      const count = Math.floor((w * h) / 15000);
       snowflakes = [];
 
       for (let i = 0; i < count; i++) {
         snowflakes.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
+          x: Math.random() * w,
+          y: Math.random() * h,
           radius: Math.random() * 2 + 1,
           speed: Math.random() * 0.5 + 0.2,
           opacity: Math.random() * 0.3 + 0.1,
@@ -46,7 +64,10 @@ export default function Snowfall() {
     };
 
     const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+
+      ctx.clearRect(0, 0, w, h);
 
       snowflakes.forEach(flake => {
         ctx.beginPath();
@@ -57,15 +78,15 @@ export default function Snowfall() {
         flake.y += flake.speed;
         flake.x += flake.drift + Math.sin(flake.y * 0.01) * 0.3;
 
-        if (flake.y > canvas.height) {
+        if (flake.y > h) {
           flake.y = -flake.radius;
-          flake.x = Math.random() * canvas.width;
+          flake.x = Math.random() * w;
         }
 
-        if (flake.x > canvas.width) {
+        if (flake.x > w) {
           flake.x = 0;
         } else if (flake.x < 0) {
-          flake.x = canvas.width;
+          flake.x = w;
         }
       });
 
@@ -89,11 +110,6 @@ export default function Snowfall() {
     };
   }, []);
 
-  return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-0"
-      aria-hidden="true"
-    />
-  );
+  // Keep SSR/CSR markup stable; styling is applied in useEffect (client only)
+  return <canvas ref={canvasRef} aria-hidden="true" />;
 }

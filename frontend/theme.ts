@@ -19,7 +19,7 @@ export const theme = createTheme({
     neutral,
   },
   primaryColor: "neutral",
-  fontFamily: "var(--font-geist-sans), sans-serif",
-  fontFamilyMonospace: "var(--font-geist-mono), monospace",
+  fontFamily: "NanumMyeongjo, serif",
+  fontFamilyMonospace: "NanumMyeongjo, serif",
   defaultRadius: "md",
 });

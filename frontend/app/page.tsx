@@ -18,8 +18,6 @@ export default function HomePage() {
       style={{
         display: "flex",
         flexDirection: "column",
-        position: "relative",
-        zIndex: 1,
       }}
     >
       {/* Main Content */}
@@ -54,6 +52,9 @@ export default function HomePage() {
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
+                justifyContent: "center",
+                width: 140,
+                height: 140,
                 "&:hover": {
                   borderColor: "var(--mantine-color-dark-2)",
                   backgroundColor: "var(--mantine-color-dark-6)",
