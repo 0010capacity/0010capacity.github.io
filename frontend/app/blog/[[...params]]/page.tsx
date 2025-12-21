@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { BlogPost } from "@/lib/types";
+import type { BlogPost } from "@/lib/types";
 import BlogPageClient from "./client";
 
 const API_BASE_URL =
@@ -8,27 +8,38 @@ const API_BASE_URL =
 // Revalidate every hour
 export const revalidate = 3600;
 
-export async function generateStaticParams() {
+// On GitHub Pages static export + trailingSlash, the index route must exist as
+// /blog/index.html. If it's missing, visiting /blog/ can 404 and trigger the SPA
+// fallback, causing redirect loops.
+export async function generateStaticParams(): Promise<
+  Array<{ params: string[] }>
+> {
+  const index = { params: [] as string[] };
+
   try {
     const response = await fetch(
       `${API_BASE_URL}/api/blog?published=true&limit=100`,
-      {
-        next: { revalidate: 3600 },
-      }
+      { next: { revalidate: 3600 } }
     );
 
     if (!response.ok) {
       console.warn("Failed to fetch blog posts for static generation");
-      return [{ params: [] }];
+      return [index];
     }
 
     const posts: BlogPost[] = await response.json();
-    return posts.map(post => ({
-      params: [post.slug],
-    }));
+
+    return [
+      index,
+      ...(posts ?? [])
+        .filter((post): post is BlogPost => Boolean(post?.slug))
+        .map(post => ({
+          params: [post.slug],
+        })),
+    ];
   } catch (error) {
     console.warn("Error generating static params for blog:", error);
-    return [{ params: [] }];
+    return [index];
   }
 }
 
