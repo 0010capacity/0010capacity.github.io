@@ -19,28 +19,37 @@ import {
   Anchor,
   Box,
   TypographyStylesProvider,
+  Paper,
+  Center,
+  Loader,
 } from "@mantine/core";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
 function NovelListSkeleton() {
   return (
-    <Stack gap="xl">
+    <Stack gap="md" aria-label="소설 목록 로딩" aria-busy="true">
       {Array.from({ length: 6 }).map((_, i) => (
-        <Box
+        <Paper
           key={i}
-          py="lg"
-          style={{ borderBottom: "1px solid var(--mantine-color-dark-4)" }}
+          p="lg"
+          withBorder
+          style={{
+            borderColor: "var(--mantine-color-dark-4)",
+            transition: "all 0.2s ease",
+          }}
         >
-          <Group justify="space-between" align="flex-start" mb="xs">
-            <Skeleton height={24} width="66%" radius="sm" />
-            <Skeleton height={20} width={64} radius="sm" />
+          <Group justify="space-between" align="flex-start" gap="lg">
+            <Box style={{ flex: 1, minWidth: 0 }}>
+              <Group gap="xs" mb="sm">
+                <Skeleton height={16} width={60} radius="sm" />
+                <Skeleton height={16} width={48} radius="sm" />
+              </Group>
+              <Skeleton height={24} width="70%" radius="sm" mb="sm" />
+              <Skeleton height={16} width="100%" radius="sm" />
+            </Box>
+            <Skeleton height={16} width={80} radius="sm" />
           </Group>
-          <Skeleton height={16} width="100%" mb="xs" radius="sm" />
-          <Skeleton height={16} width="80%" mb="md" radius="sm" />
-          <Group gap="md">
-            <Skeleton height={12} width={80} radius="sm" />
-            <Skeleton height={12} width={56} radius="sm" />
-          </Group>
-        </Box>
+        </Paper>
       ))}
     </Stack>
   );
@@ -51,6 +60,7 @@ function NovelList() {
   const [novels, setNovels] = useState<Novel[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [hoveredSlug, setHoveredSlug] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchNovels = async () => {
@@ -92,101 +102,238 @@ function NovelList() {
     }
   };
 
+  const statusColor = (status: string) => {
+    switch (status) {
+      case "draft":
+        return "gray";
+      case "ongoing":
+        return "accent";
+      case "completed":
+        return "teal";
+      default:
+        return "gray";
+    }
+  };
+
   return (
-    <Container size="sm" py="xl" mih="100vh">
-      <header style={{ marginBottom: "var(--mantine-spacing-xl)" }}>
-        <Button
-          component={Link}
-          href="/"
-          variant="subtle"
-          color="gray"
-          size="sm"
-          leftSection="←"
-        >
-          돌아가기
-        </Button>
-        <Title order={1} fw={300} mt="lg" mb="xs">
-          소설
-        </Title>
-        <Text size="sm" c="dimmed">
-          이야기를 씁니다
-        </Text>
-      </header>
-
-      {error && (
-        <Box
-          p="md"
-          mb="lg"
-          style={{
-            border: "1px solid var(--mantine-color-red-9)",
-            backgroundColor: "rgba(255, 0, 0, 0.1)",
-          }}
-        >
-          <Text c="red.4" size="sm">
-            {error}
-          </Text>
-        </Box>
-      )}
-
-      {loading && <NovelListSkeleton />}
-
-      {!loading && novels.length > 0 && (
-        <Stack gap="lg">
-          {novels.map(novel => (
-            <Anchor
+    <Box mih="100vh" py="xl">
+      <Container size="sm">
+        <Stack gap="xl">
+          {/* Header */}
+          <Box
+            pb="xl"
+            style={{ borderBottom: "1px solid var(--mantine-color-dark-4)" }}
+          >
+            <Button
               component={Link}
-              key={novel.id}
-              href={`/novels?novel=${novel.slug}`}
-              underline="never"
+              href="/"
+              variant="subtle"
+              color="gray"
+              size="sm"
+              leftSection={<ArrowLeft size={16} />}
+              mb="lg"
               style={{
-                display: "block",
-                padding: "var(--mantine-spacing-lg) 0",
-                borderBottom: "1px solid var(--mantine-color-dark-4)",
-                transition: "border-color 0.2s",
+                transition: "all 0.2s ease",
+                "&:hover": {
+                  color: "var(--mantine-color-accent-5)",
+                },
               }}
             >
-              <Group justify="space-between" align="flex-start" mb="xs">
-                <Title
-                  order={2}
-                  size="h3"
-                  fw={500}
-                  c="dimmed"
-                  style={{ transition: "color 0.2s" }}
-                >
-                  {novel.title}
-                </Title>
-                <Badge variant="light" color="gray" size="sm" radius="sm">
-                  {statusLabel(novel.status)}
-                </Badge>
-              </Group>
-              {novel.description && (
-                <Text size="sm" c="dimmed" lineClamp={2} mb="xs">
-                  {novel.description}
-                </Text>
-              )}
-              <Group gap="md">
-                {novel.genre && (
-                  <Text size="xs" c="dimmed">
-                    {novel.genre}
-                  </Text>
-                )}
-              </Group>
-            </Anchor>
-          ))}
-        </Stack>
-      )}
+              돌아가기
+            </Button>
 
-      {!loading && novels.length === 0 && !error && (
-        <Box py={100} ta="center">
-          <Text c="dimmed" mb="xs">
-            아직 등록된 소설이 없습니다
-          </Text>
-          <Text size="sm" c="dimmed">
-            곧 새로운 이야기가 시작됩니다
-          </Text>
-        </Box>
-      )}
-    </Container>
+            <Title
+              order={1}
+              fw={300}
+              size="h1"
+              mb="sm"
+              style={{
+                letterSpacing: "-0.02em",
+                lineHeight: 1.2,
+              }}
+            >
+              소설
+            </Title>
+
+            <Text size="md" c="dimmed" style={{ fontSize: "1.05rem" }}>
+              이야기를 씁니다
+            </Text>
+
+            {novels.length > 0 && (
+              <Text size="xs" c="dark.6" mt="md">
+                총 {novels.length}개의 소설
+              </Text>
+            )}
+          </Box>
+
+          {/* Error Message */}
+          {error && (
+            <Paper
+              withBorder
+              p="md"
+              bg="rgba(255, 0, 0, 0.05)"
+              style={{
+                borderColor: "var(--mantine-color-red-9)",
+                borderLeft: "3px solid var(--mantine-color-red-9)",
+              }}
+            >
+              <Group gap="sm">
+                <Text size="sm" c="red.4">
+                  오류가 발생했습니다
+                </Text>
+                <Text size="xs" c="red.6">
+                  {error}
+                </Text>
+              </Group>
+            </Paper>
+          )}
+
+          {/* Loading State */}
+          {loading && <NovelListSkeleton />}
+
+          {/* Novels List */}
+          {!loading && novels.length > 0 && (
+            <Stack gap="md">
+              {novels.map(novel => (
+                <Anchor
+                  component={Link}
+                  key={novel.id}
+                  href={`/novels?novel=${novel.slug}`}
+                  onMouseEnter={() => setHoveredSlug(novel.slug)}
+                  onMouseLeave={() => setHoveredSlug(null)}
+                  underline="never"
+                  style={{
+                    width: "100%",
+                    textAlign: "left",
+                  }}
+                >
+                  <Paper
+                    p="lg"
+                    withBorder
+                    style={{
+                      borderColor:
+                        hoveredSlug === novel.slug
+                          ? "var(--mantine-color-accent-5)"
+                          : "var(--mantine-color-dark-4)",
+                      background:
+                        hoveredSlug === novel.slug
+                          ? "linear-gradient(135deg, rgba(58, 158, 236, 0.05) 0%, rgba(58, 158, 236, 0.02) 100%)"
+                          : "transparent",
+                      transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                      cursor: "pointer",
+                      transform:
+                        hoveredSlug === novel.slug
+                          ? "translateX(4px)"
+                          : "translateX(0)",
+                      boxShadow:
+                        hoveredSlug === novel.slug
+                          ? "0 4px 12px rgba(58, 158, 236, 0.1)"
+                          : "none",
+                    }}
+                  >
+                    <Group justify="space-between" align="flex-start" gap="md">
+                      <Box style={{ flex: 1, minWidth: 0 }}>
+                        {/* Status Badge */}
+                        <Group gap="xs" mb="sm">
+                          <Badge
+                            color={statusColor(novel.status)}
+                            size="sm"
+                            variant="light"
+                            style={{
+                              textTransform: "none",
+                              fontSize: "0.75rem",
+                            }}
+                          >
+                            {statusLabel(novel.status)}
+                          </Badge>
+                          {novel.genre && (
+                            <Badge
+                              color="gray"
+                              size="sm"
+                              variant="light"
+                              style={{
+                                textTransform: "none",
+                                fontSize: "0.75rem",
+                              }}
+                            >
+                              {novel.genre}
+                            </Badge>
+                          )}
+                        </Group>
+
+                        {/* Title */}
+                        <Title
+                          order={2}
+                          size="h4"
+                          fw={600}
+                          c={hoveredSlug === novel.slug ? "white" : "gray.0"}
+                          mb="sm"
+                          style={{
+                            transition: "color 0.2s ease",
+                            letterSpacing: "-0.01em",
+                            lineHeight: 1.3,
+                          }}
+                        >
+                          {novel.title}
+                        </Title>
+
+                        {/* Description/Excerpt */}
+                        {novel.description && (
+                          <Text
+                            size="sm"
+                            c="dimmed"
+                            lineClamp={2}
+                            style={{
+                              transition: "color 0.2s ease",
+                            }}
+                          >
+                            {novel.description}
+                          </Text>
+                        )}
+                      </Box>
+
+                      {/* Arrow icon for interaction cue */}
+                      <Box
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          opacity: hoveredSlug === novel.slug ? 1 : 0.4,
+                          transition: "all 0.2s ease",
+                          transform:
+                            hoveredSlug === novel.slug
+                              ? "translateX(4px)"
+                              : "translateX(0)",
+                        }}
+                      >
+                        <ArrowRight
+                          size={20}
+                          style={{
+                            color: "var(--mantine-color-accent-5)",
+                          }}
+                        />
+                      </Box>
+                    </Group>
+                  </Paper>
+                </Anchor>
+              ))}
+            </Stack>
+          )}
+
+          {/* Empty State */}
+          {!loading && novels.length === 0 && !error && (
+            <Center py="xl">
+              <Stack align="center">
+                <Text c="dimmed">아직 등록된 소설이 없습니다</Text>
+                <Text size="sm" c="dimmed">
+                  곧 새로운 이야기가 시작됩니다
+                </Text>
+              </Stack>
+            </Center>
+          )}
+        </Stack>
+      </Container>
+    </Box>
   );
 }
 
@@ -262,228 +409,258 @@ function NovelDetail({ slug }: { slug: string }) {
 
   if (loading) {
     return (
-      <Container
-        size="sm"
-        h="100vh"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <Text size="sm" c="dimmed">
-          불러오는 중...
-        </Text>
-      </Container>
+      <Center mih="100vh">
+        <Loader size="sm" />
+      </Center>
     );
   }
 
   if (error || !novel) {
     return (
-      <Container size="sm" py="xl" mih="100vh">
-        <Text c="dimmed" mb="md">
-          {error || "소설을 찾을 수 없습니다"}
-        </Text>
-        <Button
-          component={Link}
-          href="/novels"
-          variant="subtle"
-          color="gray"
-          size="sm"
-          leftSection="←"
-        >
-          목록으로
-        </Button>
-      </Container>
+      <Box mih="100vh" py="xl">
+        <Container size="sm">
+          <Stack gap="lg">
+            <Button
+              component={Link}
+              href="/novels"
+              variant="subtle"
+              color="gray"
+              size="sm"
+              leftSection={<ArrowLeft size={16} />}
+              style={{
+                transition: "all 0.2s ease",
+                "&:hover": {
+                  color: "var(--mantine-color-accent-5)",
+                },
+              }}
+            >
+              목록으로
+            </Button>
+            <Text c="dimmed">{error || "소설을 찾을 수 없습니다"}</Text>
+          </Stack>
+        </Container>
+      </Box>
     );
   }
 
   const unit = getUnit(novel.novel_type);
 
   return (
-    <Container size="sm" py="xl" mih="100vh">
-      <Button
-        component={Link}
-        href="/novels"
-        variant="subtle"
-        color="gray"
-        size="sm"
-        leftSection="←"
-      >
-        목록으로
-      </Button>
-
-      <header
-        style={{
-          marginTop: "var(--mantine-spacing-xl)",
-          marginBottom: "var(--mantine-spacing-xl)",
-        }}
-      >
-        <Group gap="xs" mb="md">
-          <Badge variant="outline" color="gray" size="sm" radius="sm">
-            {statusLabel(novel.status)}
-          </Badge>
-          {novel.genre && (
-            <Text size="xs" c="dimmed">
-              {novel.genre}
-            </Text>
-          )}
-          {novel.novel_type && (
-            <Text size="xs" c="dimmed">
-              {novel.novel_type === "series"
-                ? "연재물"
-                : novel.novel_type === "long"
-                  ? "장편"
-                  : "단편"}
-            </Text>
-          )}
-        </Group>
-
-        <Title order={1} fw={300} size="h1" mb="lg">
-          {novel.title}
-        </Title>
-
-        {novel.description && (
-          <Text c="dimmed" style={{ lineHeight: 1.6 }}>
-            {novel.description}
-          </Text>
-        )}
-
-        <Group
-          gap="lg"
-          mt="xl"
-          pt="lg"
-          style={{ borderTop: "1px solid var(--mantine-color-dark-4)" }}
-        >
-          <Text size="sm" c="dimmed">
-            {chapters.length} {unit}
-          </Text>
-          <Text size="sm" c="dimmed">
-            {new Date(novel.created_at).toLocaleDateString("ko-KR")}
-          </Text>
-        </Group>
-      </header>
-
-      <section>
-        <Text
-          size="sm"
-          c="dimmed"
-          tt="uppercase"
-          fw={700}
-          mb="lg"
-          style={{ letterSpacing: "1px" }}
-        >
-          {novel.novel_type === "series" ? "회차 목록" : "목차"}
-        </Text>
-
-        {chapters.length > 0 ? (
-          <Stack gap={0}>
-            {chapters.map(chapter => (
-              <Anchor
-                component={Link}
-                key={chapter.id}
-                href={`/novels?novel=${slug}&chapter=${chapter.chapter_number}`}
-                underline="never"
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "baseline",
-                  padding: "var(--mantine-spacing-md) 0",
-                  borderBottom: "1px solid var(--mantine-color-dark-4)",
-                  color: "inherit",
-                }}
-              >
-                <Group gap="lg" align="baseline">
-                  <Text size="sm" c="dimmed" w={48}>
-                    {chapter.chapter_number}
-                    {unit}
-                  </Text>
-                  <Text c="dimmed" style={{ transition: "color 0.2s" }}>
-                    {chapter.title}
-                  </Text>
-                </Group>
-                <Text size="xs" c="dark.3">
-                  {new Date(chapter.created_at).toLocaleDateString("ko-KR", {
-                    month: "short",
-                    day: "numeric",
-                  })}
-                </Text>
-              </Anchor>
-            ))}
-          </Stack>
-        ) : (
-          <Text size="sm" c="dimmed">
-            아직 {unit}이 없습니다
-          </Text>
-        )}
-      </section>
-
-      {novel.related_novels && novel.related_novels.length > 0 && (
-        <section
-          style={{
-            marginTop: "var(--mantine-spacing-xl)",
-            paddingTop: "var(--mantine-spacing-xl)",
-            borderTop: "1px solid var(--mantine-color-dark-4)",
-          }}
-        >
-          <Text
+    <Box mih="100vh" py="xl">
+      <Container size="sm">
+        <Stack gap="xl">
+          <Button
+            component={Link}
+            href="/novels"
+            variant="subtle"
+            color="gray"
             size="sm"
-            c="dimmed"
-            tt="uppercase"
-            fw={700}
-            mb="lg"
-            style={{ letterSpacing: "1px" }}
+            leftSection={<ArrowLeft size={16} />}
+            style={{
+              transition: "all 0.2s ease",
+              "&:hover": {
+                color: "var(--mantine-color-accent-5)",
+              },
+            }}
           >
-            연관 작품
-          </Text>
-          <Stack gap="sm">
-            {novel.related_novels.map(relatedNovel => (
-              <Anchor
-                component={Link}
-                key={relatedNovel.id}
-                href={`/novels?novel=${relatedNovel.slug}`}
-                underline="never"
-                p="md"
+            목록으로
+          </Button>
+
+          {/* Header */}
+          <Box
+            pb="xl"
+            style={{ borderBottom: "1px solid var(--mantine-color-dark-4)" }}
+          >
+            <Group gap="xs" mb="md">
+              <Badge variant="light" color="accent" size="sm" radius="sm">
+                {statusLabel(novel.status)}
+              </Badge>
+              {novel.genre && (
+                <Badge variant="light" color="gray" size="sm" radius="sm">
+                  {novel.genre}
+                </Badge>
+              )}
+              {novel.novel_type && (
+                <Badge variant="light" color="gray" size="sm" radius="sm">
+                  {novel.novel_type === "series"
+                    ? "연재물"
+                    : novel.novel_type === "long"
+                      ? "장편"
+                      : "단편"}
+                </Badge>
+              )}
+            </Group>
+
+            <Title
+              order={1}
+              fw={300}
+              size="h1"
+              mb="md"
+              style={{
+                letterSpacing: "-0.02em",
+                lineHeight: 1.2,
+              }}
+            >
+              {novel.title}
+            </Title>
+
+            {novel.description && (
+              <Text c="dimmed" style={{ lineHeight: 1.6 }}>
+                {novel.description}
+              </Text>
+            )}
+
+            <Group
+              gap="lg"
+              mt="md"
+              pt="lg"
+              style={{ borderTop: "1px solid var(--mantine-color-dark-4)" }}
+            >
+              <Text size="sm" c="dimmed">
+                {chapters.length} {unit}
+              </Text>
+              <Text size="sm" c="dimmed">
+                {new Date(novel.created_at).toLocaleDateString("ko-KR")}
+              </Text>
+            </Group>
+          </Box>
+
+          {/* Chapters Section */}
+          <div>
+            <Title
+              order={2}
+              size="h4"
+              fw={600}
+              mb="md"
+              style={{
+                textTransform: "uppercase",
+                fontSize: "0.85rem",
+                letterSpacing: "1px",
+              }}
+            >
+              {novel.novel_type === "series" ? "회차 목록" : "목차"}
+            </Title>
+
+            {chapters.length > 0 ? (
+              <Stack gap={0}>
+                {chapters.map(chapter => (
+                  <Anchor
+                    component={Link}
+                    key={chapter.id}
+                    href={`/novels?novel=${slug}&chapter=${chapter.chapter_number}`}
+                    underline="never"
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "baseline",
+                      padding: "var(--mantine-spacing-md) 0",
+                      borderBottom: "1px solid var(--mantine-color-dark-4)",
+                      color: "inherit",
+                    }}
+                  >
+                    <Group gap="lg" align="baseline">
+                      <Text size="sm" c="dimmed" w={48}>
+                        {chapter.chapter_number}
+                        {unit}
+                      </Text>
+                      <Text c="dimmed" style={{ transition: "color 0.2s" }}>
+                        {chapter.title}
+                      </Text>
+                    </Group>
+                    <Text size="xs" c="dark.3">
+                      {new Date(chapter.created_at).toLocaleDateString(
+                        "ko-KR",
+                        {
+                          month: "short",
+                          day: "numeric",
+                        }
+                      )}
+                    </Text>
+                  </Anchor>
+                ))}
+              </Stack>
+            ) : (
+              <Text size="sm" c="dimmed">
+                아직 {unit}이 없습니다
+              </Text>
+            )}
+          </div>
+
+          {novel.related_novels && novel.related_novels.length > 0 && (
+            <div
+              style={{
+                marginTop: "var(--mantine-spacing-xl)",
+                paddingTop: "var(--mantine-spacing-xl)",
+                borderTop: "1px solid var(--mantine-color-dark-4)",
+              }}
+            >
+              <Title
+                order={2}
+                size="h4"
+                fw={600}
+                mb="md"
                 style={{
-                  display: "block",
-                  border: "1px solid var(--mantine-color-dark-4)",
-                  borderRadius: "var(--mantine-radius-sm)",
-                  transition: "background-color 0.2s",
-                  color: "inherit",
+                  textTransform: "uppercase",
+                  fontSize: "0.85rem",
+                  letterSpacing: "1px",
                 }}
               >
-                <Group justify="space-between" align="flex-start" wrap="nowrap">
-                  <Box style={{ flex: 1, minWidth: 0 }}>
-                    <Text
-                      fw={500}
-                      c="dimmed"
-                      truncate
-                      style={{ transition: "color 0.2s" }}
+                연관 작품
+              </Title>
+              <Stack gap="sm">
+                {novel.related_novels.map(relatedNovel => (
+                  <Anchor
+                    component={Link}
+                    key={relatedNovel.id}
+                    href={`/novels?novel=${relatedNovel.slug}`}
+                    underline="never"
+                    p="md"
+                    style={{
+                      display: "block",
+                      border: "1px solid var(--mantine-color-dark-4)",
+                      borderRadius: "var(--mantine-radius-sm)",
+                      transition: "background-color 0.2s",
+                      color: "inherit",
+                    }}
+                  >
+                    <Group
+                      justify="space-between"
+                      align="flex-start"
+                      wrap="nowrap"
                     >
-                      {relatedNovel.title}
-                    </Text>
-                    <Text size="xs" c="dimmed" mt={4}>
-                      {relatedNovel.relation_type === "sequel"
-                        ? "후속작"
-                        : relatedNovel.relation_type === "prequel"
-                          ? "전편"
-                          : relatedNovel.relation_type === "spinoff"
-                            ? "스핀오프"
-                            : relatedNovel.relation_type === "same_universe"
-                              ? "같은 세계관"
-                              : "연관 작품"}
-                    </Text>
-                  </Box>
-                  <Text size="xs" c="dimmed">
-                    →
-                  </Text>
-                </Group>
-              </Anchor>
-            ))}
-          </Stack>
-        </section>
-      )}
-    </Container>
+                      <Box style={{ flex: 1, minWidth: 0 }}>
+                        <Text
+                          fw={500}
+                          c="dimmed"
+                          truncate
+                          style={{ transition: "color 0.2s" }}
+                        >
+                          {relatedNovel.title}
+                        </Text>
+                        <Text size="xs" c="dimmed" mt={4}>
+                          {relatedNovel.relation_type === "sequel"
+                            ? "후속작"
+                            : relatedNovel.relation_type === "prequel"
+                              ? "전편"
+                              : relatedNovel.relation_type === "spinoff"
+                                ? "스핀오프"
+                                : relatedNovel.relation_type === "same_universe"
+                                  ? "같은 세계관"
+                                  : "연관 작품"}
+                        </Text>
+                      </Box>
+                      <Text size="xs" c="dimmed">
+                        →
+                      </Text>
+                    </Group>
+                  </Anchor>
+                ))}
+              </Stack>
+            </div>
+          )}
+        </Stack>
+      </Container>
+    </Box>
   );
 }
 

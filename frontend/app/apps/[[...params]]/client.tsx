@@ -15,13 +15,15 @@ import {
   Button,
   Center,
   Loader,
-  Alert,
-  Badge,
   Paper,
   Text,
   Box,
+  Title,
+  Anchor,
+  Skeleton,
+  Badge,
 } from "@mantine/core";
-import { IconAlertCircle } from "@tabler/icons-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { appsApi } from "@/lib/api";
 import { App, DistributionChannel, Platform } from "@/lib/types";
 
@@ -78,7 +80,7 @@ function PlatformBadge({ platform }: { platform: Platform }) {
     color: "gray",
   };
   return (
-    <Badge color={info.color} size="xs">
+    <Badge color={info.color} size="xs" variant="light">
       {info.name}
     </Badge>
   );
@@ -89,12 +91,43 @@ function getChannelName(channel: DistributionChannel): string {
   return CHANNEL_NAMES[channel.type] || channel.type;
 }
 
+function AppListSkeleton() {
+  return (
+    <Stack gap="md" aria-label="앱 목록 로딩" aria-busy="true">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <Paper
+          key={i}
+          p="lg"
+          withBorder
+          style={{
+            borderColor: "var(--mantine-color-dark-4)",
+            transition: "all 0.2s ease",
+          }}
+        >
+          <Group justify="space-between" align="flex-start" gap="lg">
+            <Box style={{ flex: 1, minWidth: 0 }}>
+              <Group gap="xs" mb="sm">
+                <Skeleton height={16} width={60} radius="sm" />
+                <Skeleton height={16} width={48} radius="sm" />
+              </Group>
+              <Skeleton height={24} width="70%" radius="sm" mb="sm" />
+              <Skeleton height={16} width="100%" radius="sm" />
+            </Box>
+            <Skeleton height={16} width={80} radius="sm" />
+          </Group>
+        </Paper>
+      ))}
+    </Stack>
+  );
+}
+
 // App List Component
 function AppList() {
   const { navigate } = useNav();
   const [apps, setApps] = useState<App[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [hoveredSlug, setHoveredSlug] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchApps = async () => {
@@ -120,99 +153,193 @@ function AppList() {
 
   return (
     <Box mih="100vh" py="xl">
-      <Container size="md">
+      <Container size="sm">
         <Stack gap="xl">
-          <div>
+          {/* Header */}
+          <Box
+            pb="xl"
+            style={{ borderBottom: "1px solid var(--mantine-color-dark-4)" }}
+          >
             <Button
               onClick={() => (window.location.href = "/")}
               variant="subtle"
+              color="gray"
               size="sm"
+              leftSection={<ArrowLeft size={16} />}
               mb="lg"
+              style={{
+                transition: "all 0.2s ease",
+                "&:hover": {
+                  color: "var(--mantine-color-accent-5)",
+                },
+              }}
             >
-              ← 돌아가기
+              돌아가기
             </Button>
-            <Text size="xl" fw={300}>
+
+            <Title
+              order={1}
+              fw={300}
+              size="h1"
+              mb="sm"
+              style={{
+                letterSpacing: "-0.02em",
+                lineHeight: 1.2,
+              }}
+            >
               앱
-            </Text>
-            <Text size="sm" c="dimmed">
+            </Title>
+
+            <Text size="md" c="dimmed" style={{ fontSize: "1.05rem" }}>
               제가 만든 앱들입니다
             </Text>
-          </div>
 
+            {apps.length > 0 && (
+              <Text size="xs" c="dark.6" mt="md">
+                총 {apps.length}개의 앱
+              </Text>
+            )}
+          </Box>
+
+          {/* Error Message */}
           {error && (
-            <Alert
-              icon={<IconAlertCircle size={16} />}
-              title="오류"
-              color="red"
-              variant="light"
+            <Paper
+              withBorder
+              p="md"
+              bg="rgba(255, 0, 0, 0.05)"
+              style={{
+                borderColor: "var(--mantine-color-red-9)",
+                borderLeft: "3px solid var(--mantine-color-red-9)",
+              }}
             >
-              {error}
-            </Alert>
+              <Group gap="sm">
+                <Text size="sm" c="red.4">
+                  오류가 발생했습니다
+                </Text>
+                <Text size="xs" c="red.6">
+                  {error}
+                </Text>
+              </Group>
+            </Paper>
           )}
 
-          {loading && (
-            <Center py="xl">
-              <Loader size="sm" />
-            </Center>
-          )}
+          {/* Loading State */}
+          {loading && <AppListSkeleton />}
 
+          {/* Apps List */}
           {!loading && apps.length > 0 && (
             <Stack gap="md">
               {apps.map(app => (
-                <Paper
-                  key={app.id}
-                  p="md"
-                  radius="md"
+                <Anchor
                   component="button"
+                  key={app.id}
                   onClick={() => navigate({ view: "detail", slug: app.slug })}
+                  onMouseEnter={() => setHoveredSlug(app.slug)}
+                  onMouseLeave={() => setHoveredSlug(null)}
+                  underline="never"
                   style={{
-                    display: "block",
                     width: "100%",
                     textAlign: "left",
-                    borderBottom: "1px solid var(--mantine-color-gray-3)",
                   }}
                 >
-                  <Group gap="md" align="flex-start">
-                    {app.icon_url && (
-                      <Box
-                        component="img"
-                        src={app.icon_url}
-                        alt={app.name}
-                        w={48}
-                        h={48}
-                        style={{
-                          borderRadius: "var(--mantine-radius-md)",
-                          objectFit: "cover",
-                        }}
-                        onError={e => {
-                          (e.target as HTMLImageElement).style.display = "none";
-                        }}
-                      />
-                    )}
-                    <Stack gap="sm" style={{ flex: 1 }}>
-                      <Group gap="xs">
-                        <Text fw={500} size="lg">
+                  <Paper
+                    p="lg"
+                    withBorder
+                    style={{
+                      borderColor:
+                        hoveredSlug === app.slug
+                          ? "var(--mantine-color-accent-5)"
+                          : "var(--mantine-color-dark-4)",
+                      background:
+                        hoveredSlug === app.slug
+                          ? "linear-gradient(135deg, rgba(58, 158, 236, 0.05) 0%, rgba(58, 158, 236, 0.02) 100%)"
+                          : "transparent",
+                      transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                      cursor: "pointer",
+                      transform:
+                        hoveredSlug === app.slug
+                          ? "translateX(4px)"
+                          : "translateX(0)",
+                      boxShadow:
+                        hoveredSlug === app.slug
+                          ? "0 4px 12px rgba(58, 158, 236, 0.1)"
+                          : "none",
+                    }}
+                  >
+                    <Group justify="space-between" align="flex-start" gap="md">
+                      <Box style={{ flex: 1, minWidth: 0 }}>
+                        {/* Platforms */}
+                        {(app.platforms || []).length > 0 && (
+                          <Group gap="xs" mb="sm">
+                            {app.platforms!.map(platform => (
+                              <PlatformBadge
+                                key={platform}
+                                platform={platform as Platform}
+                              />
+                            ))}
+                          </Group>
+                        )}
+
+                        {/* Title */}
+                        <Title
+                          order={2}
+                          size="h4"
+                          fw={600}
+                          c={hoveredSlug === app.slug ? "white" : "gray.0"}
+                          mb="sm"
+                          style={{
+                            transition: "color 0.2s ease",
+                            letterSpacing: "-0.01em",
+                            lineHeight: 1.3,
+                          }}
+                        >
                           {app.name}
-                        </Text>
-                        {(app.platforms || []).map(platform => (
-                          <PlatformBadge
-                            key={platform}
-                            platform={platform as Platform}
-                          />
-                        ))}
-                      </Group>
-                      {app.description && (
-                        <Text size="sm" c="dimmed" lineClamp={2}>
-                          {app.description}
-                        </Text>
-                      )}
-                    </Stack>
-                  </Group>
-                </Paper>
+                        </Title>
+
+                        {/* Description/Excerpt */}
+                        {app.description && (
+                          <Text
+                            size="sm"
+                            c="dimmed"
+                            lineClamp={2}
+                            style={{
+                              transition: "color 0.2s ease",
+                            }}
+                          >
+                            {app.description}
+                          </Text>
+                        )}
+                      </Box>
+
+                      {/* Arrow icon for interaction cue */}
+                      <Box
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          opacity: hoveredSlug === app.slug ? 1 : 0.4,
+                          transition: "all 0.2s ease",
+                          transform:
+                            hoveredSlug === app.slug
+                              ? "translateX(4px)"
+                              : "translateX(0)",
+                        }}
+                      >
+                        <ArrowRight
+                          size={20}
+                          style={{
+                            color: "var(--mantine-color-accent-5)",
+                          }}
+                        />
+                      </Box>
+                    </Group>
+                  </Paper>
+                </Anchor>
               ))}
             </Stack>
           )}
 
+          {/* Empty State */}
           {!loading && apps.length === 0 && !error && (
             <Center py="xl">
               <Stack align="center">
@@ -269,16 +396,24 @@ function AppDetail({ slug }: { slug: string }) {
   if (error || !app) {
     return (
       <Box mih="100vh" py="xl">
-        <Container size="md">
+        <Container size="sm">
           <Stack gap="lg">
-            <Text c="dimmed">{error || "앱을 찾을 수 없습니다"}</Text>
             <Button
               onClick={() => navigate({ view: "list" })}
               variant="subtle"
+              color="gray"
               size="sm"
+              leftSection={<ArrowLeft size={16} />}
+              style={{
+                transition: "all 0.2s ease",
+                "&:hover": {
+                  color: "var(--mantine-color-accent-5)",
+                },
+              }}
             >
-              ← 앱 목록으로
+              앱 목록으로
             </Button>
+            <Text c="dimmed">{error || "앱을 찾을 수 없습니다"}</Text>
           </Stack>
         </Container>
       </Box>
@@ -287,56 +422,81 @@ function AppDetail({ slug }: { slug: string }) {
 
   return (
     <Box mih="100vh" py="xl">
-      <Container size="md">
+      <Container size="sm">
         <Stack gap="xl">
           <Button
             onClick={() => navigate({ view: "list" })}
             variant="subtle"
+            color="gray"
             size="sm"
+            leftSection={<ArrowLeft size={16} />}
+            style={{
+              transition: "all 0.2s ease",
+              "&:hover": {
+                color: "var(--mantine-color-accent-5)",
+              },
+            }}
           >
-            ← 돌아가기
+            돌아가기
           </Button>
 
-          <Group gap="md" align="flex-start">
-            {app.icon_url && (
-              <Box
-                component="img"
-                src={app.icon_url}
-                alt={app.name}
-                w={64}
-                h={64}
-                style={{
-                  borderRadius: "var(--mantine-radius-md)",
-                  objectFit: "cover",
-                }}
-              />
-            )}
-            <Stack gap="sm">
-              <div>
-                <Text fw={500} size="lg">
-                  {app.name}
-                </Text>
-                <Group gap="xs" mt="xs">
-                  {(app.platforms || []).map(platform => (
-                    <PlatformBadge
-                      key={platform}
-                      platform={platform as Platform}
-                    />
-                  ))}
-                </Group>
-              </div>
-              {app.description && (
-                <Text size="sm" c="dimmed">
-                  {app.description}
-                </Text>
+          {/* App Header */}
+          <Box
+            pb="xl"
+            style={{ borderBottom: "1px solid var(--mantine-color-dark-4)" }}
+          >
+            <Group gap="md" align="flex-start" mb="md">
+              {app.icon_url && (
+                <Box
+                  component="img"
+                  src={app.icon_url}
+                  alt={app.name}
+                  w={80}
+                  h={80}
+                  style={{
+                    borderRadius: "var(--mantine-radius-md)",
+                    objectFit: "cover",
+                    border: "1px solid var(--mantine-color-dark-4)",
+                  }}
+                />
               )}
-            </Stack>
-          </Group>
+              <Stack gap="sm" style={{ flex: 1 }}>
+                <div>
+                  <Title order={1} fw={600} mb="sm">
+                    {app.name}
+                  </Title>
+                  {(app.platforms || []).length > 0 && (
+                    <Group gap="xs">
+                      {app.platforms!.map(platform => (
+                        <PlatformBadge
+                          key={platform}
+                          platform={platform as Platform}
+                        />
+                      ))}
+                    </Group>
+                  )}
+                </div>
+                {app.description && (
+                  <Text size="sm" c="dimmed">
+                    {app.description}
+                  </Text>
+                )}
+              </Stack>
+            </Group>
+          </Box>
 
+          {/* Distribution Channels */}
           {app.distribution_channels &&
             app.distribution_channels.length > 0 && (
               <Stack gap="md">
-                <Text fw={500}>다운로드</Text>
+                <div>
+                  <Title order={2} size="h5" fw={600} mb="sm">
+                    다운로드
+                  </Title>
+                  <Text size="sm" c="dimmed" mb="md">
+                    다음 플랫폼에서 앱을 다운로드할 수 있습니다
+                  </Text>
+                </div>
                 <Group gap="sm">
                   {app.distribution_channels.map((channel, idx) => (
                     <Button
@@ -346,6 +506,8 @@ function AppDetail({ slug }: { slug: string }) {
                       target="_blank"
                       rel="noopener noreferrer"
                       variant="light"
+                      color="accent"
+                      rightSection={<ArrowRight size={16} />}
                     >
                       {getChannelName(channel)}
                     </Button>
@@ -354,9 +516,14 @@ function AppDetail({ slug }: { slug: string }) {
               </Stack>
             )}
 
+          {/* Screenshots */}
           {app.screenshots && app.screenshots.length > 0 && (
             <Stack gap="md">
-              <Text fw={500}>스크린샷</Text>
+              <div>
+                <Title order={2} size="h5" fw={600} mb="sm">
+                  스크린샷
+                </Title>
+              </div>
               <Group gap="md">
                 {app.screenshots.map((screenshot, idx) => (
                   <Box
@@ -367,7 +534,7 @@ function AppDetail({ slug }: { slug: string }) {
                     style={{
                       maxWidth: "200px",
                       borderRadius: "var(--mantine-radius-md)",
-                      border: "1px solid var(--mantine-color-gray-3)",
+                      border: "1px solid var(--mantine-color-dark-4)",
                     }}
                   />
                 ))}
