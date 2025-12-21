@@ -56,8 +56,8 @@ function BlogList() {
           published: true,
           limit: 100,
           offset: 0,
-        })) as { posts?: BlogPost[] };
-        setPosts(data.posts || []);
+        })) as BlogPost[];
+        setPosts(Array.isArray(data) ? data : []);
         setError("");
       } catch (err) {
         setError(

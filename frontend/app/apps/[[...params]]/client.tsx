@@ -80,10 +80,8 @@ function AppList() {
     const fetchApps = async () => {
       try {
         setLoading(true);
-        const data = (await appsApi.list({ limit: 50 })) as {
-          apps?: App[];
-        };
-        setApps(data.apps || []);
+        const data = (await appsApi.list({ limit: 50 })) as App[];
+        setApps(Array.isArray(data) ? data : []);
         setError("");
       } catch (err) {
         setError(
