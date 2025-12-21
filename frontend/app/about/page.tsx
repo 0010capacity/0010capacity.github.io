@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 import {
   Container,
   Title,
@@ -12,6 +15,24 @@ import {
 } from "@mantine/core";
 
 export default function AboutPage() {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  const items = [
+    {
+      label: "이메일",
+      value: "0010capacity@gmail.com",
+      href: "mailto:0010capacity@gmail.com",
+    },
+    {
+      label: "GitHub",
+      value: "@0010capacity",
+      href: "https://github.com/0010capacity",
+      external: true,
+    },
+    { label: "학교", value: "광운대학교 인공지능학과" },
+    { label: "위치", value: "대한민국" },
+  ];
+
   return (
     <Container
       size="xs"
@@ -43,21 +64,7 @@ export default function AboutPage() {
 
         {/* 정보 */}
         <Stack gap="md" mb="xl">
-          {[
-            {
-              label: "이메일",
-              value: "0010capacity@gmail.com",
-              href: "mailto:0010capacity@gmail.com",
-            },
-            {
-              label: "GitHub",
-              value: "@0010capacity",
-              href: "https://github.com/0010capacity",
-              external: true,
-            },
-            { label: "학교", value: "광운대학교 인공지능학과" },
-            { label: "위치", value: "대한민국" },
-          ].map((item, index) => (
+          {items.map((item, index) => (
             <Group
               key={index}
               justify="space-between"
@@ -76,13 +83,14 @@ export default function AboutPage() {
                   c="dimmed"
                   underline="hover"
                   style={{
-                    color: "var(--mantine-color-text)",
+                    color:
+                      hoveredIndex === index
+                        ? "white"
+                        : "var(--mantine-color-text)",
                     transition: "color 0.2s",
                   }}
-                  onMouseEnter={e => (e.currentTarget.style.color = "white")}
-                  onMouseLeave={e =>
-                    (e.currentTarget.style.color = "var(--mantine-color-text)")
-                  }
+                  onMouseEnter={() => setHoveredIndex(index)}
+                  onMouseLeave={() => setHoveredIndex(null)}
                 >
                   {item.value}
                 </Anchor>
