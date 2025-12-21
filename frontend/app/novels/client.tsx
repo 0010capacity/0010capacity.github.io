@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { novelsApi } from "@/lib/api";
 import { Novel, NovelChapter } from "@/lib/types";
 
@@ -85,7 +85,7 @@ function NovelList() {
             {novels.map(novel => (
               <Link
                 key={novel.id}
-                href={`/novels/${novel.slug}`}
+                href={`/novels?novel=${novel.slug}`}
                 className="group block w-full text-left py-6 border-b border-neutral-900 hover:border-neutral-700 transition-colors"
               >
                 <div className="flex justify-between items-start mb-2">
@@ -277,7 +277,7 @@ function NovelDetail({ slug }: { slug: string }) {
               {chapters.map(chapter => (
                 <Link
                   key={chapter.id}
-                  href={`/novels/${slug}/${chapter.chapter_number}`}
+                  href={`/novels?novel=${slug}&chapter=${chapter.chapter_number}`}
                   className="group flex items-baseline justify-between w-full text-left py-4 border-b border-neutral-900 hover:border-neutral-700 transition-colors"
                 >
                   <div className="flex items-baseline gap-4">
@@ -312,7 +312,7 @@ function NovelDetail({ slug }: { slug: string }) {
               {novel.related_novels.map(relatedNovel => (
                 <Link
                   key={relatedNovel.id}
-                  href={`/novels/${relatedNovel.slug}`}
+                  href={`/novels?novel=${relatedNovel.slug}`}
                   className="group block w-full text-left p-4 border border-neutral-800 rounded hover:border-neutral-700 hover:bg-neutral-900/50 transition-colors"
                 >
                   <div className="flex items-start justify-between gap-4">
@@ -422,7 +422,7 @@ function ChapterRead({
             {error || "챕터를 찾을 수 없습니다"}
           </p>
           <Link
-            href={`/novels/${slug}`}
+            href={`/novels?novel=${slug}`}
             className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
           >
             ← 돌아가기
@@ -445,7 +445,7 @@ function ChapterRead({
       <div className="max-w-2xl mx-auto px-6 py-16">
         <div className="flex items-center justify-between mb-12">
           <Link
-            href={`/novels/${slug}`}
+            href={`/novels?novel=${slug}`}
             className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
           >
             ← {novel.title}
@@ -479,7 +479,7 @@ function ChapterRead({
         <div className="flex justify-between items-center py-8 border-t border-neutral-900">
           {prevChapter ? (
             <Link
-              href={`/novels/${slug}/${prevChapter.chapter_number}`}
+              href={`/novels?novel=${slug}&chapter=${prevChapter.chapter_number}`}
               className="text-sm text-neutral-500 hover:text-neutral-300 transition-colors"
             >
               ← 이전
@@ -489,7 +489,7 @@ function ChapterRead({
           )}
 
           <Link
-            href={`/novels/${slug}`}
+            href={`/novels?novel=${slug}`}
             className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
           >
             목차
@@ -497,7 +497,7 @@ function ChapterRead({
 
           {nextChapter ? (
             <Link
-              href={`/novels/${slug}/${nextChapter.chapter_number}`}
+              href={`/novels?novel=${slug}&chapter=${nextChapter.chapter_number}`}
               className="text-sm text-neutral-500 hover:text-neutral-300 transition-colors"
             >
               다음 →
@@ -513,32 +513,23 @@ function ChapterRead({
 
 // Main Page Component with SPA-style Routing
 export default function NovelsPageClient() {
-  const params = useParams();
-  // params can be undefined, an object with params property (which is an array or string)
-  // Since this component is under [[...params]], we expect params.params to be an array of strings.
-
-  // Note: useParams returns the raw params object.
-  // In app/novels/[[...params]], the param name is "params".
-  const paramsArray = params?.params as string[] | undefined;
+  const searchParams = useSearchParams();
+  const slug = searchParams.get("novel");
+  const chapterParam = searchParams.get("chapter");
 
   const renderView = () => {
-    if (!paramsArray || paramsArray.length === 0) {
-      return <NovelList />;
-    } else if (paramsArray.length === 1) {
-      return <NovelDetail slug={paramsArray[0]!} />;
-    } else if (paramsArray.length === 2) {
-      const chapterNumber = parseInt(paramsArray[1]!, 10);
-      if (isNaN(chapterNumber)) {
-        // Handle invalid chapter number, maybe redirect to novel detail or show list
-        return <NovelDetail slug={paramsArray[0]!} />;
-      }
-      return (
-        <ChapterRead slug={paramsArray[0]!} chapterNumber={chapterNumber} />
-      );
-    } else {
-      // Fallback for unexpected paths
+    if (!slug) {
       return <NovelList />;
     }
+
+    if (chapterParam) {
+      const chapterNumber = parseInt(chapterParam, 10);
+      if (!isNaN(chapterNumber)) {
+        return <ChapterRead slug={slug} chapterNumber={chapterNumber} />;
+      }
+    }
+
+    return <NovelDetail slug={slug} />;
   };
 
   return <>{renderView()}</>;
