@@ -15,7 +15,12 @@ export default function HomePage() {
     <Container
       fluid
       h="100dvh"
-      style={{ display: "flex", flexDirection: "column", position: "relative", zIndex: 1 }}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        position: "relative",
+        zIndex: 1,
+      }}
     >
       {/* Main Content */}
       <Box
