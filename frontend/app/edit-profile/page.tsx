@@ -387,7 +387,6 @@ export default function EditProfilePage() {
           <div className="text-green-800 dark:text-green-200">
             Profile updated successfully!{" "}
             <Button
-              as="a"
               href={prUrl}
               target="_blank"
               rel="noopener noreferrer"

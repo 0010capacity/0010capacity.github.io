@@ -1,43 +1,38 @@
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+import {
+  TextInput,
+  Textarea as MantineTextarea,
+  Select as MantineSelect,
+  TextInputProps,
+  TextareaProps as MantineTextareaProps,
+  SelectProps as MantineSelectProps,
+} from "@mantine/core";
+
+interface InputProps extends TextInputProps {
   error?: boolean;
-  className?: string;
 }
 
-interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+interface TextareaProps extends MantineTextareaProps {
   error?: boolean;
-  className?: string;
 }
 
-interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
+interface SelectProps extends Omit<MantineSelectProps, "data"> {
   error?: boolean;
-  className?: string;
   options: { value: string; label: string }[];
 }
 
 export function Input({ error, className = "", ...props }: InputProps) {
   return (
-    <input
+    <TextInput
       {...props}
-      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 ${
-        error
-          ? "border-red-300 focus:ring-red-500"
-          : "border-gray-300 dark:border-gray-600"
-      } bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${className}`}
+      error={error}
+      className={className}
+      classNames={{ input: "dark:bg-gray-700" }} // Maintain dark mode bg if needed, though Mantine handles it
     />
   );
 }
 
 export function Textarea({ error, className = "", ...props }: TextareaProps) {
-  return (
-    <textarea
-      {...props}
-      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 resize-vertical ${
-        error
-          ? "border-red-300 focus:ring-red-500"
-          : "border-gray-300 dark:border-gray-600"
-      } bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${className}`}
-    />
-  );
+  return <MantineTextarea {...props} error={error} className={className} />;
 }
 
 export function Select({
@@ -47,19 +42,11 @@ export function Select({
   ...props
 }: SelectProps) {
   return (
-    <select
+    <MantineSelect
       {...props}
-      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 ${
-        error
-          ? "border-red-300 focus:ring-red-500"
-          : "border-gray-300 dark:border-gray-600"
-      } bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${className}`}
-    >
-      {options.map(option => (
-        <option key={option.value} value={option.value}>
-          {option.label}
-        </option>
-      ))}
-    </select>
+      data={options}
+      error={error}
+      className={className}
+    />
   );
 }

@@ -1,14 +1,10 @@
+import { Loader, Group, Text } from "@mantine/core";
+
 interface LoadingProps {
   message?: string;
   size?: "sm" | "md" | "lg";
   className?: string;
 }
-
-const sizeStyles = {
-  sm: "h-4 w-4",
-  md: "h-6 w-6",
-  lg: "h-8 w-8",
-};
 
 export default function Loading({
   message = "Loading...",
@@ -16,13 +12,13 @@ export default function Loading({
   className = "",
 }: LoadingProps) {
   return (
-    <div className={`flex items-center justify-center space-x-2 ${className}`}>
-      <div
-        className={`animate-spin rounded-full border-b-2 border-blue-600 ${sizeStyles[size]}`}
-      ></div>
+    <Group justify="center" gap="xs" className={className}>
+      <Loader size={size} color="blue" type="oval" />
       {message && (
-        <span className="text-gray-600 dark:text-gray-300">{message}</span>
+        <Text c="dimmed" size={size}>
+          {message}
+        </Text>
       )}
-    </div>
+    </Group>
   );
 }

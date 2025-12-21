@@ -1,3 +1,6 @@
+import { Badge as MantineBadge } from "@mantine/core";
+import React from "react";
+
 interface BadgeProps {
   children: React.ReactNode;
   variant?: "default" | "success" | "warning" | "error" | "info";
@@ -5,20 +8,20 @@ interface BadgeProps {
   className?: string;
 }
 
-const variantStyles = {
-  default: "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200",
-  success:
-    "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400",
-  warning:
-    "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400",
-  error: "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400",
-  info: "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400",
-};
-
-const sizeStyles = {
-  sm: "px-2 py-1 text-xs",
-  md: "px-3 py-1 text-sm",
-  lg: "px-4 py-2 text-base",
+const mapVariant = (variant: BadgeProps["variant"]): { color?: string } => {
+  switch (variant) {
+    case "success":
+      return { color: "green" };
+    case "warning":
+      return { color: "yellow" };
+    case "error":
+      return { color: "red" };
+    case "info":
+      return { color: "blue" };
+    case "default":
+    default:
+      return { color: "gray" };
+  }
 };
 
 export default function Badge({
@@ -27,11 +30,17 @@ export default function Badge({
   size = "md",
   className = "",
 }: BadgeProps) {
+  const { color } = mapVariant(variant);
+
   return (
-    <span
-      className={`inline-flex items-center font-medium rounded-full ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
+    <MantineBadge
+      color={color}
+      size={size}
+      className={className}
+      variant="light"
+      radius="xl"
     >
       {children}
-    </span>
+    </MantineBadge>
   );
 }

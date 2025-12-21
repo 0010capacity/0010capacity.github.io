@@ -7,29 +7,42 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { novelsApi } from "@/lib/api";
 import { Novel, NovelChapter } from "@/lib/types";
-import Skeleton from "@/components/ui/Skeleton";
+import {
+  Skeleton,
+  Container,
+  Title,
+  Text,
+  Button,
+  Stack,
+  Group,
+  Badge,
+  Anchor,
+  Box,
+  TypographyStylesProvider,
+} from "@mantine/core";
 
 function NovelListSkeleton() {
   return (
-    <div className="space-y-8">
+    <Stack gap="xl">
       {Array.from({ length: 6 }).map((_, i) => (
-        <div
+        <Box
           key={i}
-          className="block w-full text-left py-6 border-b border-neutral-900"
+          py="lg"
+          style={{ borderBottom: "1px solid var(--mantine-color-dark-4)" }}
         >
-          <div className="flex justify-between items-start mb-2 gap-4">
-            <Skeleton className="h-6 w-2/3" />
-            <Skeleton className="h-5 w-16 flex-shrink-0" />
-          </div>
-          <Skeleton className="h-4 w-full mb-2" />
-          <Skeleton className="h-4 w-4/5 mb-3" />
-          <div className="flex items-center gap-4 text-xs">
-            <Skeleton className="h-3 w-20" />
-            <Skeleton className="h-3 w-14" />
-          </div>
-        </div>
+          <Group justify="space-between" align="flex-start" mb="xs">
+            <Skeleton height={24} width="66%" radius="sm" />
+            <Skeleton height={20} width={64} radius="sm" />
+          </Group>
+          <Skeleton height={16} width="100%" mb="xs" radius="sm" />
+          <Skeleton height={16} width="80%" mb="md" radius="sm" />
+          <Group gap="md">
+            <Skeleton height={12} width={80} radius="sm" />
+            <Skeleton height={12} width={56} radius="sm" />
+          </Group>
+        </Box>
       ))}
-    </div>
+    </Stack>
   );
 }
 
@@ -80,66 +93,102 @@ function NovelList() {
   };
 
   return (
-    <div className="min-h-screen text-neutral-100">
-      <div className="max-w-2xl mx-auto px-6 py-16">
-        <header className="mb-16">
-          <Link
-            href="/"
-            className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
-          >
-            ← 돌아가기
-          </Link>
-          <h1 className="text-2xl font-light mt-8 mb-2">소설</h1>
-          <p className="text-neutral-500 text-sm">이야기를 씁니다</p>
-        </header>
+    <Container size="sm" py="xl" mih="100vh">
+      <header style={{ marginBottom: "var(--mantine-spacing-xl)" }}>
+        <Button
+          component={Link}
+          href="/"
+          variant="subtle"
+          color="gray"
+          size="sm"
+          leftSection="←"
+        >
+          돌아가기
+        </Button>
+        <Title order={1} fw={300} mt="lg" mb="xs">
+          소설
+        </Title>
+        <Text size="sm" c="dimmed">
+          이야기를 씁니다
+        </Text>
+      </header>
 
-        {error && (
-          <div className="mb-8 p-4 border border-red-900/50 rounded-lg text-red-400 text-sm">
+      {error && (
+        <Box
+          p="md"
+          mb="lg"
+          style={{
+            border: "1px solid var(--mantine-color-red-9)",
+            backgroundColor: "rgba(255, 0, 0, 0.1)",
+          }}
+        >
+          <Text c="red.4" size="sm">
             {error}
-          </div>
-        )}
+          </Text>
+        </Box>
+      )}
 
-        {loading && <NovelListSkeleton />}
+      {loading && <NovelListSkeleton />}
 
-        {!loading && novels.length > 0 && (
-          <div className="space-y-8">
-            {novels.map(novel => (
-              <Link
-                key={novel.id}
-                href={`/novels?novel=${novel.slug}`}
-                className="group block w-full text-left py-6 border-b border-neutral-900 hover:border-neutral-700 transition-colors"
-              >
-                <div className="flex justify-between items-start mb-2">
-                  <h2 className="text-xl font-medium text-neutral-200 group-hover:text-white transition-colors">
-                    {novel.title}
-                  </h2>
-                  <span className="text-xs text-neutral-600 ml-4 flex-shrink-0">
-                    {statusLabel(novel.status)}
-                  </span>
-                </div>
-                {novel.description && (
-                  <p className="text-neutral-500 text-sm line-clamp-2 mb-3">
-                    {novel.description}
-                  </p>
+      {!loading && novels.length > 0 && (
+        <Stack gap="lg">
+          {novels.map(novel => (
+            <Anchor
+              component={Link}
+              key={novel.id}
+              href={`/novels?novel=${novel.slug}`}
+              underline="never"
+              style={{
+                display: "block",
+                padding: "var(--mantine-spacing-lg) 0",
+                borderBottom: "1px solid var(--mantine-color-dark-4)",
+                transition: "border-color 0.2s",
+              }}
+              className="group"
+            >
+              <Group justify="space-between" align="flex-start" mb="xs">
+                <Title
+                  order={2}
+                  size="h3"
+                  fw={500}
+                  c="dimmed"
+                  style={{ transition: "color 0.2s" }}
+                  className="group-hover:text-white"
+                >
+                  {novel.title}
+                </Title>
+                <Badge variant="light" color="gray" size="sm" radius="sm">
+                  {statusLabel(novel.status)}
+                </Badge>
+              </Group>
+              {novel.description && (
+                <Text size="sm" c="dimmed" lineClamp={2} mb="xs">
+                  {novel.description}
+                </Text>
+              )}
+              <Group gap="md">
+                {novel.genre && (
+                  <Text size="xs" c="dimmed">
+                    {novel.genre}
+                  </Text>
                 )}
-                <div className="flex items-center gap-4 text-xs text-neutral-600">
-                  {novel.genre && <span>{novel.genre}</span>}
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
+              </Group>
+            </Anchor>
+          ))}
+        </Stack>
+      )}
 
-        {!loading && novels.length === 0 && !error && (
-          <div className="text-center py-24">
-            <p className="text-neutral-600 mb-2">아직 등록된 소설이 없습니다</p>
-            <p className="text-neutral-700 text-sm">
-              곧 새로운 이야기가 시작됩니다
-            </p>
-          </div>
-        )}
-      </div>
-    </div>
+      {!loading && novels.length === 0 && !error && (
+        <Box py={100} ta="center">
+          <Text c="dimmed" mb="xs">
+            아직 등록된 소설이 없습니다
+          </Text>
+          <Text size="sm" c="dimmed">
+            곧 새로운 이야기가 시작됩니다
+          </Text>
+        </Box>
+      )}
+    </Container>
   );
 }
 
@@ -215,155 +264,235 @@ function NovelDetail({ slug }: { slug: string }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen text-neutral-100 flex items-center justify-center">
-        <p className="text-neutral-600 text-sm">불러오는 중...</p>
-      </div>
+      <Container
+        size="sm"
+        h="100vh"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Text size="sm" c="dimmed">
+          불러오는 중...
+        </Text>
+      </Container>
     );
   }
 
   if (error || !novel) {
     return (
-      <div className="min-h-screen text-neutral-100">
-        <div className="max-w-2xl mx-auto px-6 py-16">
-          <p className="text-neutral-500 mb-6">
-            {error || "소설을 찾을 수 없습니다"}
-          </p>
-          <Link
-            href="/novels"
-            className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
-          >
-            ← 목록으로
-          </Link>
-        </div>
-      </div>
+      <Container size="sm" py="xl" mih="100vh">
+        <Text c="dimmed" mb="md">
+          {error || "소설을 찾을 수 없습니다"}
+        </Text>
+        <Button
+          component={Link}
+          href="/novels"
+          variant="subtle"
+          color="gray"
+          size="sm"
+          leftSection="←"
+        >
+          목록으로
+        </Button>
+      </Container>
     );
   }
 
   const unit = getUnit(novel.novel_type);
 
   return (
-    <div className="min-h-screen text-neutral-100">
-      <div className="max-w-2xl mx-auto px-6 py-16">
-        <Link
-          href="/novels"
-          className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
-        >
-          ← 목록으로
-        </Link>
+    <Container size="sm" py="xl" mih="100vh">
+      <Button
+        component={Link}
+        href="/novels"
+        variant="subtle"
+        color="gray"
+        size="sm"
+        leftSection="←"
+      >
+        목록으로
+      </Button>
 
-        <header className="mt-12 mb-16">
-          <div className="flex items-center gap-3 mb-4">
-            <span className="text-xs text-neutral-600 border border-neutral-800 px-2 py-1 rounded">
-              {statusLabel(novel.status)}
-            </span>
-            {novel.genre && (
-              <span className="text-xs text-neutral-600">{novel.genre}</span>
-            )}
-            {novel.novel_type && (
-              <span className="text-xs text-neutral-600">
-                {novel.novel_type === "series"
-                  ? "연재물"
-                  : novel.novel_type === "long"
-                    ? "장편"
-                    : "단편"}
-              </span>
-            )}
-          </div>
-
-          <h1 className="text-3xl font-light mb-6">{novel.title}</h1>
-
-          {novel.description && (
-            <p className="text-neutral-400 leading-relaxed">
-              {novel.description}
-            </p>
+      <header
+        style={{
+          marginTop: "var(--mantine-spacing-xl)",
+          marginBottom: "var(--mantine-spacing-xl)",
+        }}
+      >
+        <Group gap="xs" mb="md">
+          <Badge variant="outline" color="gray" size="sm" radius="sm">
+            {statusLabel(novel.status)}
+          </Badge>
+          {novel.genre && (
+            <Text size="xs" c="dimmed">
+              {novel.genre}
+            </Text>
           )}
-
-          <div className="flex gap-6 mt-8 pt-8 border-t border-neutral-900 text-sm text-neutral-600">
-            <span>
-              {chapters.length} {unit}
-            </span>
-            <span>
-              {new Date(novel.created_at).toLocaleDateString("ko-KR")}
-            </span>
-          </div>
-        </header>
-
-        <section>
-          <h2 className="text-sm text-neutral-600 uppercase tracking-widest mb-8">
-            {novel.novel_type === "series" ? "회차 목록" : "목차"}
-          </h2>
-
-          {chapters.length > 0 ? (
-            <div className="space-y-1">
-              {chapters.map(chapter => (
-                <Link
-                  key={chapter.id}
-                  href={`/novels?novel=${slug}&chapter=${chapter.chapter_number}`}
-                  className="group flex items-baseline justify-between w-full text-left py-4 border-b border-neutral-900 hover:border-neutral-700 transition-colors"
-                >
-                  <div className="flex items-baseline gap-4">
-                    <span className="text-neutral-600 text-sm w-12">
-                      {chapter.chapter_number}
-                      {unit}
-                    </span>
-                    <span className="text-neutral-300 group-hover:text-white transition-colors">
-                      {chapter.title}
-                    </span>
-                  </div>
-                  <span className="text-xs text-neutral-700">
-                    {new Date(chapter.created_at).toLocaleDateString("ko-KR", {
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </span>
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <p className="text-neutral-600 text-sm">아직 {unit}이 없습니다</p>
+          {novel.novel_type && (
+            <Text size="xs" c="dimmed">
+              {novel.novel_type === "series"
+                ? "연재물"
+                : novel.novel_type === "long"
+                  ? "장편"
+                  : "단편"}
+            </Text>
           )}
-        </section>
+        </Group>
 
-        {novel.related_novels && novel.related_novels.length > 0 && (
-          <section className="mt-16 pt-16 border-t border-neutral-900">
-            <h2 className="text-sm text-neutral-600 uppercase tracking-widest mb-8">
-              연관 작품
-            </h2>
-            <div className="space-y-3">
-              {novel.related_novels.map(relatedNovel => (
-                <Link
-                  key={relatedNovel.id}
-                  href={`/novels?novel=${relatedNovel.slug}`}
-                  className="group block w-full text-left p-4 border border-neutral-800 rounded hover:border-neutral-700 hover:bg-neutral-900/50 transition-colors"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-neutral-300 group-hover:text-white transition-colors truncate">
-                        {relatedNovel.title}
-                      </h3>
-                      <p className="text-xs text-neutral-600 mt-1">
-                        {relatedNovel.relation_type === "sequel"
-                          ? "후속작"
-                          : relatedNovel.relation_type === "prequel"
-                            ? "전편"
-                            : relatedNovel.relation_type === "spinoff"
-                              ? "스핀오프"
-                              : relatedNovel.relation_type === "same_universe"
-                                ? "같은 세계관"
-                                : "연관 작품"}
-                      </p>
-                    </div>
-                    <span className="text-xs text-neutral-600 flex-shrink-0">
-                      →
-                    </span>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </section>
+        <Title order={1} fw={300} size="h1" mb="lg">
+          {novel.title}
+        </Title>
+
+        {novel.description && (
+          <Text c="dimmed" style={{ lineHeight: 1.6 }}>
+            {novel.description}
+          </Text>
         )}
-      </div>
-    </div>
+
+        <Group
+          gap="lg"
+          mt="xl"
+          pt="lg"
+          style={{ borderTop: "1px solid var(--mantine-color-dark-4)" }}
+        >
+          <Text size="sm" c="dimmed">
+            {chapters.length} {unit}
+          </Text>
+          <Text size="sm" c="dimmed">
+            {new Date(novel.created_at).toLocaleDateString("ko-KR")}
+          </Text>
+        </Group>
+      </header>
+
+      <section>
+        <Text
+          size="sm"
+          c="dimmed"
+          tt="uppercase"
+          fw={700}
+          mb="lg"
+          style={{ letterSpacing: "1px" }}
+        >
+          {novel.novel_type === "series" ? "회차 목록" : "목차"}
+        </Text>
+
+        {chapters.length > 0 ? (
+          <Stack gap={0}>
+            {chapters.map(chapter => (
+              <Anchor
+                component={Link}
+                key={chapter.id}
+                href={`/novels?novel=${slug}&chapter=${chapter.chapter_number}`}
+                underline="never"
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "baseline",
+                  padding: "var(--mantine-spacing-md) 0",
+                  borderBottom: "1px solid var(--mantine-color-dark-4)",
+                  color: "inherit",
+                }}
+                className="group"
+              >
+                <Group gap="lg" align="baseline">
+                  <Text size="sm" c="dimmed" w={48}>
+                    {chapter.chapter_number}
+                    {unit}
+                  </Text>
+                  <Text
+                    c="dimmed"
+                    style={{ transition: "color 0.2s" }}
+                    className="group-hover:text-white"
+                  >
+                    {chapter.title}
+                  </Text>
+                </Group>
+                <Text size="xs" c="dark.3">
+                  {new Date(chapter.created_at).toLocaleDateString("ko-KR", {
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </Text>
+              </Anchor>
+            ))}
+          </Stack>
+        ) : (
+          <Text size="sm" c="dimmed">
+            아직 {unit}이 없습니다
+          </Text>
+        )}
+      </section>
+
+      {novel.related_novels && novel.related_novels.length > 0 && (
+        <section
+          style={{
+            marginTop: "var(--mantine-spacing-xl)",
+            paddingTop: "var(--mantine-spacing-xl)",
+            borderTop: "1px solid var(--mantine-color-dark-4)",
+          }}
+        >
+          <Text
+            size="sm"
+            c="dimmed"
+            tt="uppercase"
+            fw={700}
+            mb="lg"
+            style={{ letterSpacing: "1px" }}
+          >
+            연관 작품
+          </Text>
+          <Stack gap="sm">
+            {novel.related_novels.map(relatedNovel => (
+              <Anchor
+                component={Link}
+                key={relatedNovel.id}
+                href={`/novels?novel=${relatedNovel.slug}`}
+                underline="never"
+                p="md"
+                style={{
+                  display: "block",
+                  border: "1px solid var(--mantine-color-dark-4)",
+                  borderRadius: "var(--mantine-radius-sm)",
+                  transition: "background-color 0.2s",
+                  color: "inherit",
+                }}
+                className="hover:bg-dark-6"
+              >
+                <Group justify="space-between" align="flex-start" wrap="nowrap">
+                  <Box style={{ flex: 1, minWidth: 0 }}>
+                    <Text
+                      fw={500}
+                      c="dimmed"
+                      truncate
+                      style={{ transition: "color 0.2s" }}
+                      className="group-hover:text-white"
+                    >
+                      {relatedNovel.title}
+                    </Text>
+                    <Text size="xs" c="dimmed" mt={4}>
+                      {relatedNovel.relation_type === "sequel"
+                        ? "후속작"
+                        : relatedNovel.relation_type === "prequel"
+                          ? "전편"
+                          : relatedNovel.relation_type === "spinoff"
+                            ? "스핀오프"
+                            : relatedNovel.relation_type === "same_universe"
+                              ? "같은 세계관"
+                              : "연관 작품"}
+                    </Text>
+                  </Box>
+                  <Text size="xs" c="dimmed">
+                    →
+                  </Text>
+                </Group>
+              </Anchor>
+            ))}
+          </Stack>
+        </section>
+      )}
+    </Container>
   );
 }
 
@@ -429,27 +558,39 @@ function ChapterRead({
 
   if (loading) {
     return (
-      <div className="min-h-screen text-neutral-100 flex items-center justify-center">
-        <p className="text-neutral-600 text-sm">불러오는 중...</p>
-      </div>
+      <Container
+        size="sm"
+        h="100vh"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Text size="sm" c="dimmed">
+          불러오는 중...
+        </Text>
+      </Container>
     );
   }
 
   if (error || !chapter || !novel) {
     return (
-      <div className="min-h-screen text-neutral-100">
-        <div className="max-w-2xl mx-auto px-6 py-16">
-          <p className="text-neutral-500 mb-6">
-            {error || "챕터를 찾을 수 없습니다"}
-          </p>
-          <Link
-            href={`/novels?novel=${slug}`}
-            className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
-          >
-            ← 돌아가기
-          </Link>
-        </div>
-      </div>
+      <Container size="sm" py="xl" mih="100vh">
+        <Text c="dimmed" mb="md">
+          {error || "챕터를 찾을 수 없습니다"}
+        </Text>
+        <Button
+          component={Link}
+          href={`/novels?novel=${slug}`}
+          variant="subtle"
+          color="gray"
+          size="sm"
+          leftSection="←"
+        >
+          돌아가기
+        </Button>
+      </Container>
     );
   }
 
@@ -462,73 +603,101 @@ function ChapterRead({
     currentIndex < chapters.length - 1 ? chapters[currentIndex + 1] : null;
 
   return (
-    <div className="min-h-screen text-neutral-100">
-      <div className="max-w-2xl mx-auto px-6 py-16">
-        <div className="flex items-center justify-between mb-12">
-          <Link
-            href={`/novels?novel=${slug}`}
-            className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
-          >
-            ← {novel.title}
-          </Link>
-          <span className="text-sm text-neutral-700">
-            {chapterNumber} / {chapters.length}
-          </span>
-        </div>
+    <Container size="sm" py="xl" mih="100vh">
+      <Group justify="space-between" mb="xl">
+        <Button
+          component={Link}
+          href={`/novels?novel=${slug}`}
+          variant="subtle"
+          color="gray"
+          size="sm"
+          leftSection="←"
+        >
+          {novel.title}
+        </Button>
+        <Text size="sm" c="dimmed">
+          {chapterNumber} / {chapters.length}
+        </Text>
+      </Group>
 
-        <header className="mb-12 pb-8 border-b border-neutral-900">
-          <span className="text-sm text-neutral-600 block mb-2">
-            {chapterNumber}
-            {unit}
-          </span>
-          <h1 className="text-2xl font-light mb-4">{chapter.title}</h1>
-          <time className="text-sm text-neutral-700">
-            {new Date(chapter.created_at).toLocaleDateString("ko-KR", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
-          </time>
-        </header>
+      <header
+        style={{
+          marginBottom: "var(--mantine-spacing-xl)",
+          paddingBottom: "var(--mantine-spacing-lg)",
+          borderBottom: "1px solid var(--mantine-color-dark-4)",
+        }}
+      >
+        <Text size="sm" c="dimmed" mb="xs">
+          {chapterNumber}
+          {unit}
+        </Text>
+        <Title order={1} fw={300} size="h2" mb="md">
+          {chapter.title}
+        </Title>
+        <Text size="sm" c="dark.3">
+          {new Date(chapter.created_at).toLocaleDateString("ko-KR", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}
+        </Text>
+      </header>
 
-        <article className="mb-16 prose prose-invert prose-neutral max-w-none prose-headings:font-light prose-headings:text-neutral-200 prose-p:text-neutral-300 prose-a:text-neutral-400 prose-a:no-underline hover:prose-a:text-neutral-200 prose-strong:text-neutral-200 prose-code:text-neutral-300 prose-code:bg-neutral-800 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-pre:bg-neutral-900 prose-pre:border prose-pre:border-neutral-800 prose-blockquote:border-neutral-700 prose-blockquote:text-neutral-400 prose-li:text-neutral-300">
+      <TypographyStylesProvider className="mb-16">
+        <div className="prose prose-invert prose-neutral max-w-none">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>
             {chapter.content}
           </ReactMarkdown>
-        </article>
-
-        <div className="flex justify-between items-center py-8 border-t border-neutral-900">
-          {prevChapter ? (
-            <Link
-              href={`/novels?novel=${slug}&chapter=${prevChapter.chapter_number}`}
-              className="text-sm text-neutral-500 hover:text-neutral-300 transition-colors"
-            >
-              ← 이전
-            </Link>
-          ) : (
-            <span />
-          )}
-
-          <Link
-            href={`/novels?novel=${slug}`}
-            className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
-          >
-            목차
-          </Link>
-
-          {nextChapter ? (
-            <Link
-              href={`/novels?novel=${slug}&chapter=${nextChapter.chapter_number}`}
-              className="text-sm text-neutral-500 hover:text-neutral-300 transition-colors"
-            >
-              다음 →
-            </Link>
-          ) : (
-            <span />
-          )}
         </div>
-      </div>
-    </div>
+      </TypographyStylesProvider>
+
+      <Group
+        justify="space-between"
+        align="center"
+        py="lg"
+        style={{ borderTop: "1px solid var(--mantine-color-dark-4)" }}
+      >
+        {prevChapter ? (
+          <Button
+            component={Link}
+            href={`/novels?novel=${slug}&chapter=${prevChapter.chapter_number}`}
+            variant="subtle"
+            color="gray"
+            size="sm"
+            leftSection="←"
+          >
+            이전
+          </Button>
+        ) : (
+          <Box w={60} />
+        )}
+
+        <Button
+          component={Link}
+          href={`/novels?novel=${slug}`}
+          variant="subtle"
+          color="gray"
+          size="sm"
+        >
+          목차
+        </Button>
+
+        {nextChapter ? (
+          <Button
+            component={Link}
+            href={`/novels?novel=${slug}&chapter=${nextChapter.chapter_number}`}
+            variant="subtle"
+            color="gray"
+            size="sm"
+            rightSection="→"
+          >
+            다음
+          </Button>
+        ) : (
+          <Box w={60} />
+        )}
+      </Group>
+    </Container>
   );
 }
 

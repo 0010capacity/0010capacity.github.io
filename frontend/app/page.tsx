@@ -1,60 +1,101 @@
+"use client";
+
 import Link from "next/link";
+import {
+  Container,
+  Flex,
+  UnstyledButton,
+  Text,
+  Group,
+  Box,
+} from "@mantine/core";
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen text-neutral-100 flex flex-col relative">
+    <Container
+      fluid
+      h="100vh"
+      style={{ display: "flex", flexDirection: "column" }}
+    >
       {/* Main Content */}
-      <main className="flex-1 flex flex-col items-center justify-center px-6">
-        {/* 3가지 선택지 */}
-        <nav className="flex flex-col md:flex-row gap-6 md:gap-12">
-          <Link
-            href="/novels"
-            className="group flex flex-col items-center p-8 rounded-2xl border border-neutral-800 hover:border-neutral-600 hover:bg-neutral-900/50 transition-all duration-300"
-          >
-            <span className="text-lg font-medium text-neutral-300 group-hover:text-white transition-colors">
-              소설
-            </span>
-            <span className="text-sm text-neutral-600 mt-2">읽으러 가기</span>
-          </Link>
-
-          <Link
-            href="/blog"
-            className="group flex flex-col items-center p-8 rounded-2xl border border-neutral-800 hover:border-neutral-600 hover:bg-neutral-900/50 transition-all duration-300"
-          >
-            <span className="text-lg font-medium text-neutral-300 group-hover:text-white transition-colors">
-              블로그
-            </span>
-            <span className="text-sm text-neutral-600 mt-2">보러 가기</span>
-          </Link>
-
-          <Link
-            href="/apps"
-            className="group flex flex-col items-center p-8 rounded-2xl border border-neutral-800 hover:border-neutral-600 hover:bg-neutral-900/50 transition-all duration-300"
-          >
-            <span className="text-lg font-medium text-neutral-300 group-hover:text-white transition-colors">
-              앱
-            </span>
-            <span className="text-sm text-neutral-600 mt-2">구경하기</span>
-          </Link>
-        </nav>
-      </main>
+      <Box
+        style={{
+          flex: 1,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Flex
+          direction={{ base: "column", md: "row" }}
+          gap={{ base: "md", md: "xl" }}
+          align="center"
+          justify="center"
+        >
+          {[
+            { href: "/novels", label: "소설", sub: "읽으러 가기" },
+            { href: "/blog", label: "블로그", sub: "보러 가기" },
+            { href: "/apps", label: "앱", sub: "구경하기" },
+          ].map(item => (
+            <UnstyledButton
+              key={item.href}
+              component={Link}
+              href={item.href}
+              p="xl"
+              style={theme => ({
+                borderRadius: theme.radius.lg,
+                border: `1px solid var(--mantine-color-dark-4)`,
+                transition: "all 0.3s",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                "&:hover": {
+                  borderColor: "var(--mantine-color-dark-2)",
+                  backgroundColor: "var(--mantine-color-dark-6)",
+                },
+              })}
+            >
+              <Text
+                size="lg"
+                fw={500}
+                c="dimmed"
+                style={{ transition: "color 0.2s" }}
+                className="group-hover:text-white"
+              >
+                {item.label}
+              </Text>
+              <Text size="sm" c="dimmed" mt="xs">
+                {item.sub}
+              </Text>
+            </UnstyledButton>
+          ))}
+        </Flex>
+      </Box>
 
       {/* Footer */}
-      <footer className="py-8 text-center flex justify-center gap-4">
-        <Link
-          href="/about"
-          className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
-        >
-          이정원에 대해
-        </Link>
-        <span className="text-neutral-800">·</span>
-        <Link
-          href="/admin/login"
-          className="text-sm text-neutral-800 hover:text-neutral-600 transition-colors"
-        >
-          관리
-        </Link>
-      </footer>
-    </div>
+      <Box py="xl">
+        <Group justify="center" gap="xs">
+          <Text
+            component={Link}
+            href="/about"
+            size="sm"
+            c="dimmed"
+            style={{ textDecoration: "none" }}
+          >
+            이정원에 대해
+          </Text>
+          <Text c="dark.6">·</Text>
+          <Text
+            component={Link}
+            href="/admin/login"
+            size="sm"
+            c="dark.6"
+            style={{ textDecoration: "none" }}
+          >
+            관리
+          </Text>
+        </Group>
+      </Box>
+    </Container>
   );
 }

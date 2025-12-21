@@ -1,12 +1,16 @@
 import Link from "next/link";
-import { ReactNode, ElementType } from "react";
+import { ReactNode } from "react";
 import { LucideIcon } from "lucide-react";
+import {
+  Button as MantineButton,
+  MantineColor,
+  MantineSize,
+} from "@mantine/core";
 
 interface ButtonProps {
   children?: ReactNode;
   onClick?: () => void;
   href?: string;
-  as?: ElementType;
   variant?:
     | "primary"
     | "secondary"
@@ -26,27 +30,31 @@ interface ButtonProps {
   "aria-describedby"?: string;
 }
 
-const variantStyles = {
-  primary: "bg-blue-600 hover:bg-blue-700 text-white",
-  secondary: "bg-gray-600 hover:bg-gray-700 text-white",
-  success: "bg-green-600 hover:bg-green-700 text-white",
-  danger: "bg-red-600 hover:bg-red-700 text-white",
-  warning: "bg-yellow-600 hover:bg-yellow-700 text-white",
-  outline:
-    "bg-transparent border-2 border-gray-300 hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300",
-};
-
-const sizeStyles = {
-  sm: "py-2 px-4 text-sm",
-  md: "py-3 px-6 text-base",
-  lg: "py-4 px-8 text-lg",
+const mapVariant = (
+  variant: ButtonProps["variant"]
+): { color?: MantineColor; variant: string } => {
+  switch (variant) {
+    case "primary":
+      return { color: "blue", variant: "filled" };
+    case "secondary":
+      return { color: "gray", variant: "filled" };
+    case "success":
+      return { color: "green", variant: "filled" };
+    case "danger":
+      return { color: "red", variant: "filled" };
+    case "warning":
+      return { color: "yellow", variant: "filled" };
+    case "outline":
+      return { color: "gray", variant: "outline" };
+    default:
+      return { color: "blue", variant: "filled" };
+  }
 };
 
 export default function Button({
   children,
   onClick,
   href,
-  as,
   variant = "primary",
   size = "md",
   disabled = false,
@@ -56,37 +64,35 @@ export default function Button({
   icon: Icon,
   ...props
 }: ButtonProps) {
-  const baseStyles =
-    "font-semibold rounded-lg transition-colors duration-200 shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2";
+  const { color, variant: mantineVariant } = mapVariant(variant);
 
-  const styles = `${baseStyles} ${variantStyles[variant]} ${sizeStyles[size]} ${className}`;
+  const mantineSize = size as MantineSize;
 
-  const Component = as || (href ? Link : "button");
-
-  const componentProps = {
-    ...(href && { href }),
-    ...(onClick && { onClick }),
-    ...(type && type !== "button" && { type }),
+  const commonProps = {
+    onClick,
+    disabled: disabled || loading,
+    loading,
+    size: mantineSize,
+    color,
+    variant: mantineVariant,
+    className,
+    "aria-label": props["aria-label"],
+    "aria-describedby": props["aria-describedby"],
+    leftSection: Icon ? <Icon size={16} aria-hidden="true" /> : undefined,
     ...props,
   };
 
-  return (
-    <Component
-      {...componentProps}
-      className={styles}
-      disabled={disabled || loading}
-      aria-label={props["aria-label"]}
-      aria-describedby={props["aria-describedby"]}
-    >
-      {loading && <LoadingSpinner />}
-      {Icon && <Icon size={16} aria-hidden="true" />}
-      {children}
-    </Component>
-  );
-}
+  if (href) {
+    return (
+      <MantineButton component={Link} href={href} {...commonProps}>
+        {children}
+      </MantineButton>
+    );
+  }
 
-function LoadingSpinner() {
   return (
-    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+    <MantineButton type={type} {...commonProps}>
+      {children}
+    </MantineButton>
   );
 }
