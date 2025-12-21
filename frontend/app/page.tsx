@@ -14,8 +14,8 @@ export default function HomePage() {
   return (
     <Container
       fluid
-      h="100vh"
-      style={{ display: "flex", flexDirection: "column" }}
+      h="100dvh"
+      style={{ display: "flex", flexDirection: "column", position: "relative", zIndex: 1 }}
     >
       {/* Main Content */}
       <Box
@@ -73,7 +73,7 @@ export default function HomePage() {
       </Box>
 
       {/* Footer */}
-      <Box py="xl">
+      <Box py="md">
         <Group justify="center" gap="xs">
           <Text
             component={Link}

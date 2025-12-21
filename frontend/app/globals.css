@@ -1,4 +1,6 @@
 @import "@mantine/core/styles.css";
 
-/* Mantine Theme Overrides can go here or in theme.ts */
-/* Since we removed Tailwind, we need to ensure global styles are clean */
+body {
+  background-color: #000000;
+  margin: 0;
+}
