@@ -163,11 +163,14 @@ function AppList() {
                   key={app.id}
                   p="md"
                   radius="md"
-                  style={{ borderBottom: "1px solid var(--mantine-color-gray-3)" }}
                   component="button"
                   onClick={() => navigate({ view: "detail", slug: app.slug })}
-                  style={{ display: "blow="100%"
-                  ta="left"
+                  style={{
+                    display: "block",
+                    width: "100%",
+                    textAlign: "left",
+                    borderBottom: "1px solid var(--mantine-color-gray-3)",
+                  }}
                 >
                   <Group gap="md" align="flex-start">
                     {app.icon_url && (
@@ -176,11 +179,13 @@ function AppList() {
                         src={app.icon_url}
                         alt={app.name}
                         w={48}
-  style={{ width: "100%", height: "100%", obje                      h={48}
-                        style={{ borderRadius: "var(--mantine-radius-md)", objectFit: "cover" }}tFit: "cover }}
+                        h={48}
+                        style={{
+                          borderRadius: "var(--mantine-radius-md)",
+                          objectFit: "cover",
+                        }}
                         onError={e => {
-                          (e.target as HTMLImageElement).style.display =
-                            "none";
+                          (e.target as HTMLImageElement).style.display = "none";
                         }}
                       />
                     )}
@@ -266,9 +271,7 @@ function AppDetail({ slug }: { slug: string }) {
       <Box mih="100vh" py="xl">
         <Container size="md">
           <Stack gap="lg">
-            <Text c="dimmed">
-              {error || "앱을 찾을 수 없습니다"}
-            </Text>
+            <Text c="dimmed">{error || "앱을 찾을 수 없습니다"}</Text>
             <Button
               onClick={() => navigate({ view: "list" })}
               variant="subtle"
@@ -288,35 +291,89 @@ function AppDetail({ slug }: { slug: string }) {
         <Stack gap="xl">
           <Button
             onClick={() => navigate({ view: "list" })}
-px", borderTop: "1px solid #1a1a1a" }}>
-          <button
-dingTop: "32" }}>→</spn>style={{ pad404040", fontSize: "14pxstyle={{ oor: "# "none", color: "inherit" }}
-            >
-              <pan tyle={{ color: "#d1d5db" }}>
-                개인정보 처리a1a", textDecoration:={{ display: "flex", alignItems: "enter", justifyContent: "space-between", paddingTop: "16px", paddingBottom: "16px", borderBottom: "1px soid #11style", marginBottom: "24px" }}>
-              Privacy Policy
-Spacing: "0.1em textTrnform: "uppercae", letterstyle={{ marginBottom: "48px" }}>
-            <h2 style={{ fontSize: "14px", oor: "#737373",style={{ width: "100%", borderRadius: "8px" }}
-16px" }}>
-              {, 1fr)", gap: " gridTemplateColumns: "repeat(2style={{ display: "grid",1em", marginBottom: "24px" }}>
-              Screenshots", letterSpacing: "0. "14px", oor: "#737373", textTrnform: "uppercae            <h2 style={{ fontSize:style={{ marginBottom: "48px" }}>
-px" }}>→</spn> fontSize: "14            variant="subtle"
+            variant="subtle"
             size="sm"
           >
             ← 돌아가기
           </Button>
 
           <Group gap="md" align="flex-start">
-            {app.istyle={{ fontSize: "14px", con_urol && (
+            {app.icon_url && (
               <Box
                 component="img"
-                src={or: "#737373", cursor: "pointer", bapp.icon_url}
+                src={app.icon_url}
                 alt={app.name}
                 w={64}
                 h={64}
-                ckground: "none", border: "none", padding: 0 }}
-          >
-            ← 앱 목록          </Button>
+                style={{
+                  borderRadius: "var(--mantine-radius-md)",
+                  objectFit: "cover",
+                }}
+              />
+            )}
+            <Stack gap="sm">
+              <div>
+                <Text fw={500} size="lg">
+                  {app.name}
+                </Text>
+                <Group gap="xs" mt="xs">
+                  {(app.platforms || []).map(platform => (
+                    <PlatformBadge
+                      key={platform}
+                      platform={platform as Platform}
+                    />
+                  ))}
+                </Group>
+              </div>
+              {app.description && (
+                <Text size="sm" c="dimmed">
+                  {app.description}
+                </Text>
+              )}
+            </Stack>
+          </Group>
+
+          {app.distribution_channels &&
+            app.distribution_channels.length > 0 && (
+              <Stack gap="md">
+                <Text fw={500}>다운로드</Text>
+                <Group gap="sm">
+                  {app.distribution_channels.map((channel, idx) => (
+                    <Button
+                      key={idx}
+                      component="a"
+                      href={channel.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      variant="light"
+                    >
+                      {getChannelName(channel)}
+                    </Button>
+                  ))}
+                </Group>
+              </Stack>
+            )}
+
+          {app.screenshots && app.screenshots.length > 0 && (
+            <Stack gap="md">
+              <Text fw={500}>스크린샷</Text>
+              <Group gap="md">
+                {app.screenshots.map((screenshot, idx) => (
+                  <Box
+                    key={idx}
+                    component="img"
+                    src={screenshot}
+                    alt={`Screenshot ${idx + 1}`}
+                    style={{
+                      maxWidth: "200px",
+                      borderRadius: "var(--mantine-radius-md)",
+                      border: "1px solid var(--mantine-color-gray-3)",
+                    }}
+                  />
+                ))}
+              </Group>
+            </Stack>
+          )}
         </Stack>
       </Container>
     </Box>
