@@ -21,7 +21,6 @@ import {
   Group,
   Center,
   Loader,
-  Paper,
 } from "@mantine/core";
 import { updateAppPR } from "../../lib/github";
 import { Button } from "../../components";

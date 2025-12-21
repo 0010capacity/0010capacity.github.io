@@ -24,22 +24,10 @@ import {
   Select,
   ActionIcon,
   Alert,
-  Loader,
-  Container,
-  SimpleGrid,
-  Modal,
-  Table,
-  ScrollArea,
   Grid,
-  Tabs,
+  Loader,
 } from "@mantine/core";
-import {
-  IconPlus,
-  IconEdit,
-  IconTrash,
-  IconArrowRight,
-  IconX,
-} from "@tabler/icons-react";
+import { IconPlus, IconX } from "@tabler/icons-react";
 
 // Navigation Context for SPA-style routing
 interface NavState {
@@ -1150,7 +1138,7 @@ function ChaptersList({ slug }: { slug: string }) {
   }
 
   const unit = getNovelUnit(novel?.novel_type || "series");
-  const unitLabel = getNovelUnitLabel(novel?.novel_type || "series");
+
   const titleText =
     novel?.novel_type === "series" ? `${unit} 목록` : `${unit} 목록`;
 
@@ -1262,7 +1250,7 @@ function ChaptersList({ slug }: { slug: string }) {
 function NewChapter({ slug }: { slug: string }) {
   const { navigate, goBack } = useNav();
   const [novel, setNovel] = useState<Novel | null>(null);
-  const [loading, setLoading] = useState(false);
+
   const [fetchLoading, setFetchLoading] = useState(true);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
@@ -1329,7 +1317,7 @@ function NewChapter({ slug }: { slug: string }) {
       );
 
       const unit = getNovelUnit(novel?.novel_type || "series");
-      const nextUnit = getNextUnitText(novel?.novel_type || "series");
+
       setSuccessMessage(`${unit}이 저장되었습니다`);
 
       // 성공 메시지 표시 후 다음 단계로 진행
@@ -1422,7 +1410,6 @@ function NewChapter({ slug }: { slug: string }) {
             <MarkdownEditor
               value={formData.content}
               onChange={content => setFormData({ ...formData, content })}
-              disabled={isSubmitting}
             />
           </Stack>
 
@@ -1471,7 +1458,7 @@ function EditChapter({
   chapterNumber: number;
 }) {
   const { navigate, goBack } = useNav();
-  const [novel, setNovel] = useState<Novel | null>(null);
+  const [, setNovel] = useState<Novel | null>(null);
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(true);
   const [error, setError] = useState("");
@@ -1549,8 +1536,6 @@ function EditChapter({
     );
   }
 
-  const unitLabel = getNovelUnitLabel(novel?.novel_type || "series");
-
   return (
     <AdminLayout title="장 편집" onBack={goBack} backLabel="← 돌아가기">
       <form onSubmit={handleSubmit}>
@@ -1585,7 +1570,6 @@ function EditChapter({
             <MarkdownEditor
               value={formData.content}
               onChange={content => setFormData({ ...formData, content })}
-              disabled={loading}
             />
           </Stack>
 
@@ -1630,19 +1614,18 @@ export default function NovelsAdminClient() {
   const [navState, setNavState] = useState<NavState>({
     view: "list",
   });
-
-  const [history, setHistory] = useState<NavState[]>([]);
+  const [, setHistory] = useState<NavState[]>([]);
 
   const navigate = useCallback(
     (state: NavState) => {
-      setHistory(prev => [...prev, navState]);
+      setHistory((prev: NavState[]) => [...prev, navState]);
       setNavState(state);
     },
     [navState]
   );
 
   const goBack = useCallback(() => {
-    setHistory(prev => {
+    setHistory((prev: NavState[]) => {
       const newHistory = [...prev];
       const prevState = newHistory.pop();
       if (prevState) {

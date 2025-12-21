@@ -20,7 +20,7 @@ import {
   ActionIcon,
 } from "@mantine/core";
 import {
-  IconSave,
+  IconCheck,
   IconPlus,
   IconX,
   IconExternalLink,
@@ -465,7 +465,7 @@ export default function EditProfilePage() {
                 type="submit"
                 loading={isLoading}
                 disabled={isLoading}
-                leftSection={<IconSave size={16} />}
+                leftSection={<IconCheck size={16} />}
               >
                 Save
               </Button>

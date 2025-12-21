@@ -7,7 +7,6 @@ import {
   Grid,
   Card,
   Button,
-  Group,
 } from "@mantine/core";
 import { IconArrowLeft } from "@tabler/icons-react";
 

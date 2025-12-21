@@ -22,9 +22,8 @@ import {
   Loader,
   SegmentedControl,
   Anchor,
-  ActionIcon,
 } from "@mantine/core";
-import { AlertCircle, X, CheckCircle } from "lucide-react";
+import { AlertCircle, CheckCircle } from "lucide-react";
 import AdminLayout from "@/components/AdminLayout";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import TagInput from "@/components/TagInput";
@@ -65,10 +64,6 @@ interface BlogPost {
 }
 
 // Constants
-const STATUS_OPTIONS = [
-  { id: "draft", name: "임시저장", description: "아직 발행되지 않은 글" },
-  { id: "published", name: "발행됨", description: "공개된 글" },
-];
 
 // Blog List Component
 function BlogList() {

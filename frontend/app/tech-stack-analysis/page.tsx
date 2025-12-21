@@ -11,19 +11,17 @@ import {
   Stack,
   Group,
   Badge,
-  Grid,
   Progress,
   Alert,
   Box,
   Center,
-  Loader,
-  SimpleGrid,
-  Paper,
-  ThemeIcon,
   RingProgress,
+  TextInput,
+  PasswordInput,
+  Paper,
+  SimpleGrid,
 } from "@mantine/core";
 import { GitHubAnalyzer } from "../../lib/github";
-import { Button } from "../../components";
 
 interface AnalysisResult {
   languages: { [key: string]: number };
@@ -136,18 +134,23 @@ export default function TechStackAnalysis() {
                     label="GitHub Username"
                     placeholder="GitHub Username"
                     value={username}
-                    onChange={e => setUsername(e.currentTarget.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setUsername(e.currentTarget.value)
+                    }
                   />
                   <PasswordInput
                     label="GitHub Personal Access Token (Optional)"
                     placeholder="GitHub Personal Access Token (Optional)"
                     value={token}
-                    onChange={e => setToken(e.currentTarget.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setToken(e.currentTarget.value)
+                    }
                   />
                   <MantineButton
                     type="submit"
                     disabled={loading}
                     loading={loading}
+                    variant="filled"
                   >
                     {loading ? "Analyzing..." : "Analyze"}
                   </MantineButton>

@@ -12,7 +12,6 @@ import {
   Group,
   Stack,
   Card,
-  Badge,
   Checkbox,
   Select,
   Alert,
@@ -21,7 +20,6 @@ import {
   Text,
 } from "@mantine/core";
 import { createAppPR } from "../../lib/github";
-import { Button } from "../../components";
 
 interface Deployment {
   type: "website" | "appstore" | "googleplay" | "steam" | "download" | "other";
