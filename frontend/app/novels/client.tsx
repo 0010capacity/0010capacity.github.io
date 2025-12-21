@@ -207,8 +207,10 @@ function NovelDetail({ slug }: { slug: string }) {
     const fetchNovelData = async () => {
       try {
         setLoading(true);
-        const novelData = await novelsApi.get(slug);
-        const chaptersData = await novelsApi.getChapters(slug);
+        const novelData = (await novelsApi.getBySlug(slug)) as Novel;
+        const chaptersData = (await novelsApi.getChapters(
+          slug
+        )) as NovelChapter[];
         setNovel(novelData);
         setChapters(chaptersData || []);
         setError("");
@@ -395,9 +397,14 @@ function ChapterRead({
     const fetchChapterData = async () => {
       try {
         setLoading(true);
-        const novelData = await novelsApi.get(slug);
-        const chapterData = await novelsApi.getChapter(slug, chapterNumber);
-        const chaptersData = await novelsApi.getChapters(slug);
+        const novelData = (await novelsApi.getBySlug(slug)) as Novel;
+        const chapterData = (await novelsApi.getChapter(
+          slug,
+          chapterNumber
+        )) as NovelChapter;
+        const chaptersData = (await novelsApi.getChapters(
+          slug
+        )) as NovelChapter[];
         setNovel(novelData);
         setChapter(chapterData);
         setChapters(chaptersData || []);

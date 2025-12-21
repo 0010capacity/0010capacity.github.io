@@ -52,11 +52,11 @@ function BlogList() {
     const fetchPosts = async () => {
       try {
         setLoading(true);
-        const data = await blogApi.list({
+        const data = (await blogApi.list({
           published: true,
           limit: 100,
           offset: 0,
-        });
+        })) as { posts?: BlogPost[] };
         setPosts(data.posts || []);
         setError("");
       } catch (err) {
@@ -210,7 +210,7 @@ function BlogDetail({ slug }: { slug: string }) {
     const fetchPost = async () => {
       try {
         setLoading(true);
-        const data = await blogApi.get(slug);
+        const data = (await blogApi.getBySlug(slug)) as BlogPost;
         setPost(data);
         setError("");
       } catch (err) {
@@ -298,7 +298,7 @@ function BlogDetail({ slug }: { slug: string }) {
         </Box>
 
         {/* Featured Image */}
-        {post.featured_image && (
+        {post.cover_image_url && (
           <Box
             style={{
               position: "relative",
@@ -309,7 +309,7 @@ function BlogDetail({ slug }: { slug: string }) {
             }}
           >
             <Image
-              src={post.featured_image}
+              src={post.cover_image_url}
               alt={post.title}
               fill
               style={{ objectFit: "cover" }}

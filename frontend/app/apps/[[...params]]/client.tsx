@@ -80,7 +80,9 @@ function AppList() {
     const fetchApps = async () => {
       try {
         setLoading(true);
-        const data = await appsApi.list({ limit: 50 });
+        const data = (await appsApi.list({ limit: 50 })) as {
+          apps?: App[];
+        };
         setApps(data.apps || []);
         setError("");
       } catch (err) {
@@ -174,7 +176,7 @@ function AppList() {
                     <Group justify="space-between" align="flex-start" gap="md">
                       <Box style={{ flex: 1, minWidth: 0 }}>
                         <Title order={2} size="h4" fw={500} mb="xs">
-                          {app.title}
+                          {app.name}
                         </Title>
 
                         {app.description && (
@@ -224,7 +226,7 @@ function AppDetail({ slug }: { slug: string }) {
     const fetchApp = async () => {
       try {
         setLoading(true);
-        const data = await appsApi.get(slug);
+        const data = (await appsApi.getBySlug(slug)) as App;
         setApp(data);
         setError("");
       } catch (err) {
@@ -281,7 +283,7 @@ function AppDetail({ slug }: { slug: string }) {
 
         <Box pb="xl" style={{ borderBottom: "1px solid var(--color-border)" }}>
           <Title order={1} fw={400} size="h2" mb="md">
-            {app.title}
+            {app.name}
           </Title>
 
           {app.description && (
@@ -296,28 +298,8 @@ function AppDetail({ slug }: { slug: string }) {
                 {app.platforms.map(p => PLATFORM_NAMES[p] || p).join(", ")}
               </Text>
             )}
-            {app.status && (
-              <Text size="xs" c="dimmed">
-                {app.status === "active"
-                  ? "활성"
-                  : app.status === "inactive"
-                    ? "비활성"
-                    : app.status === "archived"
-                      ? "보관됨"
-                      : app.status}
-              </Text>
-            )}
           </Group>
         </Box>
-
-        {/* Content */}
-        {app.content && (
-          <Box>
-            <Text size="md" style={{ whiteSpace: "pre-wrap" }}>
-              {app.content}
-            </Text>
-          </Box>
-        )}
 
         {/* Distribution Links */}
         {app.distribution_channels && app.distribution_channels.length > 0 && (
@@ -326,9 +308,9 @@ function AppDetail({ slug }: { slug: string }) {
               다운로드
             </Title>
             <Group gap="xs" wrap="wrap">
-              {app.distribution_channels.map(channel => (
+              {app.distribution_channels.map((channel, index) => (
                 <Button
-                  key={channel.id}
+                  key={`${channel.type}-${index}`}
                   component="a"
                   href={channel.url}
                   target="_blank"

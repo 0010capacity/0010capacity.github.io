@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { Container, Box, UnstyledButton } from "@mantine/core";
 import { BookOpen, FileText, AppWindow } from "lucide-react";
 import styles from "./page.module.css";
 
