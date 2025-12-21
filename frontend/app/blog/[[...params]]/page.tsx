@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import type { BlogPost } from "@/lib/types";
 import BlogPageClient from "./client";
 
@@ -116,5 +117,15 @@ export async function generateMetadata({
 export const dynamicParams = false;
 
 export default function BlogPage() {
-  return <BlogPageClient />;
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen text-neutral-100 flex items-center justify-center">
+          <p className="text-neutral-600 text-sm">로딩 중...</p>
+        </div>
+      }
+    >
+      <BlogPageClient />
+    </Suspense>
+  );
 }
