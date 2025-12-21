@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import { ColorSchemeScript, MantineProvider } from "@mantine/core";
 import "./globals.css";
 import { theme } from "@/theme";
@@ -8,18 +7,6 @@ import { MusicPlayerProvider } from "@/components/MusicPlayerProvider";
 import MusicPlayer from "@/components/MusicPlayer";
 import { SnowfallProvider } from "@/components/SnowfallProvider";
 import SnowfallContainer from "@/components/SnowfallContainer";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-  preload: false,
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-  preload: false,
-});
 
 export const metadata: Metadata = {
   title: {
@@ -103,10 +90,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        style={{ position: "relative" }}
-      >
+      <body className="antialiased" style={{ position: "relative" }}>
         <MantineProvider theme={theme} defaultColorScheme="dark">
           <SPARedirectHandler />
           <SnowfallProvider>
