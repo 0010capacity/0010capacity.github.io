@@ -86,6 +86,14 @@ interface NovelsResponse {
   total: number;
 }
 
+interface ChaptersResponse {
+  chapters: Chapter[];
+}
+
+interface ChapterResponse {
+  chapter: Chapter;
+}
+
 // Constants
 const NOVEL_TYPES = [
   {
@@ -1086,11 +1094,7 @@ function ChaptersList({ slug }: { slug: string }) {
   const [error, setError] = useState("");
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
 
-  useEffect(() => {
-    fetchData();
-  }, [slug]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       const [novelData, chaptersData] = await Promise.all([
@@ -1098,7 +1102,7 @@ function ChaptersList({ slug }: { slug: string }) {
         novelsApi.getChapters(slug),
       ]);
       setNovel(novelData as Novel);
-      setChapters((chaptersData as any).chapters || []);
+      setChapters((chaptersData as ChaptersResponse).chapters || []);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "데이터를 불러오는데 실패했습니다"
@@ -1106,7 +1110,11 @@ function ChaptersList({ slug }: { slug: string }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [slug]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleDelete = async (chapterNumber: number) => {
     const token = localStorage.getItem("admin_token");
@@ -1266,7 +1274,9 @@ function NewChapter({ slug }: { slug: string }) {
   const fetchNovelData = useCallback(async () => {
     try {
       const novelData = (await novelsApi.getBySlug(slug)) as Novel;
-      const chaptersData = (await novelsApi.getChapters(slug)) as any;
+      const chaptersData = (await novelsApi.getChapters(
+        slug
+      )) as ChaptersResponse;
       setNovel(novelData);
 
       const chapters = chaptersData.chapters || [];
@@ -1477,7 +1487,7 @@ function EditChapter({
       ]);
       setNovel(novelData as Novel);
 
-      const chapter = (chapterData as any).chapter;
+      const chapter = (chapterData as ChapterResponse).chapter;
       setFormData({
         number: chapter.chapter_number,
         title: chapter.title,
