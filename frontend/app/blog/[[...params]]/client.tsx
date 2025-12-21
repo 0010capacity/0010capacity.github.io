@@ -13,7 +13,19 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { blogApi } from "@/lib/api";
 import type { BlogPost } from "@/lib/types";
-import Skeleton from "@/components/ui/Skeleton";
+import {
+  Container,
+  Stack,
+  Group,
+  Title,
+  Text,
+  Button,
+  Skeleton,
+  Paper,
+  Anchor,
+  Box,
+  TypographyStylesProvider,
+} from "@mantine/core";
 
 // Navigation Context for SPA-style routing
 interface NavState {
@@ -37,68 +49,70 @@ function useNav() {
 
 function BlogListSkeleton() {
   return (
-    <div className="space-y-1" aria-label="블로그 목록 로딩" aria-busy="true">
+    <Stack gap="sm" aria-label="블로그 목록 로딩" aria-busy="true">
       {Array.from({ length: 8 }).map((_, i) => (
-        <div
+        <Box
           key={i}
-          className="py-4 border-b border-neutral-900 flex items-baseline justify-between gap-4"
+          py="lg"
+          style={{ borderBottom: "1px solid var(--mantine-color-dark-4)" }}
         >
-          <div className="flex-1 min-w-0 pr-4">
-            <Skeleton className="h-5 w-4/5" />
-            <div className="flex gap-2 mt-3">
-              <Skeleton className="h-3 w-12" />
-              <Skeleton className="h-3 w-10" />
-              <Skeleton className="h-3 w-14" />
-            </div>
-          </div>
-          <Skeleton className="h-4 w-24 flex-shrink-0" />
-        </div>
+          <Group justify="space-between" align="baseline" gap="lg">
+            <Box style={{ flex: 1, minWidth: 0 }}>
+              <Skeleton height={20} width="80%" radius="sm" />
+              <Group gap="xs" mt="sm">
+                <Skeleton height={12} width={48} radius="sm" />
+                <Skeleton height={12} width={40} radius="sm" />
+                <Skeleton height={12} width={56} radius="sm" />
+              </Group>
+            </Box>
+            <Skeleton height={16} width={96} radius="sm" />
+          </Group>
+        </Box>
       ))}
-    </div>
+    </Stack>
   );
 }
 
 function BlogDetailSkeleton() {
   return (
-    <div className="min-h-screen text-neutral-100">
-      <div className="max-w-2xl mx-auto px-6 py-16">
-        <div className="text-sm text-neutral-600">← 블로그</div>
+    <Container size="sm" py="xl" mih="100vh">
+      <Text size="sm" c="dimmed" mb="md">
+        ← 블로그
+      </Text>
 
-        <header className="mt-12 mb-12">
-          <Skeleton className="h-4 w-36 mb-4" />
-          <Skeleton className="h-10 w-4/5 mb-4" />
-          <Skeleton className="h-10 w-3/5 mb-8" />
+      <Box mt="xl" mb="xl">
+        <Skeleton height={16} width={144} mb="md" radius="sm" />
+        <Skeleton height={40} width="80%" mb="md" radius="sm" />
+        <Skeleton height={40} width="60%" mb="xl" radius="sm" />
 
-          <div className="flex gap-3 flex-wrap">
-            <Skeleton className="h-6 w-16" />
-            <Skeleton className="h-6 w-20" />
-            <Skeleton className="h-6 w-14" />
-          </div>
-        </header>
+        <Group gap="xs">
+          <Skeleton height={24} width={64} radius="sm" />
+          <Skeleton height={24} width={80} radius="sm" />
+          <Skeleton height={24} width={56} radius="sm" />
+        </Group>
+      </Box>
 
-        <div className="mb-12">
-          <Skeleton className="w-full h-56 rounded" />
-        </div>
+      <Box mb="xl">
+        <Skeleton height={224} width="100%" radius="md" />
+      </Box>
 
-        <div
-          className="mb-16 space-y-3"
-          aria-label="블로그 본문 로딩"
-          aria-busy="true"
-        >
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-11/12" />
-          <Skeleton className="h-4 w-10/12" />
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-9/12" />
-          <Skeleton className="h-4 w-11/12" />
-          <Skeleton className="h-4 w-8/12" />
-        </div>
+      <Stack gap="xs" mb="xl" aria-label="블로그 본문 로딩" aria-busy="true">
+        <Skeleton height={16} width="100%" radius="sm" />
+        <Skeleton height={16} width="92%" radius="sm" />
+        <Skeleton height={16} width="84%" radius="sm" />
+        <Skeleton height={16} width="100%" radius="sm" />
+        <Skeleton height={16} width="75%" radius="sm" />
+        <Skeleton height={16} width="92%" radius="sm" />
+        <Skeleton height={16} width="66%" radius="sm" />
+      </Stack>
 
-        <footer className="pt-8 border-t border-neutral-900">
-          <Skeleton className="h-4 w-48" />
-        </footer>
-      </div>
-    </div>
+      <Box
+        pt="xl"
+        style={{ borderTop: "1px solid var(--mantine-color-dark-4)" }}
+      >
+        <Skeleton height={16} width={192} radius="sm" />
+      </Box>
+    </Container>
   );
 }
 
@@ -134,50 +148,94 @@ function BlogList() {
   }, []);
 
   return (
-    <div className="min-h-screen text-neutral-100">
-      <div className="max-w-2xl mx-auto px-6 py-16">
-        <header className="mb-16">
-          <button
-            onClick={() => (window.location.href = "/")}
-            className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
-          >
-            ← 돌아가기
-          </button>
-          <h1 className="text-2xl font-light mt-8 mb-2">블로그</h1>
-          <p className="text-neutral-500 text-sm">기술, 경험, 그리고 생각들</p>
-        </header>
+    <Container size="sm" py="xl" mih="100vh">
+      <header style={{ marginBottom: "var(--mantine-spacing-xl)" }}>
+        <Button
+          onClick={() => (window.location.href = "/")}
+          variant="subtle"
+          color="gray"
+          size="sm"
+          leftSection="←"
+        >
+          돌아가기
+        </Button>
+        <Title order={1} fw={300} mt="lg" mb="xs">
+          블로그
+        </Title>
+        <Text size="sm" c="dimmed">
+          기술, 경험, 그리고 생각들
+        </Text>
+      </header>
 
-        {error && (
-          <div className="mb-8 p-4 border border-red-900/50 rounded-lg text-red-400 text-sm">
+      {error && (
+        <Paper
+          withBorder
+          p="md"
+          mb="lg"
+          color="red"
+          bg="rgba(255, 0, 0, 0.1)"
+          style={{ borderColor: "var(--mantine-color-red-9)" }}
+        >
+          <Text c="red.4" size="sm">
             {error}
-          </div>
-        )}
+          </Text>
+        </Paper>
+      )}
 
-        {loading && <BlogListSkeleton />}
+      {loading && <BlogListSkeleton />}
 
-        {!loading && posts.length > 0 && (
-          <div className="space-y-1">
-            {posts.map(post => (
-              <button
-                key={post.id}
-                onClick={() => navigate({ view: "detail", slug: post.slug })}
-                className="group flex items-baseline justify-between w-full text-left py-4 border-b border-neutral-900 hover:border-neutral-700 transition-colors"
+      {!loading && posts.length > 0 && (
+        <Stack gap={0}>
+          {posts.map(post => (
+            <Anchor
+              component="button"
+              key={post.id}
+              onClick={() => navigate({ view: "detail", slug: post.slug })}
+              underline="never"
+              style={{
+                display: "block",
+                width: "100%",
+                textAlign: "left",
+                padding: "var(--mantine-spacing-md) 0",
+                borderBottom: "1px solid var(--mantine-color-dark-4)",
+                color: "inherit",
+                transition: "border-color 0.2s",
+              }}
+              className="group"
+            >
+              <Group
+                justify="space-between"
+                align="baseline"
+                wrap="nowrap"
+                gap="md"
               >
-                <div className="flex-1 min-w-0 pr-4">
-                  <h2 className="text-neutral-300 group-hover:text-white transition-colors truncate">
+                <Box style={{ flex: 1, minWidth: 0 }}>
+                  <Title
+                    order={2}
+                    size="h3"
+                    fw={500}
+                    c="dimmed"
+                    style={{
+                      transition: "color 0.2s",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                    className="group-hover:text-white"
+                  >
                     {post.title}
-                  </h2>
+                  </Title>
                   {post.tags && post.tags.length > 0 && (
-                    <div className="flex gap-2 mt-2">
+                    <Group gap="xs" mt="xs">
                       {post.tags.slice(0, 3).map(tag => (
-                        <span key={tag} className="text-xs text-neutral-600">
+                        <Text key={tag} size="xs" c="dimmed">
                           #{tag}
-                        </span>
+                        </Text>
                       ))}
-                    </div>
+                    </Group>
                   )}
-                </div>
-                <time className="text-sm text-neutral-600 flex-shrink-0">
+                </Box>
+                <Text size="sm" c="dimmed" style={{ whiteSpace: "nowrap" }}>
                   {new Date(
                     post.published_at || post.created_at
                   ).toLocaleDateString("ko-KR", {
@@ -185,25 +243,30 @@ function BlogList() {
                     month: "short",
                     day: "numeric",
                   })}
-                </time>
-              </button>
-            ))}
-          </div>
-        )}
+                </Text>
+              </Group>
+            </Anchor>
+          ))}
+        </Stack>
+      )}
 
-        {!loading && posts.length === 0 && !error && (
-          <div className="text-center py-16">
-            <p className="text-neutral-500 mb-6">아직 작성된 글이 없습니다</p>
-            <button
-              onClick={() => (window.location.href = "/")}
-              className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
-            >
-              ← 돌아가기
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
+      {!loading && posts.length === 0 && !error && (
+        <Box py={64} ta="center">
+          <Text c="dimmed" mb="lg">
+            아직 작성된 글이 없습니다
+          </Text>
+          <Button
+            onClick={() => (window.location.href = "/")}
+            variant="subtle"
+            color="gray"
+            size="sm"
+            leftSection="←"
+          >
+            돌아가기
+          </Button>
+        </Box>
+      )}
+    </Container>
   );
 }
 
@@ -240,19 +303,20 @@ function BlogDetail({ slug }: { slug: string }) {
 
   if (error || !post) {
     return (
-      <div className="min-h-screen text-neutral-100">
-        <div className="max-w-2xl mx-auto px-6 py-16">
-          <p className="text-neutral-500 mb-6">
-            {error || "글을 찾을 수 없습니다"}
-          </p>
-          <button
-            onClick={() => navigate({ view: "list" })}
-            className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
-          >
-            ← 블로그로 돌아가기
-          </button>
-        </div>
-      </div>
+      <Container size="sm" py="xl" mih="100vh">
+        <Text c="dimmed" mb="md">
+          {error || "글을 찾을 수 없습니다"}
+        </Text>
+        <Button
+          onClick={() => navigate({ view: "list" })}
+          variant="subtle"
+          color="gray"
+          size="sm"
+          leftSection="←"
+        >
+          블로그로 돌아가기
+        </Button>
+      </Container>
     );
   }
 
@@ -265,68 +329,94 @@ function BlogDetail({ slug }: { slug: string }) {
   };
 
   return (
-    <div className="min-h-screen text-neutral-100">
-      <div className="max-w-2xl mx-auto px-6 py-16">
-        <button
-          onClick={() => navigate({ view: "list" })}
-          className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
+    <Container size="sm" py="xl" mih="100vh">
+      <Button
+        onClick={() => navigate({ view: "list" })}
+        variant="subtle"
+        color="gray"
+        size="sm"
+        leftSection="←"
+      >
+        블로그
+      </Button>
+
+      <header
+        style={{
+          marginTop: "var(--mantine-spacing-xl)",
+          marginBottom: "var(--mantine-spacing-xl)",
+        }}
+      >
+        <Text size="sm" c="dimmed" mb="md">
+          {formatDate(post.published_at || post.created_at)}
+        </Text>
+        <Title order={1} fw={300} size="h1" mb="lg" style={{ lineHeight: 1.2 }}>
+          {post.title}
+        </Title>
+
+        {post.tags && post.tags.length > 0 && (
+          <Group gap="xs">
+            {post.tags.map(tag => (
+              <Text key={tag} size="sm" c="dimmed">
+                #{tag}
+              </Text>
+            ))}
+          </Group>
+        )}
+      </header>
+
+      {post.cover_image_url && (
+        <Box
+          mb="xl"
+          style={{
+            borderRadius: "var(--mantine-radius-md)",
+            overflow: "hidden",
+          }}
         >
-          ← 블로그
-        </button>
+          <Image
+            src={post.cover_image_url}
+            alt={post.title}
+            width={800}
+            height={400}
+            style={{ width: "100%", height: "auto", objectFit: "cover" }}
+          />
+        </Box>
+      )}
 
-        <header className="mt-12 mb-12">
-          <time className="text-sm text-neutral-600 block mb-4">
-            {formatDate(post.published_at || post.created_at)}
-          </time>
-          <h1 className="text-3xl font-light mb-6 leading-tight">
-            {post.title}
-          </h1>
+      {post.excerpt && (
+        <Text
+          size="lg"
+          c="dimmed"
+          mb="xl"
+          pl="lg"
+          style={{ borderLeft: "2px solid var(--mantine-color-dark-4)" }}
+        >
+          {post.excerpt}
+        </Text>
+      )}
 
-          {post.tags && post.tags.length > 0 && (
-            <div className="flex gap-3 flex-wrap">
-              {post.tags.map(tag => (
-                <span key={tag} className="text-sm text-neutral-600">
-                  #{tag}
-                </span>
-              ))}
-            </div>
-          )}
-        </header>
-
-        {post.cover_image_url && (
-          <div className="mb-12">
-            <Image
-              src={post.cover_image_url}
-              alt={post.title}
-              width={800}
-              height={400}
-              className="w-full rounded"
-            />
-          </div>
-        )}
-
-        {post.excerpt && (
-          <p className="text-neutral-400 text-lg mb-12 border-l-2 border-neutral-800 pl-6">
-            {post.excerpt}
-          </p>
-        )}
-
-        <article className="mb-16 prose prose-invert prose-neutral max-w-none prose-headings:font-light prose-headings:text-neutral-200 prose-p:text-neutral-300 prose-a:text-neutral-400 prose-a:no-underline hover:prose-a:text-neutral-200 prose-strong:text-neutral-200 prose-code:text-neutral-300 prose-code:bg-neutral-800 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-pre:bg-neutral-900 prose-pre:border prose-pre:border-neutral-800 prose-blockquote:border-neutral-700 prose-blockquote:text-neutral-400 prose-li:text-neutral-300">
+      <TypographyStylesProvider className="mb-16">
+        <div className="prose prose-invert prose-neutral max-w-none">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>
             {post.content}
           </ReactMarkdown>
-        </article>
+        </div>
+      </TypographyStylesProvider>
 
-        <footer className="pt-8 border-t border-neutral-900">
-          <button
-            onClick={() => navigate({ view: "list" })}
-            className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
-          >
-            ← 블로그로 돌아가기
-          </button>
-        </footer>
-      </div>
-    </div>
+      <Box
+        pt="lg"
+        style={{ borderTop: "1px solid var(--mantine-color-dark-4)" }}
+      >
+        <Button
+          onClick={() => navigate({ view: "list" })}
+          variant="subtle"
+          color="gray"
+          size="sm"
+          leftSection="←"
+        >
+          블로그로 돌아가기
+        </Button>
+      </Box>
+    </Container>
   );
 }
 

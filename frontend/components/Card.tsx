@@ -1,3 +1,6 @@
+import { Card as MantineCard, Text, Group } from "@mantine/core";
+import React from "react";
+
 interface CardProps {
   children: React.ReactNode;
   className?: string;
@@ -20,42 +23,44 @@ export default function Card({
     : undefined;
 
   return (
-    <div
-      className={`bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden ${className}`}
+    <MantineCard
+      shadow="sm"
+      padding="lg"
+      radius="lg"
+      withBorder
+      className={className}
       role={role || "region"}
       aria-labelledby={cardId}
     >
       {(title || subtitle || actions) && (
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
+        <MantineCard.Section withBorder inheritPadding py="xs">
+          <Group justify="space-between" align="center">
             <div>
               {title && (
-                <h3
+                <Text
+                  fw={600}
+                  size="lg"
                   id={cardId}
-                  className="text-lg font-semibold text-gray-900 dark:text-white"
+                  c="bright" // Uses theme foreground
                 >
                   {title}
-                </h3>
+                </Text>
               )}
               {subtitle && (
-                <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                <Text size="sm" c="dimmed" mt={4}>
                   {subtitle}
-                </p>
+                </Text>
               )}
             </div>
             {actions && (
-              <div
-                className="flex space-x-2"
-                role="group"
-                aria-label="Card actions"
-              >
+              <Group gap="xs" role="group" aria-label="Card actions">
                 {actions}
-              </div>
+              </Group>
             )}
-          </div>
-        </div>
+          </Group>
+        </MantineCard.Section>
       )}
-      <div className="p-6">{children}</div>
-    </div>
+      <div style={{ paddingTop: "var(--mantine-spacing-md)" }}>{children}</div>
+    </MantineCard>
   );
 }

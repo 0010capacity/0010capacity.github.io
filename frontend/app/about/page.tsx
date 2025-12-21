@@ -1,66 +1,123 @@
 import Link from "next/link";
+import {
+  Container,
+  Title,
+  Text,
+  Group,
+  Anchor,
+  Badge,
+  Button,
+  Stack,
+  Box,
+} from "@mantine/core";
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen text-neutral-100 flex flex-col items-center justify-center px-6">
+    <Container
+      size="xs"
+      h="100vh"
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
       {/* 명함 카드 */}
-      <div className="w-full max-w-md">
+      <Box w="100%">
         {/* 이름 */}
-        <div className="mb-12 text-center">
-          <h1 className="text-2xl font-medium tracking-tight mb-2">이정원</h1>
-          <p className="text-neutral-500 text-sm">LEE JEONG WON</p>
-        </div>
+        <Box mb="xl" style={{ textAlign: "center" }}>
+          <Title
+            order={1}
+            size="h2"
+            fw={500}
+            mb={4}
+            style={{ letterSpacing: "-0.025em" }}
+          >
+            이정원
+          </Title>
+          <Text size="sm" c="dimmed">
+            LEE JEONG WON
+          </Text>
+        </Box>
 
         {/* 정보 */}
-        <div className="space-y-6 mb-12">
-          <div className="flex justify-between items-center py-3 border-b border-neutral-800">
-            <span className="text-neutral-500 text-sm">이메일</span>
-            <a
-              href="mailto:0010capacity@gmail.com"
-              className="text-neutral-300 hover:text-white text-sm transition-colors"
+        <Stack gap="md" mb="xl">
+          {[
+            {
+              label: "이메일",
+              value: "0010capacity@gmail.com",
+              href: "mailto:0010capacity@gmail.com",
+            },
+            {
+              label: "GitHub",
+              value: "@0010capacity",
+              href: "https://github.com/0010capacity",
+              external: true,
+            },
+            { label: "학교", value: "광운대학교 인공지능학과" },
+            { label: "위치", value: "대한민국" },
+          ].map((item, index) => (
+            <Group
+              key={index}
+              justify="space-between"
+              py="xs"
+              style={{ borderBottom: "1px solid var(--mantine-color-dark-4)" }}
             >
-              0010capacity@gmail.com
-            </a>
-          </div>
-
-          <div className="flex justify-between items-center py-3 border-b border-neutral-800">
-            <span className="text-neutral-500 text-sm">GitHub</span>
-            <a
-              href="https://github.com/0010capacity"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-neutral-300 hover:text-white text-sm transition-colors"
-            >
-              @0010capacity
-            </a>
-          </div>
-
-          <div className="flex justify-between items-center py-3 border-b border-neutral-800">
-            <span className="text-neutral-500 text-sm">학교</span>
-            <span className="text-neutral-300 text-sm text-right">
-              광운대학교 인공지능학과
-            </span>
-          </div>
-
-          <div className="flex justify-between items-center py-3 border-b border-neutral-800">
-            <span className="text-neutral-500 text-sm">위치</span>
-            <span className="text-neutral-300 text-sm">대한민국</span>
-          </div>
-        </div>
+              <Text size="sm" c="dimmed">
+                {item.label}
+              </Text>
+              {item.href ? (
+                <Anchor
+                  href={item.href}
+                  target={item.external ? "_blank" : undefined}
+                  rel={item.external ? "noopener noreferrer" : undefined}
+                  size="sm"
+                  c="dimmed"
+                  underline="hover"
+                  style={{
+                    color: "var(--mantine-color-text)",
+                    transition: "color 0.2s",
+                  }}
+                  className="hover:text-white"
+                >
+                  {item.value}
+                </Anchor>
+              ) : (
+                <Text
+                  size="sm"
+                  c="dimmed"
+                  ta="right"
+                  style={{ color: "var(--mantine-color-text)" }}
+                >
+                  {item.value}
+                </Text>
+              )}
+            </Group>
+          ))}
+        </Stack>
 
         {/* 한 줄 소개 */}
-        <div className="text-center mb-12">
-          <p className="text-neutral-400 text-sm italic">
+        <Box mb="xl" style={{ textAlign: "center" }}>
+          <Text size="sm" c="dimmed" fs="italic">
             &ldquo;뭐든 만듭니다.&rdquo;
-          </p>
-        </div>
+          </Text>
+        </Box>
 
         {/* 기술 스택 */}
-        <div className="mb-12">
-          <p className="text-neutral-600 text-xs uppercase tracking-widest mb-4 text-center">
+        <Box mb="xl">
+          <Text
+            size="xs"
+            c="dimmed"
+            tt="uppercase"
+            ta="center"
+            mb="md"
+            fw={700}
+            style={{ letterSpacing: "2px" }}
+          >
             Skills
-          </p>
-          <div className="flex flex-wrap justify-center gap-2">
+          </Text>
+          <Group justify="center" gap="xs">
             {[
               "TypeScript",
               "C#",
@@ -73,26 +130,38 @@ export default function AboutPage() {
               "Android",
               "Web",
             ].map(skill => (
-              <span
+              <Badge
                 key={skill}
-                className="px-3 py-1 text-xs text-neutral-500 border border-neutral-800 rounded-full"
+                variant="outline"
+                color="gray"
+                size="sm"
+                radius="xl"
+                style={{
+                  fontWeight: 400,
+                  color: "var(--mantine-color-dimmed)",
+                  borderColor: "var(--mantine-color-dark-4)",
+                }}
               >
                 {skill}
-              </span>
+              </Badge>
             ))}
-          </div>
-        </div>
-      </div>
+          </Group>
+        </Box>
+      </Box>
 
       {/* 돌아가기 */}
-      <footer className="mt-8">
-        <Link
+      <Box mt="lg">
+        <Button
+          component={Link}
           href="/"
-          className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
+          variant="subtle"
+          color="gray"
+          size="sm"
+          leftSection="←"
         >
-          ← 돌아가기
-        </Link>
-      </footer>
-    </div>
+          돌아가기
+        </Button>
+      </Box>
+    </Container>
   );
 }

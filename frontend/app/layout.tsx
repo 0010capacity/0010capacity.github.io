@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { ColorSchemeScript, MantineProvider } from "@mantine/core";
 import "./globals.css";
+import { theme } from "@/theme";
 import SPARedirectHandler from "@/components/SPARedirectHandler";
 import { MusicPlayerProvider } from "@/components/MusicPlayerProvider";
 import MusicPlayer from "@/components/MusicPlayer";
@@ -75,8 +77,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className="dark">
+    <html lang="ko" suppressHydrationWarning>
       <head>
+        <ColorSchemeScript defaultColorScheme="dark" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -101,16 +104,18 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-neutral-950 text-neutral-100`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <SPARedirectHandler />
-        <SnowfallProvider>
-          <SnowfallContainer />
-          <MusicPlayerProvider>
-            {children}
-            <MusicPlayer />
-          </MusicPlayerProvider>
-        </SnowfallProvider>
+        <MantineProvider theme={theme} defaultColorScheme="dark">
+          <SPARedirectHandler />
+          <SnowfallProvider>
+            <SnowfallContainer />
+            <MusicPlayerProvider>
+              {children}
+              <MusicPlayer />
+            </MusicPlayerProvider>
+          </SnowfallProvider>
+        </MantineProvider>
       </body>
     </html>
   );

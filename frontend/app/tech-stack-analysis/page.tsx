@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { Home } from "lucide-react";
 import { GitHubAnalyzer } from "../../lib/github";
 import {
@@ -89,7 +88,7 @@ export default function TechStackAnalysis() {
         {/* Header */}
         <Card className="mb-8">
           <div className="mb-4">
-            <Button as={Link} href="/" variant="outline" icon={Home}></Button>
+            <Button href="/" variant="outline" icon={Home}></Button>
           </div>
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
             GitHub Tech Stack Analyzer

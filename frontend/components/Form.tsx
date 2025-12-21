@@ -1,3 +1,5 @@
+import { Input, Stack, Group } from "@mantine/core";
+
 interface FormProps {
   children: React.ReactNode;
   onSubmit: (e: React.FormEvent) => void;
@@ -19,8 +21,8 @@ interface FormActionsProps {
 
 export function Form({ children, onSubmit, className = "" }: FormProps) {
   return (
-    <form onSubmit={onSubmit} className={`space-y-6 ${className}`}>
-      {children}
+    <form onSubmit={onSubmit} className={className}>
+      <Stack gap="md">{children}</Stack>
     </form>
   );
 }
@@ -32,24 +34,27 @@ export function FormField({
   required,
   className = "",
 }: FormFieldProps) {
+  // Mantine inputs often handle their own label/error/required.
+  // This wrapper ensures consistent spacing if raw inputs are used,
+  // or wraps custom components.
+  // Ideally, use Input.Wrapper if passing non-Mantine inputs,
+  // or rely on Mantine Input components' props directly.
   return (
-    <div className={`space-y-2 ${className}`}>
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-        {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
-      </label>
+    <Input.Wrapper
+      label={label}
+      error={error}
+      required={required}
+      className={className}
+    >
       {children}
-      {error && (
-        <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-      )}
-    </div>
+    </Input.Wrapper>
   );
 }
 
 export function FormActions({ children, className = "" }: FormActionsProps) {
   return (
-    <div className={`flex justify-end space-x-3 pt-4 ${className}`}>
+    <Group justify="flex-end" gap="sm" pt="md" className={className}>
       {children}
-    </div>
+    </Group>
   );
 }

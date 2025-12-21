@@ -3,6 +3,15 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, ReactNode } from "react";
+import {
+  AppShell,
+  Container,
+  Group,
+  Title,
+  Text,
+  Button,
+  Loader,
+} from "@mantine/core";
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -46,49 +55,68 @@ export default function AdminLayout({
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-neutral-950 text-neutral-100 flex items-center justify-center">
-        <p className="text-neutral-600 text-sm">로딩 중...</p>
-      </div>
+      <Container
+        h="100vh"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Loader color="gray" size="sm" />
+        <Text size="sm" c="dimmed" ml="sm">
+          로딩 중...
+        </Text>
+      </Container>
     );
   }
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100">
-      <div className="max-w-2xl mx-auto px-6 py-8">
+    <AppShell
+      header={{ height: 0 }} // No fixed header, but using AppShell for structure
+      padding="md"
+    >
+      <Container size="sm" py="xl">
         {/* Header */}
-        <header className="mb-8">
-          <div className="flex items-center justify-between mb-6">
+        <header style={{ marginBottom: "var(--mantine-spacing-xl)" }}>
+          <Group justify="space-between" mb="lg">
             {onBack ? (
-              <button
-                onClick={onBack}
-                className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
-              >
+              <Button variant="subtle" color="gray" size="sm" onClick={onBack}>
                 {backLabel}
-              </button>
+              </Button>
             ) : (
-              <Link
+              <Button
+                component={Link}
                 href={backHref}
-                className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
+                variant="subtle"
+                color="gray"
+                size="sm"
               >
                 {backLabel}
-              </Link>
+              </Button>
             )}
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-neutral-500">{user?.username}</span>
-              <button
+            <Group gap="md">
+              <Text size="sm" c="dimmed">
+                {user?.username}
+              </Text>
+              <Button
+                variant="subtle"
+                color="gray"
+                size="sm"
                 onClick={handleLogout}
-                className="text-sm text-neutral-600 hover:text-neutral-400 transition-colors"
               >
                 로그아웃
-              </button>
-            </div>
-          </div>
-          <h1 className="text-2xl font-light">{title}</h1>
+              </Button>
+            </Group>
+          </Group>
+          <Title order={1} fw={300} size="h2">
+            {title}
+          </Title>
         </header>
 
         {/* Content */}
         <main>{children}</main>
-      </div>
-    </div>
+      </Container>
+    </AppShell>
   );
 }
