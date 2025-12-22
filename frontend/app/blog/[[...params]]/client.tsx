@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { blogApi } from "@/lib/api";
@@ -329,10 +328,11 @@ function BlogDetail({ slug }: { slug: string }) {
 }
 
 // Main Page Component
-export default function BlogPageClient() {
-  const searchParams = useSearchParams();
-  const slug = searchParams.get("slug");
+interface BlogPageClientProps {
+  slug?: string;
+}
 
+export default function BlogPageClient({ slug }: BlogPageClientProps) {
   if (slug) {
     return <BlogDetail slug={slug} />;
   }

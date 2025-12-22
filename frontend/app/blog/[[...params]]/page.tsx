@@ -116,7 +116,14 @@ export async function generateMetadata({
 
 export const dynamicParams = false;
 
-export default function BlogPage() {
+export default async function BlogPage({
+  params,
+}: {
+  params: Promise<{ params: string[] }>;
+}) {
+  const resolvedParams = await params;
+  const slug = resolvedParams.params?.[0];
+
   return (
     <Suspense
       fallback={
@@ -125,7 +132,7 @@ export default function BlogPage() {
         </div>
       }
     >
-      <BlogPageClient />
+      <BlogPageClient slug={slug} />
     </Suspense>
   );
 }
