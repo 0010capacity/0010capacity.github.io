@@ -1,16 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import {
-  Container,
-  Stack,
-  Title,
-  Text,
-  Grid,
-  Card,
-  Button,
-} from "@mantine/core";
-import { IconArrowLeft } from "@tabler/icons-react";
+import { Container, Stack, Title, Text, Grid, Card } from "@mantine/core";
+import { BackButton } from "../../components";
 
 export default function Portfolio() {
   const projects = [
@@ -33,8 +24,10 @@ export default function Portfolio() {
 
   return (
     <Container size="md" py="xl">
-      <Stack gap="xl" align="center">
-        <Title order={1} size="h1">
+      <Stack gap="xl">
+        <BackButton href="/" label="Back to Home" />
+
+        <Title order={1} size="h1" ta="center">
           My Portfolio
         </Title>
         <Text size="lg" ta="center">
@@ -53,16 +46,6 @@ export default function Portfolio() {
             </Grid.Col>
           ))}
         </Grid>
-
-        <Button
-          component={Link}
-          href="/"
-          variant="light"
-          leftSection={<IconArrowLeft size={16} />}
-          mt="md"
-        >
-          Back to Home
-        </Button>
       </Stack>
     </Container>
   );

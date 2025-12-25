@@ -13,7 +13,6 @@ import {
   Group,
   Title,
   Text,
-  Button,
   Skeleton,
   Paper,
   Anchor,
@@ -22,7 +21,8 @@ import {
   Center,
   Loader,
 } from "@mantine/core";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { BackButton } from "../../../components";
 
 function BlogListSkeleton() {
   return (
@@ -89,16 +89,7 @@ function BlogList() {
             pb="xl"
             style={{ borderBottom: "1px solid var(--color-border)" }}
           >
-            <Button
-              component={Link}
-              href="/"
-              variant="subtle"
-              size="sm"
-              leftSection={<ArrowLeft size={16} />}
-              mb="lg"
-            >
-              돌아가기
-            </Button>
+            <BackButton href="/" />
 
             <Title order={1} fw={400} size="h2" mb="sm">
               블로그
@@ -244,15 +235,7 @@ function BlogDetail({ slug }: { slug: string }) {
     return (
       <Container size="sm" py="xl" mih="100vh">
         <Stack gap="md">
-          <Button
-            component={Link}
-            href="/blog"
-            variant="subtle"
-            size="sm"
-            leftSection={<ArrowLeft size={16} />}
-          >
-            돌아가기
-          </Button>
+          <BackButton href="/blog" />
           <Text c="red">{error || "글을 찾을 수 없습니다"}</Text>
         </Stack>
       </Container>
@@ -262,15 +245,7 @@ function BlogDetail({ slug }: { slug: string }) {
   return (
     <Container size="sm" py="xl" mih="100vh">
       <Stack gap="xl">
-        <Button
-          component={Link}
-          href="/blog"
-          variant="subtle"
-          size="sm"
-          leftSection={<ArrowLeft size={16} />}
-        >
-          돌아가기
-        </Button>
+        <BackButton href="/blog" />
 
         {/* Header */}
         <Box pb="xl" style={{ borderBottom: "1px solid var(--color-border)" }}>

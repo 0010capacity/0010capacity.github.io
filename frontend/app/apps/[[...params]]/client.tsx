@@ -17,9 +17,10 @@ import {
   Anchor,
   Skeleton,
 } from "@mantine/core";
-import { ArrowLeft, ArrowRight, ExternalLink } from "lucide-react";
+import { ArrowRight, ExternalLink } from "lucide-react";
 import { appsApi } from "@/lib/api";
 import { App, DistributionChannel, Platform } from "@/lib/types";
+import { BackButton } from "../../../components";
 
 // Platform display names
 const PLATFORM_NAMES: Record<Platform, string> = {
@@ -105,16 +106,7 @@ function AppList() {
             pb="xl"
             style={{ borderBottom: "1px solid var(--color-border)" }}
           >
-            <Button
-              component={Link}
-              href="/"
-              variant="subtle"
-              size="sm"
-              leftSection={<ArrowLeft size={16} />}
-              mb="lg"
-            >
-              돌아가기
-            </Button>
+            <BackButton href="/" />
 
             <Title order={1} fw={400} size="h2" mb="sm">
               앱
@@ -251,15 +243,7 @@ function AppDetail({ slug }: { slug: string }) {
     return (
       <Container size="sm" py="xl" mih="100vh">
         <Stack gap="md">
-          <Button
-            component={Link}
-            href="/apps"
-            variant="subtle"
-            size="sm"
-            leftSection={<ArrowLeft size={16} />}
-          >
-            돌아가기
-          </Button>
+          <BackButton href="/apps" />
           <Text c="red">{error || "앱을 찾을 수 없습니다"}</Text>
         </Stack>
       </Container>
@@ -269,15 +253,7 @@ function AppDetail({ slug }: { slug: string }) {
   return (
     <Container size="sm" py="xl" mih="100vh">
       <Stack gap="xl">
-        <Button
-          component={Link}
-          href="/apps"
-          variant="subtle"
-          size="sm"
-          leftSection={<ArrowLeft size={16} />}
-        >
-          돌아가기
-        </Button>
+        <BackButton href="/apps" />
 
         <Box pb="xl" style={{ borderBottom: "1px solid var(--color-border)" }}>
           <Title order={1} fw={400} size="h2" mb="md">
