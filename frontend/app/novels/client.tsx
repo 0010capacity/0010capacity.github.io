@@ -23,6 +23,7 @@ import {
   Loader,
 } from "@mantine/core";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import { BackButton } from "../../components";
 
 function NovelListSkeleton() {
   return (
@@ -82,16 +83,7 @@ function NovelList() {
             pb="xl"
             style={{ borderBottom: "1px solid var(--color-border)" }}
           >
-            <Button
-              component={Link}
-              href="/"
-              variant="subtle"
-              size="sm"
-              leftSection={<ArrowLeft size={16} />}
-              mb="lg"
-            >
-              돌아가기
-            </Button>
+            <BackButton href="/" />
 
             <Title order={1} fw={400} size="h2" mb="sm">
               소설
@@ -251,15 +243,7 @@ function NovelDetail({ slug }: { slug: string }) {
     return (
       <Container size="sm" py="xl" mih="100vh">
         <Stack gap="md">
-          <Button
-            component={Link}
-            href="/novels"
-            variant="subtle"
-            size="sm"
-            leftSection={<ArrowLeft size={16} />}
-          >
-            돌아가기
-          </Button>
+          <BackButton href="/novels" />
           <Text c="red">{error || "소설을 찾을 수 없습니다"}</Text>
         </Stack>
       </Container>
@@ -269,15 +253,7 @@ function NovelDetail({ slug }: { slug: string }) {
   return (
     <Container size="sm" py="xl" mih="100vh">
       <Stack gap="xl">
-        <Button
-          component={Link}
-          href="/novels"
-          variant="subtle"
-          size="sm"
-          leftSection={<ArrowLeft size={16} />}
-        >
-          돌아가기
-        </Button>
+        <BackButton href="/novels" />
 
         <Box pb="xl" style={{ borderBottom: "1px solid var(--color-border)" }}>
           <Group gap="xs" mb="md">
@@ -433,15 +409,7 @@ function ChapterRead({
     return (
       <Container size="sm" py="xl" mih="100vh">
         <Stack gap="md">
-          <Button
-            component={Link}
-            href={`/novels?novel=${slug}`}
-            variant="subtle"
-            size="sm"
-            leftSection={<ArrowLeft size={16} />}
-          >
-            돌아가기
-          </Button>
+          <BackButton href={`/novels?novel=${slug}`} />
           <Text c="red">{error || "챕터를 찾을 수 없습니다"}</Text>
         </Stack>
       </Container>
@@ -458,15 +426,7 @@ function ChapterRead({
   return (
     <Container size="sm" py="xl" mih="100vh">
       <Stack gap="xl">
-        <Button
-          component={Link}
-          href={`/novels?novel=${slug}`}
-          variant="subtle"
-          size="sm"
-          leftSection={<ArrowLeft size={16} />}
-        >
-          소설로 돌아가기
-        </Button>
+        <BackButton href={`/novels?novel=${slug}`} label="소설로 돌아가기" />
 
         <Box pb="xl" style={{ borderBottom: "1px solid var(--color-border)" }}>
           <Text fw={500} size="sm" mb="xs">

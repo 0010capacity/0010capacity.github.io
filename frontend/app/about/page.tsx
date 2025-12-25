@@ -1,17 +1,15 @@
 "use client";
 
-import Link from "next/link";
 import {
   Container,
   Title,
   Text,
   Group,
   Anchor,
-  Button,
   Stack,
   Box,
 } from "@mantine/core";
-import { ArrowLeft } from "lucide-react";
+import { BackButton } from "../../components";
 
 export default function AboutPage() {
   const items = [
@@ -46,16 +44,7 @@ export default function AboutPage() {
   return (
     <Container size="sm" py="xl" mih="100vh">
       <Stack gap="xl">
-        <Button
-          component={Link}
-          href="/"
-          variant="subtle"
-          size="sm"
-          leftSection={<ArrowLeft size={16} />}
-          mb="lg"
-        >
-          돌아가기
-        </Button>
+        <BackButton href="/" />
 
         {/* 이름 */}
         <Box style={{ textAlign: "center" }}>
