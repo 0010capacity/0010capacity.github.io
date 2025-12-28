@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { novelsApi } from "@/lib/api";
 import { Novel, NovelChapter } from "@/lib/types";
 import {
@@ -52,13 +51,27 @@ function NovelList() {
     const fetchNovels = async () => {
       try {
         setLoading(true);
-        const response = (await novelsApi.list({ limit: 50 })) as {
-          novels: Novel[];
-          total: number;
-        };
-        const publishedNovels = (response.novels || []).filter(
-          novel => novel.status !== "draft"
+        // Fetch ongoing and completed
+        const ongoing = (await novelsApi.list({
+          limit: 50,
+          status: "ongoing",
+        })) as { novels: Novel[] };
+        const completed = (await novelsApi.list({
+          limit: 50,
+          status: "completed",
+        })) as { novels: Novel[] };
+
+        let allNovels: Novel[] = [];
+        if (ongoing.novels) allNovels = [...allNovels, ...ongoing.novels];
+        if (completed.novels) allNovels = [...allNovels, ...completed.novels];
+
+        // Remove duplicates and drafts (double check)
+        const publishedNovels = Array.from(
+          new Map(
+            allNovels.filter(n => n.status !== "draft").map(n => [n.slug, n])
+          ).values()
         );
+
         setNovels(publishedNovels);
         setError("");
       } catch (err) {
@@ -113,7 +126,7 @@ function NovelList() {
                 <Anchor
                   component={Link}
                   key={novel.id}
-                  href={`/novels?novel=${novel.slug}`}
+                  href={`/novels/${novel.slug}`}
                   underline="never"
                   style={{
                     width: "100%",
@@ -302,7 +315,7 @@ function NovelDetail({ slug }: { slug: string }) {
               <Anchor
                 component={Link}
                 key={chapter.id}
-                href={`/novels?novel=${slug}&chapter=${chapter.chapter_number}`}
+                href={`/novels/${slug}/${chapter.chapter_number}`}
                 underline="never"
               >
                 <Box
@@ -409,7 +422,7 @@ function ChapterRead({
     return (
       <Container size="sm" py="xl" mih="100vh">
         <Stack gap="md">
-          <BackButton href={`/novels?novel=${slug}`} />
+          <BackButton href={`/novels/${slug}`} />
           <Text c="red">{error || "챕터를 찾을 수 없습니다"}</Text>
         </Stack>
       </Container>
@@ -426,7 +439,7 @@ function ChapterRead({
   return (
     <Container size="sm" py="xl" mih="100vh">
       <Stack gap="xl">
-        <BackButton href={`/novels?novel=${slug}`} label="소설로 돌아가기" />
+        <BackButton href={`/novels/${slug}`} label="소설로 돌아가기" />
 
         <Box pb="xl" style={{ borderBottom: "1px solid var(--color-border)" }}>
           <Text fw={500} size="sm" mb="xs">
@@ -452,7 +465,7 @@ function ChapterRead({
           {prevChapter ? (
             <Button
               component={Link}
-              href={`/novels?novel=${slug}&chapter=${prevChapter.chapter_number}`}
+              href={`/novels/${slug}/${prevChapter.chapter_number}`}
               variant="subtle"
               size="sm"
               leftSection={<ArrowLeft size={16} />}
@@ -466,7 +479,7 @@ function ChapterRead({
           {nextChapter ? (
             <Button
               component={Link}
-              href={`/novels?novel=${slug}&chapter=${nextChapter.chapter_number}`}
+              href={`/novels/${slug}/${nextChapter.chapter_number}`}
               variant="subtle"
               size="sm"
               rightSection={<ArrowRight size={16} />}
@@ -483,23 +496,22 @@ function ChapterRead({
 }
 
 // Main Page Component
-export default function NovelsPageClient() {
-  const searchParams = useSearchParams();
-  const slug = searchParams.get("novel");
-  const chapterParam = searchParams.get("chapter");
+interface NovelsPageClientProps {
+  slug?: string;
+  chapterNumber?: number;
+}
 
-  const renderView = () => {
-    if (slug && chapterParam) {
-      const chapterNumber = parseInt(chapterParam, 10);
-      return <ChapterRead slug={slug} chapterNumber={chapterNumber} />;
-    }
+export default function NovelsPageClient({
+  slug,
+  chapterNumber,
+}: NovelsPageClientProps) {
+  if (slug && chapterNumber) {
+    return <ChapterRead slug={slug} chapterNumber={chapterNumber} />;
+  }
 
-    if (slug) {
-      return <NovelDetail slug={slug} />;
-    }
+  if (slug) {
+    return <NovelDetail slug={slug} />;
+  }
 
-    return <NovelList />;
-  };
-
-  return renderView();
+  return <NovelList />;
 }
