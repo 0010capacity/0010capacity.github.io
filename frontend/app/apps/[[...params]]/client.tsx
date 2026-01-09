@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import {
   Container,
   Stack,
@@ -306,8 +306,8 @@ function AppDetail({ slug }: { slug: string }) {
 
 // Main Page Component
 export default function AppsPageClient() {
-  const searchParams = useSearchParams();
-  const slug = searchParams.get("app");
+  const params = useParams();
+  const slug = params?.params?.[0];
 
   if (slug) {
     return <AppDetail slug={slug} />;
