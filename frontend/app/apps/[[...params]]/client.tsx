@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import {
   Container,
   Stack,
@@ -136,7 +135,7 @@ function AppList() {
                 <Anchor
                   component={Link}
                   key={app.id}
-                  href={`/apps?app=${app.slug}`}
+                  href={`/apps/${app.slug}`}
                   underline="never"
                   style={{
                     width: "100%",
@@ -305,10 +304,11 @@ function AppDetail({ slug }: { slug: string }) {
 }
 
 // Main Page Component
-export default function AppsPageClient() {
-  const searchParams = useSearchParams();
-  const slug = searchParams.get("app");
+interface AppsPageClientProps {
+  slug?: string;
+}
 
+export default function AppsPageClient({ slug }: AppsPageClientProps) {
   if (slug) {
     return <AppDetail slug={slug} />;
   }
