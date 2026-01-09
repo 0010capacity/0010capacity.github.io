@@ -1,0 +1,13 @@
+{
+  "name": "Traffic Light Order Viewer",
+  "description": "https://data.gg.go.kr/portal/data/service/selectServicePage.do?page=1&rows=10&sortColumn=&sortDirection=&infId=4F8JEQHOXFJX85L7XRAG26921025&infSeq=3&order=&loc=",
+  "deployments": [
+    {
+      "type": "website",
+      "url": "https://traffic-light-order-viewer.web.app/"
+    }
+  ],
+  "githubRepo": "https://github.com/0010capacity/traffic-light-order-viewer",
+  "createdAt": "2025-09-21T06:45:13.045Z",
+  "updatedAt": "2025-09-21T06:45:13.045Z"
+}

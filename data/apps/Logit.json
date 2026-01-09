@@ -1,0 +1,11 @@
+{
+  "name": "Logit",
+  "description": "미니멀 하루 기록 앱",
+  "deployments": [
+    {
+      "type": "appstore",
+      "url": "https://apps.apple.com/kr/app/logit-log-of-the-day/id6752603467"
+    }
+  ],
+  "updatedAt": "2025-09-20T00:51:16.145Z"
+}
