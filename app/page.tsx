@@ -63,14 +63,14 @@ export default function HomePage() {
             className={styles.contactLink}
             aria-label="GitHub"
           >
-            <Github size={24} strokeWidth={1.5} />
+            <Github size={28} strokeWidth={1.5} />
           </a>
           <a
             href="mailto:0010capacity@gmail.com"
             className={styles.contactLink}
             aria-label="Email"
           >
-            <Mail size={24} strokeWidth={1.5} />
+            <Mail size={28} strokeWidth={1.5} />
           </a>
         </div>
       </main>
