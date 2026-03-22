@@ -1,0 +1,155 @@
+<h2>스크롤 애니메이션</h2>
+<p class="subtitle">앱 레일이 천천히 이동합니다</p>
+
+<style>
+@keyframes scrollLeft {
+  from { transform: translateX(0); }
+  to { transform: translateX(-400px); }
+}
+.scroll-container {
+  width: 100%;
+  overflow: hidden;
+}
+.scroll-rail {
+  display: flex;
+  gap: 2rem;
+  animation: scrollLeft 15s linear infinite;
+  padding: 1.5rem 0;
+}
+.scroll-rail:hover {
+  animation-play-state: paused;
+}
+.app-card {
+  width: 64px;
+  height: 64px;
+  background: #171717;
+  border: 1px solid #404040;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+}
+.app-card:hover {
+  transform: scale(1.25);
+  border-color: #737373;
+  background: #262626;
+}
+.app-card:hover .app-name {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.app-name {
+  position: absolute;
+  bottom: -26px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-5px);
+  font-size: 0.7rem;
+  color: #a3a3a3;
+  white-space: nowrap;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+.app-icon {
+  width: 36px;
+  height: 36px;
+  background: #404040;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.55rem;
+  color: #737373;
+  font-weight: 600;
+}
+</style>
+
+<div class="mockup">
+  <div class="mockup-header">회전 레일 (호버로 일시정지)</div>
+  <div class="mockup-body" style="background: #0a0a0a; min-height: 100vh; position: relative; overflow: hidden;">
+
+    <!-- Blog button top right -->
+    <div style="position: absolute; top: 1.5rem; right: 1.5rem; color: #525252; font-size: 0.85rem; cursor: pointer;">Blog</div>
+
+    <!-- Center content -->
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; gap: 3rem;">
+
+      <!-- Brand -->
+      <div style="text-align: center;">
+        <div style="font-size: 0.65rem; color: #404040; letter-spacing: 0.25em; margin-bottom: 0.4rem;">DEVCAPA</div>
+        <div style="font-size: 2.2rem; font-weight: 700; color: #f5f5f5; letter-spacing: -0.02em;">0010capacity</div>
+      </div>
+
+      <!-- Scrolling App Rail -->
+      <div class="scroll-container">
+        <div class="scroll-rail">
+          <div class="app-card">
+            <div class="app-icon">L</div>
+            <div class="app-name">Logit</div>
+          </div>
+          <div class="app-card">
+            <div class="app-icon">M</div>
+            <div class="app-name">Mnemo</div>
+          </div>
+          <div class="app-card">
+            <div class="app-icon">ORP</div>
+            <div class="app-name">Optimal Route</div>
+          </div>
+          <div class="app-card">
+            <div class="app-icon">TL</div>
+            <div class="app-name">Traffic Light</div>
+          </div>
+          <!-- Repeat for seamless loop -->
+          <div class="app-card">
+            <div class="app-icon">L</div>
+            <div class="app-name">Logit</div>
+          </div>
+          <div class="app-card">
+            <div class="app-icon">M</div>
+            <div class="app-name">Mnemo</div>
+          </div>
+          <div class="app-card">
+            <div class="app-icon">ORP</div>
+            <div class="app-name">Optimal Route</div>
+          </div>
+          <div class="app-card">
+            <div class="app-icon">TL</div>
+            <div class="app-name">Traffic Light</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact -->
+      <div style="display: flex; gap: 1rem; color: #404040; font-size: 0.85rem;">
+        <span>GitHub</span>
+        <span>Email</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="margin-top: 1.5rem; padding: 1rem; background: #171717; border-radius: 8px;">
+  <p style="color: #a3a3a3; font-size: 0.85rem; margin: 0;">
+    💡 레일 위에 마우스를 올리면 스크롤이 멈춥니다. 앱에 호버하면 확대 + 이름 표시.
+  </p>
+</div>
+
+<div class="options" style="margin-top: 1.5rem;">
+  <div class="option" data-choice="approve" onclick="toggleSelect(this)">
+    <div class="letter">✓</div>
+    <div class="content">
+      <h3>이대로 진행</h3>
+      <p>디자인 확정</p>
+    </div>
+  </div>
+  <div class="option" data-choice="modify" onclick="toggleSelect(this)">
+    <div class="letter">✎</div>
+    <div class="content">
+      <h3>수정 필요</h3>
+      <p>속도, 크기 등 조정</p>
+    </div>
+  </div>
+</div>

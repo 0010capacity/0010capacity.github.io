@@ -76,9 +76,12 @@ export default function HomePage() {
       </main>
 
       {/* Collapsible profile card */}
-      <div
+      <button
         className={`${styles.profileCard} ${isExpanded ? styles.expanded : ""}`}
         onClick={() => setIsExpanded(!isExpanded)}
+        aria-expanded={isExpanded}
+        aria-label="Toggle profile card"
+        type="button"
       >
         <div className={styles.profileTab}>About</div>
         <div className={styles.profileContent}>
@@ -95,7 +98,7 @@ export default function HomePage() {
             ))}
           </div>
         </div>
-      </div>
+      </button>
     </div>
   );
 }

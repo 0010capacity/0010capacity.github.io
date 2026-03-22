@@ -1,0 +1,92 @@
+<h2>회전초밥 스타일</h2>
+<p class="subtitle">앱들이 메인에서 천천히 회전</p>
+
+<style>
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes counter-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+.sushi-rail {
+  animation: rotate 30s linear infinite;
+}
+.app-icon-inner {
+  animation: counter-rotate 30s linear infinite;
+}
+</style>
+
+<div class="mockup">
+  <div class="mockup-header">회전초밥 레일 컨셉</div>
+  <div class="mockup-body" style="background: #0a0a0a; min-height: 100vh; position: relative; overflow: hidden;">
+
+    <!-- Blog button top right -->
+    <div style="position: absolute; top: 1.5rem; right: 1.5rem; color: #525252; font-size: 0.85rem;">Blog</div>
+
+    <!-- Center content -->
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; gap: 3rem;">
+
+      <!-- Brand -->
+      <div style="text-align: center;">
+        <div style="font-size: 0.65rem; color: #404040; letter-spacing: 0.25em; margin-bottom: 0.4rem;">DEVCAPA</div>
+        <div style="font-size: 2.2rem; font-weight: 700; color: #f5f5f5; letter-spacing: -0.02em;">0010capacity</div>
+      </div>
+
+      <!-- Sushi rail -->
+      <div style="position: relative; width: 320px; height: 320px;">
+        <div class="sushi-rail" style="position: absolute; inset: 0;">
+          <!-- App 1 -->
+          <div style="position: absolute; top: 0; left: 50%; transform: translateX(-50%) translateY(-10px);">
+            <div class="app-icon-inner" style="width: 56px; height: 56px; background: #171717; border: 1px solid #404040; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🎵</div>
+          </div>
+          <!-- App 2 -->
+          <div style="position: absolute; top: 50%; right: 0; transform: translateY(-50%) translateX(10px);">
+            <div class="app-icon-inner" style="width: 56px; height: 56px; background: #171717; border: 1px solid #404040; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">📝</div>
+          </div>
+          <!-- App 3 -->
+          <div style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%) translateY(10px);">
+            <div class="app-icon-inner" style="width: 56px; height: 56px; background: #171717; border: 1px solid #404040; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🎮</div>
+          </div>
+          <!-- App 4 -->
+          <div style="position: absolute; top: 50%; left: 0; transform: translateY(-50%) translateX(-10px);">
+            <div class="app-icon-inner" style="width: 56px; height: 56px; background: #171717; border: 1px solid #404040; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🔧</div>
+          </div>
+        </div>
+
+        <!-- Center circle decoration -->
+        <div style="position: absolute; inset: 60px; border: 1px dashed #262626; border-radius: 50%;"></div>
+      </div>
+
+      <!-- Contact icons -->
+      <div style="display: flex; gap: 1rem; color: #404040;">
+        <span>GitHub</span>
+        <span>Email</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="margin-top: 1.5rem; padding: 1rem; background: #171717; border-radius: 8px;">
+  <p style="color: #a3a3a3; font-size: 0.9rem; margin: 0;">
+    💡 앱 아이콘들이 30초에 한 바퀴씩 천천히 회전합니다. 아이콘 자체는 회전하지 않고 위치만 이동하도록 했어요.
+  </p>
+</div>
+
+<div class="options" style="margin-top: 1.5rem;">
+  <div class="option" data-choice="approve" onclick="toggleSelect(this)">
+    <div class="letter">✓</div>
+    <div class="content">
+      <h3>이대로 진행</h3>
+      <p>회전초밥 컨셉 확정</p>
+    </div>
+  </div>
+  <div class="option" data-choice="modify" onclick="toggleSelect(this)">
+    <div class="letter">✎</div>
+    <div class="content">
+      <h3>수정 필요</h3>
+      <p>레이아웃, 속도, 크기 등 조정</p>
+    </div>
+  </div>
+</div>

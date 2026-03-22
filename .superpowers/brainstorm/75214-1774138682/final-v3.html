@@ -1,0 +1,159 @@
+<h2>최종 디자인</h2>
+<p class="subtitle">아이콘 아래 배치, 기술 스택 포함, 우아한 디자인</p>
+
+<style>
+.profile-card {
+  background: #171717;
+  border: 1px solid #262626;
+  border-radius: 16px;
+  padding: 1rem 1.25rem;
+  width: 160px;
+  text-align: center;
+  transform: translateY(calc(100% - 44px));
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+.profile-card:hover,
+.profile-card.expanded {
+  transform: translateY(0);
+}
+.tab-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b6b6b;
+  font-size: 0.65rem;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #262626;
+}
+.profile-name {
+  color: #e5e5e5;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+.profile-school {
+  color: #8b8b8b;
+  font-size: 0.7rem;
+  line-height: 1.6;
+  margin-bottom: 0.75rem;
+}
+.profile-tech {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  justify-content: center;
+}
+.tech-tag {
+  background: #262626;
+  color: #6b6b6b;
+  font-size: 0.6rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+.icon-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4a4a4a;
+  transition: all 0.2s ease;
+}
+.icon-link:hover {
+  color: #a3a3a3;
+}
+.app-icon {
+  width: 36px;
+  height: 36px;
+  background: #171717;
+  border: 1px solid #262626;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.4rem;
+  color: #6b6b6b;
+  transition: all 0.3s ease;
+}
+.app-icon:hover {
+  transform: scale(1.15);
+  border-color: #404040;
+  background: #1f1f1f;
+}
+</style>
+
+<div class="mockup">
+  <div class="mockup-header">최종 디자인</div>
+  <div class="mockup-body" style="background: #0a0a0a; min-height: 100vh; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; padding-bottom: 70px;">
+
+    <!-- Blog button top right -->
+    <div style="position: absolute; top: 1rem; right: 1rem; color: #525252; font-size: 0.75rem;">Blog</div>
+
+    <!-- Main content -->
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 2.5rem;">
+
+      <div style="text-align: center;">
+        <div style="font-size: 0.55rem; color: #3d3d3d; letter-spacing: 0.3em; margin-bottom: 0.4rem;">DEVCAPA</div>
+        <div style="font-size: 1.6rem; font-weight: 700; color: #f5f5f5; letter-spacing: -0.01em;">0010capacity</div>
+      </div>
+
+      <!-- App rail -->
+      <div style="display: flex; gap: 0.75rem;">
+        <div class="app-icon" style="cursor: pointer;">L</div>
+        <div class="app-icon" style="cursor: pointer;">M</div>
+        <div class="app-icon" style="cursor: pointer;">ORP</div>
+        <div class="app-icon" style="cursor: pointer;">TL</div>
+      </div>
+
+      <!-- GitHub & Email - 앱 리스트보다 아래 -->
+      <div style="display: flex; gap: 1.25rem; margin-top: 0.5rem;">
+        <a class="icon-link" style="text-decoration: none;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+          </svg>
+        </a>
+        <a class="icon-link" style="text-decoration: none;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect width="20" height="16" x="2" y="4" rx="2"/>
+            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- Collapsible Profile Card -->
+    <div class="profile-card expanded" onclick="this.classList.toggle('expanded')" style="position: fixed; bottom: 0; left: 50%; transform: translateX(-50%) translateY(calc(100% - 44px));">
+      <div class="tab-handle">About</div>
+      <div class="profile-name">이정원</div>
+      <div class="profile-school">
+        광운대학교<br>인공지능학과
+      </div>
+      <div class="profile-tech">
+        <span class="tech-tag">TypeScript</span>
+        <span class="tech-tag">C#</span>
+        <span class="tech-tag">ASP.NET</span>
+        <span class="tech-tag">iOS</span>
+        <span class="tech-tag">Android</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="options" style="margin-top: 1.5rem;">
+  <div class="option" data-choice="approve" onclick="toggleSelect(this)">
+    <div class="letter">✓</div>
+    <div class="content">
+      <h3>이대로 진행</h3>
+      <p>디자인 확정</p>
+    </div>
+  </div>
+  <div class="option" data-choice="modify" onclick="toggleSelect(this)">
+    <div class="letter">✎</div>
+    <div class="content">
+      <h3>수정 필요</h3>
+      <p>내용, 크기, 스타일 등</p>
+    </div>
+  </div>
+</div>

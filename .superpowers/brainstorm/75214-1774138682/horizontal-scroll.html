@@ -1,0 +1,85 @@
+<h2>가로 스크롤 레일</h2>
+<p class="subtitle">앱들이 가로로 나열되어 천천히 흘러가는 형태</p>
+
+<style>
+@keyframes scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.scroll-rail {
+  display: flex;
+  animation: scroll 20s linear infinite;
+}
+</style>
+
+<div class="mockup">
+  <div class="mockup-header">가로 회전초밥 레일</div>
+  <div class="mockup-body" style="background: #0a0a0a; min-height: 100vh; position: relative; overflow: hidden;">
+
+    <!-- Blog button top right -->
+    <div style="position: absolute; top: 1.5rem; right: 1.5rem; color: #525252; font-size: 0.85rem;">Blog</div>
+
+    <!-- Center content -->
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; gap: 3rem;">
+
+      <!-- Brand -->
+      <div style="text-align: center;">
+        <div style="font-size: 0.65rem; color: #404040; letter-spacing: 0.25em; margin-bottom: 0.4rem;">DEVCAPA</div>
+        <div style="font-size: 2.2rem; font-weight: 700; color: #f5f5f5; letter-spacing: -0.02em;">0010capacity</div>
+      </div>
+
+      <!-- Horizontal scrolling apps -->
+      <div style="width: 100%; overflow: hidden; padding: 1rem 0;">
+        <div class="scroll-rail">
+          <!-- First set -->
+          <div style="display: flex; gap: 1rem; padding: 0 0.5rem;">
+            <div style="width: 80px; height: 80px; background: #171717; border: 1px solid #404040; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 2rem; flex-shrink: 0;">🎵</div>
+            <div style="width: 80px; height: 80px; background: #171717; border: 1px solid #404040; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 2rem; flex-shrink: 0;">📝</div>
+            <div style="width: 80px; height: 80px; background: #171717; border: 1px solid #404040; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 2rem; flex-shrink: 0;">🎮</div>
+            <div style="width: 80px; height: 80px; background: #171717; border: 1px solid #404040; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 2rem; flex-shrink: 0;">🔧</div>
+            <div style="width: 80px; height: 80px; background: #171717; border: 1px solid #404040; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 2rem; flex-shrink: 0;">📊</div>
+            <div style="width: 80px; height: 80px; background: #171717; border: 1px solid #404040; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 2rem; flex-shrink: 0;">🎨</div>
+          </div>
+          <!-- Duplicate for seamless loop -->
+          <div style="display: flex; gap: 1rem; padding: 0 0.5rem;">
+            <div style="width: 80px; height: 80px; background: #171717; border: 1px solid #404040; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 2rem; flex-shrink: 0;">🎵</div>
+            <div style="width: 80px; height: 80px; background: #171717; border: 1px solid #404040; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 2rem; flex-shrink: 0;">📝</div>
+            <div style="width: 80px; height: 80px; background: #171717; border: 1px solid #404040; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 2rem; flex-shrink: 0;">🎮</div>
+            <div style="width: 80px; height: 80px; background: #171717; border: 1px solid #404040; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 2rem; flex-shrink: 0;">🔧</div>
+            <div style="width: 80px; height: 80px; background: #171717; border: 1px solid #404040; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 2rem; flex-shrink: 0;">📊</div>
+            <div style="width: 80px; height: 80px; background: #171717; border: 1px solid #404040; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 2rem; flex-shrink: 0;">🎨</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact icons -->
+      <div style="display: flex; gap: 1rem; color: #404040;">
+        <span>GitHub</span>
+        <span>Email</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="margin-top: 1.5rem; padding: 1rem; background: #171717; border-radius: 8px;">
+  <p style="color: #a3a3a3; font-size: 0.9rem; margin: 0;">
+    💡 앱들이 가로로 나열되어 왼쪽으로 천천히 흘러갑니다. 무한 루프로 끊김 없이 이어져요.
+  </p>
+</div>
+
+<div class="options" style="margin-top: 1.5rem;">
+  <div class="option" data-choice="approve" onclick="toggleSelect(this)">
+    <div class="letter">✓</div>
+    <div class="content">
+      <h3>이대로 진행</h3>
+      <p>가로 스크롤 레일 확정</p>
+    </div>
+  </div>
+  <div class="option" data-choice="modify" onclick="toggleSelect(this)">
+    <div class="letter">✎</div>
+    <div class="content">
+      <h3>수정 필요</h3>
+      <p>속도, 크기, 배치 등 조정</p>
+    </div>
+  </div>
+</div>

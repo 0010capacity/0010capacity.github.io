@@ -1,0 +1,129 @@
+<h2>최종 디자인 업데이트</h2>
+<p class="subtitle">세로 명함, 테두리 없는 아이콘, 하단 고정</p>
+
+<style>
+.profile-card {
+  background: #171717;
+  border: 1px solid #404040;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  width: 140px;
+  text-align: center;
+  transform: translateY(calc(100% - 40px));
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+.profile-card:hover,
+.profile-card.expanded {
+  transform: translateY(0);
+}
+.tab-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  color: #737373;
+  font-size: 0.7rem;
+  margin-bottom: 0.6rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid #404040;
+}
+.chevron {
+  transition: transform 0.3s ease;
+  font-size: 0.6rem;
+}
+.profile-card.expanded .chevron {
+  transform: rotate(180deg);
+}
+.profile-content {
+  color: #a3a3a3;
+  font-size: 0.7rem;
+  line-height: 1.8;
+}
+.profile-content strong {
+  color: #d4d4d4;
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+.icon-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #525252;
+  transition: color 0.2s ease;
+}
+.icon-link:hover {
+  color: #a3a3a3;
+}
+</style>
+
+<div class="mockup">
+  <div class="mockup-header">최종 디자인</div>
+  <div class="mockup-body" style="background: #0a0a0a; min-height: 100vh; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; padding-bottom: 60px;">
+
+    <!-- Blog button top right -->
+    <div style="position: absolute; top: 1rem; right: 1rem; color: #525252; font-size: 0.75rem;">Blog</div>
+
+    <!-- Main content -->
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 2rem; margin-bottom: 40px;">
+
+      <div style="text-align: center;">
+        <div style="font-size: 0.55rem; color: #404040; letter-spacing: 0.25em; margin-bottom: 0.3rem;">DEVCAPA</div>
+        <div style="font-size: 1.5rem; font-weight: 700; color: #f5f5f5;">0010capacity</div>
+      </div>
+
+      <!-- GitHub & Email - borderless -->
+      <div style="display: flex; gap: 1rem;">
+        <a class="icon-link" style="text-decoration: none;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+          </svg>
+        </a>
+        <a class="icon-link" style="text-decoration: none;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect width="20" height="16" x="2" y="4" rx="2"/>
+            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+          </svg>
+        </a>
+      </div>
+
+      <!-- App rail - above the card -->
+      <div style="display: flex; gap: 0.6rem; margin-top: 0.5rem;">
+        <div style="width: 44px; height: 44px; background: #171717; border: 1px solid #404040; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.45rem; color: #737373;">L</div>
+        <div style="width: 44px; height: 44px; background: #171717; border: 1px solid #404040; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.45rem; color: #737373;">M</div>
+        <div style="width: 44px; height: 44px; background: #171717; border: 1px solid #404040; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.45rem; color: #737373;">ORP</div>
+        <div style="width: 44px; height: 44px; background: #171717; border: 1px solid #404040; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.45rem; color: #737373;">TL</div>
+      </div>
+    </div>
+
+    <!-- Collapsible Profile Card - 세로 명함 -->
+    <div class="profile-card expanded" onclick="this.classList.toggle('expanded')" style="position: fixed; bottom: 0; left: 50%; transform: translateX(-50%) translateY(calc(100% - 40px));">
+      <div class="tab-handle">
+        <span>▼ About</span>
+      </div>
+      <div class="profile-content">
+        <strong>이정원</strong><br>
+        광운대학교 인공지능학과<br>
+        South Korea
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="options" style="margin-top: 1.5rem;">
+  <div class="option" data-choice="approve" onclick="toggleSelect(this)">
+    <div class="letter">✓</div>
+    <div class="content">
+      <h3>이대로 진행</h3>
+      <p>디자인 확정</p>
+    </div>
+  </div>
+  <div class="option" data-choice="modify" onclick="toggleSelect(this)">
+    <div class="letter">✎</div>
+    <div class="content">
+      <h3>수정 필요</h3>
+      <p>크기, 위치 등</p>
+    </div>
+  </div>
+</div>

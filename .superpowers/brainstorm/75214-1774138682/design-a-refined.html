@@ -1,0 +1,85 @@
+<h2>A 방향 - 상세 조정</h2>
+<p class="subtitle">레이아웃과 세부 요소를 정해봐요</p>
+
+<div class="mockup">
+  <div class="mockup-header">현재 방향</div>
+  <div class="mockup-body" style="background: #0a0a0a; min-height: 350px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2rem;">
+    <div style="text-align: center;">
+      <div style="font-size: 0.75rem; color: #525252; letter-spacing: 0.2em; margin-bottom: 0.5rem;">DEVCAPA</div>
+      <div style="font-size: 2.5rem; font-weight: 700; color: #f5f5f5; letter-spacing: -0.02em;">0010capacity</div>
+    </div>
+    <div style="display: flex; gap: 2rem; color: #a3a3a3; font-size: 0.875rem;">
+      <span>Blog</span>
+      <span>Apps</span>
+      <span>Contact</span>
+    </div>
+  </div>
+</div>
+
+<h3 style="margin-top: 2rem;">네비게이션 스타일</h3>
+<p class="subtitle">링크들을 어떻게 표현할까요?</p>
+
+<div class="split" style="margin-top: 1rem;">
+  <div class="mockup">
+    <div class="mockup-header">1. 텍스트 링크</div>
+    <div class="mockup-body" style="background: #0a0a0a; min-height: 120px; display: flex; align-items: center; justify-content: center;">
+      <div style="display: flex; gap: 2rem; color: #a3a3a3; font-size: 0.9rem;">
+        <span style="color: #d4d4d4;">Blog</span>
+        <span>Apps</span>
+        <span>Contact</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="mockup">
+    <div class="mockup-header">2. 버튼</div>
+    <div class="mockup-body" style="background: #0a0a0a; min-height: 120px; display: flex; align-items: center; justify-content: center;">
+      <div style="display: flex; gap: 0.75rem;">
+        <div style="padding: 0.5rem 1rem; border: 1px solid #404040; border-radius: 8px; color: #d4d4d4; font-size: 0.85rem;">Blog</div>
+        <div style="padding: 0.5rem 1rem; border: 1px solid #404040; border-radius: 8px; color: #d4d4d4; font-size: 0.85rem;">Apps</div>
+        <div style="padding: 0.5rem 1rem; border: 1px solid #404040; border-radius: 8px; color: #d4d4d4; font-size: 0.85rem;">Contact</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mockup" style="margin-top: 1rem;">
+  <div class="mockup-header">3. 아이콘 + 텍스트</div>
+  <div class="mockup-body" style="background: #0a0a0a; min-height: 120px; display: flex; align-items: center; justify-content: center;">
+    <div style="display: flex; gap: 1rem;">
+      <div style="display: flex; align-items: center; gap: 0.4rem; padding: 0.5rem 0.8rem; border: 1px solid #404040; border-radius: 8px; color: #d4d4d4; font-size: 0.85rem;">
+        <span>📝</span> Blog
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.4rem; padding: 0.5rem 0.8rem; border: 1px solid #404040; border-radius: 8px; color: #d4d4d4; font-size: 0.85rem;">
+        <span>📱</span> Apps
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.4rem; padding: 0.5rem 0.8rem; border: 1px solid #404040; border-radius: 8px; color: #d4d4d4; font-size: 0.85rem;">
+        <span>✉️</span> Contact
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="options" style="margin-top: 1.5rem;">
+  <div class="option" data-choice="1" onclick="toggleSelect(this)">
+    <div class="letter">1</div>
+    <div class="content">
+      <h3>텍스트 링크</h3>
+      <p>가장 미니멀, 깔끔함</p>
+    </div>
+  </div>
+  <div class="option" data-choice="2" onclick="toggleSelect(this)">
+    <div class="letter">2</div>
+    <div class="content">
+      <h3>버튼</h3>
+      <p>현재 스타일, 클릭 유도 좋음</p>
+    </div>
+  </div>
+  <div class="option" data-choice="3" onclick="toggleSelect(this)">
+    <div class="letter">3</div>
+    <div class="content">
+      <h3>아이콘 + 텍스트</h3>
+      <p>시각적 흥미, 개성 있음</p>
+    </div>
+  </div>
+</div>
