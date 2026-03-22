@@ -10,14 +10,14 @@ import SnowfallContainer from "@/components/SnowfallContainer";
 
 export const metadata: Metadata = {
   title: {
-    default: "이정원",
-    template: "%s — 이정원",
+    default: "DevCapa",
+    template: "%s — DevCapa",
   },
-  description: "이정원의 개인 공간입니다.",
-  keywords: ["이정원", "개발자", "소설", "블로그", "앱"],
-  authors: [{ name: "이정원" }],
-  creator: "이정원",
-  publisher: "이정원",
+  description: "Developer Portfolio - Apps, Blog, and Projects",
+  keywords: ["DevCapa", "Developer", "Portfolio", "Blog", "Apps"],
+  authors: [{ name: "DevCapa" }],
+  creator: "DevCapa",
+  publisher: "DevCapa",
   formatDetection: {
     email: false,
     address: false,
@@ -31,14 +31,14 @@ export const metadata: Metadata = {
     type: "website",
     locale: "ko_KR",
     url: "https://0010capacity.github.io",
-    title: "이정원",
-    description: "이정원의 개인 공간입니다.",
-    siteName: "이정원",
+    title: "DevCapa",
+    description: "Developer Portfolio - Apps, Blog, and Projects",
+    siteName: "DevCapa",
   },
   twitter: {
     card: "summary",
-    title: "이정원",
-    description: "이정원의 개인 공간입니다.",
+    title: "DevCapa",
+    description: "Developer Portfolio - Apps, Blog, and Projects",
   },
   robots: {
     index: true,
@@ -72,20 +72,15 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
-              "@type": "Person",
-              name: "이정원",
-              alternateName: "LEE JEONG WON",
+              "@type": "WebSite",
+              name: "DevCapa",
+              alternateName: "Developer Capacity",
               url: "https://0010capacity.github.io",
-              sameAs: ["https://github.com/0010capacity"],
-              jobTitle: "Developer",
-              knowsAbout: [
-                "iOS Development",
-                "Android Development",
-                "Web Development",
-                "TypeScript",
-                "Swift",
-                "Kotlin",
-              ],
+              author: {
+                "@type": "Person",
+                name: "DevCapa",
+                sameAs: ["https://github.com/0010capacity"],
+              },
             }),
           }}
         />

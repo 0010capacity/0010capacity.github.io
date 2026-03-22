@@ -1,0 +1,9 @@
+[
+  {
+    "slug": "snowfall-and-music",
+    "title": "웹사이트에 눈송이 효과와 8비트 뮤직 플레이어 추가하기",
+    "excerpt": "개인 웹사이트에 Canvas API로 눈송이 효과를 구현하고, Tone.js로 8비트 스타일의 배경음악 플레이어를 만드는 과정",
+    "date": "2024-12-22",
+    "tags": ["Web Development", "Canvas", "Tone.js", "UX"]
+  }
+]

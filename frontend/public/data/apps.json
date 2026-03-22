@@ -1,0 +1,64 @@
+{
+  "apps": [
+    {
+      "name": "Logit",
+      "slug": "logit",
+      "description": "미니멀 하루 기록 앱",
+      "icon": "/icons/logit.png",
+      "platforms": ["ios"],
+      "url": "https://apps.apple.com/kr/app/logit-log-of-the-day/id6752603467",
+      "distribution_channels": [
+        {
+          "type": "appstore",
+          "url": "https://apps.apple.com/kr/app/logit-log-of-the-day/id6752603467",
+          "label": "App Store"
+        }
+      ]
+    },
+    {
+      "name": "Mnemo",
+      "slug": "mnemo",
+      "description": "Memory Card Game",
+      "icon": "/icons/mnemo.png",
+      "platforms": ["ios"],
+      "url": "https://apps.apple.com/kr/app/mnemo-memory-card-game/id6752640768",
+      "distribution_channels": [
+        {
+          "type": "appstore",
+          "url": "https://apps.apple.com/kr/app/mnemo-memory-card-game/id6752640768",
+          "label": "App Store"
+        }
+      ]
+    },
+    {
+      "name": "Optimal Route Planner",
+      "slug": "optimal-route-planner",
+      "description": "When you have many places to visit, it finds the optimal permutation between the stopovers.",
+      "icon": "/icons/optimal-route-planner.png",
+      "platforms": ["web"],
+      "url": "https://my-optimal-route-planner.web.app/",
+      "distribution_channels": [
+        {
+          "type": "website",
+          "url": "https://my-optimal-route-planner.web.app/",
+          "label": "Website"
+        }
+      ]
+    },
+    {
+      "name": "Traffic Light Order Viewer",
+      "slug": "traffic-light-order-viewer",
+      "description": "경기도 교통신호 순서 데이터 뷰어",
+      "icon": "/icons/traffic-light.png",
+      "platforms": ["web"],
+      "url": "https://traffic-light-order-viewer.web.app/",
+      "distribution_channels": [
+        {
+          "type": "website",
+          "url": "https://traffic-light-order-viewer.web.app/",
+          "label": "Website"
+        }
+      ]
+    }
+  ]
+}
